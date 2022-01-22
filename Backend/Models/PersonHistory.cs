@@ -2,18 +2,16 @@
 
 namespace Backend.Models
 {
-    public class DeviceHistory
+    public class PersonHistory
     {
         [Key]
         public Guid Id { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]
-        public string Identifier { get; set; }
+        public bool IsGone { get; set; } = false;
         [Required]
-        public Device.DeviceStatus Status { get; set; } = Device.DeviceStatus.NotUsed;
-        [Required]
-        public Device.DeviceType Type { get; set; }
+        public PersonType Type { get; set; } = PersonType.Tenant;
         [Required]
         public bool IsDeleted { get; set; } = false;
         [Required]
@@ -21,6 +19,6 @@ namespace Backend.Models
         [Required]
         public DateTime DateTime { get; set; } = DateTime.Now;
         [Required]
-        public Device Device { get; set; }
+        public Person Person { get; set; }
     }
 }

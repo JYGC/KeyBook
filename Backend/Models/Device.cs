@@ -36,5 +36,6 @@ namespace Backend.Models
         [Required]
         public bool IsDeleted { get; set; } = false;
         public ICollection<PersonDevice> PersonDevice { get; set; }
+        public ICollection<DeviceHistory> DeviceHistory { get; set; }
     }
 }
