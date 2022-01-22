@@ -4,9 +4,42 @@ namespace Backend.Models
 {
     public static class SeedData
     {
+        private const string __seedAdminName = "Administrator";
+        private const string __seedAdminEmail = "admin@company.com";
+
         public static void Initialize(IServiceProvider serviceProvider)
         {
             using KeyBookDbContext context = new(serviceProvider.GetRequiredService<DbContextOptions<KeyBookDbContext>>());
+            // seed users
+            User seedAdminUser;
+            User? adminInDb = context.Users.FirstOrDefault(u => u.Name == __seedAdminName && u.IsAdmin == true);
+            if (adminInDb == null)
+            {
+                seedAdminUser = new User
+                {
+                    Name = __seedAdminName,
+                    Email = __seedAdminEmail,
+                    IsAdmin = true,
+                };
+                seedAdminUser.UserHistories = new List<UserHistory>
+                {
+                    new UserHistory
+                    {
+                        Name = seedAdminUser.Name,
+                        Email = seedAdminUser.Email,
+                        IsAdmin = seedAdminUser.IsAdmin,
+                        IsDeleted = seedAdminUser.IsDeleted,
+                        IsBlocked = seedAdminUser.IsBlocked,
+                        Description = "seeding admin user",
+                        User = seedAdminUser
+                    }
+                };
+                context.Users.Add(seedAdminUser);
+            }
+            else
+            {
+                seedAdminUser = adminInDb;
+            }
             // seed devices
             if (!context.Devices.Any())
             {
@@ -15,26 +48,28 @@ namespace Backend.Models
                     new Device
                     {
                         Name = "Remote 1",
-                        Identifier = "3285 09 2017",
-                        Type = Device.DeviceType.Remote
+                        Identifier = "`'\"; OR 1=\'1",
+                        Type = Device.DeviceType.Remote,
+                        User = seedAdminUser
                     },
                     new Device
                     {
                         Name = "Key 2",
-                        Identifier = "104 3055 02 2017",
-                        Type = Device.DeviceType.Key
+                        Identifier = "<script>alert(1);</script>",
+                        Type = Device.DeviceType.Key,
+                        User = seedAdminUser
                     },
                     new Device
                     {
                         Name = "Fob 2",
-                        Identifier = "01354 SR",
-                        Type = Device.DeviceType.Fob
+                        Identifier = ";D:D:D:D",
+                        Type = Device.DeviceType.Fob,
+                        User = seedAdminUser
                     }
                 };
-
                 foreach (Device device in seededDevices)
                 {
-                    device.DeviceHistory = new List<DeviceHistory>
+                    device.DeviceHistories = new List<DeviceHistory>
                     {
                         new DeviceHistory
                         {
@@ -58,27 +93,31 @@ namespace Backend.Models
                     new Person
                     {
                         Name = "Administrator",
-                        Type = PersonType.Owner
+                        Type = PersonType.Owner,
+                        User = seedAdminUser
                     },
                     new Person
                     {
                         Name = "CheeJay von Kelhiem",
-                        Type = PersonType.Manager
+                        Type = PersonType.Manager,
+                        User = seedAdminUser
                     },
                     new Person
                     {
                         Name = "Rachel DeSantis",
-                        Type = PersonType.Tenant
+                        Type = PersonType.Tenant,
+                        User = seedAdminUser
                     },
                     new Person
                     {
                         Name = "William Coldfuchs",
-                        Type = PersonType.Tenant
+                        Type = PersonType.Tenant,
+                        User = seedAdminUser
                     }
                 };
                 foreach (Person person in seededPersons)
                 {
-                    person.PersonHistory = new List<PersonHistory>
+                    person.PersonHistories = new List<PersonHistory>
                     {
                         new PersonHistory
                         {

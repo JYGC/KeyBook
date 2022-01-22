@@ -2,30 +2,27 @@
 
 namespace Backend.Models
 {
-    public enum PersonType
-    {
-        Tenant,
-        Owner,
-        Manager
-    }
-
-    public class Person
+    public class UserHistory
     {
         [Key]
         public Guid Id { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]
-        public bool IsGone { get; set; } = false;
+        public string Email { get; set; }
         [Required]
-        public PersonType Type { get; set; } = PersonType.Tenant;
+        public bool IsAdmin { get; set; } = false;
         [Required]
         public bool IsDeleted { get; set; } = false;
+        [Required]
+        public bool IsBlocked { get; set; } = false;
+        [Required]
+        public string Description { get; set; }
+        [Required]
+        public DateTime DateTime { get; set; } = DateTime.Now;
         [Required]
         public Guid UserId { get; set; }
         [Required]
         public virtual User User { get; set; }
-        public virtual ICollection<PersonDevice> PersonDevices { get; set; }
-        public virtual ICollection<PersonHistory> PersonHistories { get; set; }
     }
 }

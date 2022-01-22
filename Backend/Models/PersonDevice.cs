@@ -18,6 +18,6 @@ namespace Backend.Models
         public bool IsNotHave { get; set; } = false;
         [Required]
         public bool IsDeleted { get; set; } = false;
-        public virtual ICollection<PersonDeviceHistory> PersonDeviceHistory { get; set; }
+        public virtual ICollection<PersonDeviceHistory> PersonDeviceHistories { get; set; }
     }
 }

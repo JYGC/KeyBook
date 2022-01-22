@@ -8,6 +8,7 @@ namespace Backend.Models
         {
         }
     
+        public DbSet<User> Users { get; set; }
         public DbSet<Device> Devices { get; set; }
         public DbSet<DeviceHistory> DeviceHistories { get; set; }
         public DbSet<Person> Persons { get; set; }
@@ -17,8 +18,10 @@ namespace Backend.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<Device>().ToTable("Device");
             modelBuilder.Entity<DeviceHistory>().ToTable("DeviceHistory");
+            modelBuilder.Entity<Person>().HasOne(p => p.User).WithMany(u => u.Persons).HasForeignKey(p => p.UserId).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Person>().ToTable("Person");
             modelBuilder.Entity<PersonHistory>().ToTable("PersonHistory");
             modelBuilder.Entity<PersonDevice>().ToTable("PersonDevice");
