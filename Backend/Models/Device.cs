@@ -25,9 +25,16 @@ namespace Backend.Models
 
         [Key]
         public Guid Id { get; set; }
+        [Required]
         public string Name { get; set; }
+        [Required]
         public string Identifier { get; set; }
+        [Required]
         public DeviceStatus Status { get; set; } = DeviceStatus.NotUsed;
+        [Required]
         public DeviceType Type { get; set; }
+        [Required]
+        public bool IsDeleted { get; set; } = false;
+        public ICollection<PersonDevice> PersonDevice { get; set; }
     }
 }

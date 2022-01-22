@@ -6,7 +6,7 @@ namespace Backend.Models
     {
         public static void Initialize(IServiceProvider serviceProvider)
         {
-            using DeviceDbContext context = new(serviceProvider.GetRequiredService<DbContextOptions<DeviceDbContext>>());
+            using KeyBookDbContext context = new(serviceProvider.GetRequiredService<DbContextOptions<KeyBookDbContext>>());
             if (context.Devices.Any())
             {
                 return;

@@ -14,9 +14,9 @@ namespace Backend.Controllers
     [ApiController]
     public class DeviceController : ControllerBase
     {
-        private readonly DeviceDbContext _context;
+        private readonly KeyBookDbContext _context;
 
-        public DeviceController(DeviceDbContext context)
+        public DeviceController(KeyBookDbContext context)
         {
             _context = context;
         }
