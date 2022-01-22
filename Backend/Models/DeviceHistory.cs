@@ -21,6 +21,8 @@ namespace Backend.Models
         [Required]
         public DateTime DateTime { get; set; } = DateTime.Now;
         [Required]
+        public Guid DeviceId { get; set; }
+        [Required]
         public virtual Device Device { get; set; }
     }
 }

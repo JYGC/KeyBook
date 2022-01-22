@@ -7,7 +7,11 @@ namespace Backend.Models
         [Key]
         public Guid Id { get; set; }
         [Required]
+        public Guid PersonId { get; set; }
+        [Required]
         public virtual Person Person { get; set; }
+        [Required]
+        public Guid DeviceId { get; set; }
         [Required]
         public virtual Device Device { get; set; }
         [Required]
