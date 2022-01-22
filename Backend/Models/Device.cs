@@ -35,7 +35,7 @@ namespace Backend.Models
         public DeviceType Type { get; set; }
         [Required]
         public bool IsDeleted { get; set; } = false;
-        public ICollection<PersonDevice> PersonDevice { get; set; }
-        public ICollection<DeviceHistory> DeviceHistory { get; set; }
+        public virtual ICollection<PersonDevice> PersonDevice { get; set; }
+        public virtual ICollection<DeviceHistory> DeviceHistory { get; set; }
     }
 }

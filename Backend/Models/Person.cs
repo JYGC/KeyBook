@@ -21,7 +21,7 @@ namespace Backend.Models
         public PersonType Type { get; set; } = PersonType.Tenant;
         [Required]
         public bool IsDeleted { get; set; } = false;
-        public ICollection<PersonDevice> PersonDevice { get; set; }
-        public ICollection<PersonHistory> PersonHistory { get; set; }
+        public virtual ICollection<PersonDevice> PersonDevice { get; set; }
+        public virtual ICollection<PersonHistory> PersonHistory { get; set; }
     }
 }

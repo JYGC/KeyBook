@@ -19,6 +19,6 @@ namespace Backend.Models
         [Required]
         public DateTime DateTime { get; set; } = DateTime.Now;
         [Required]
-        public Person Person { get; set; }
+        public virtual Person Person { get; set; }
     }
 }
