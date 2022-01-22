@@ -24,7 +24,7 @@
             <label for="type">Device Type:</label>
         </div>
         <div>
-            <input type="text" name="type" id="type" v-model="device.type" />
+            <input type="text" name="type" id="type" v-model="device.type" :disabled="disableType" />
         </div>
     </div>
 </template>
@@ -36,6 +36,10 @@
         props: {
             'device': Object,
             'hideStatus': {
+                type: Boolean,
+                default: false,
+            },
+            'disableType': {
                 type: Boolean,
                 default: false,
             },

@@ -19,6 +19,7 @@
         },
         methods: {
             addDevice(): void {
+                //const vm = this;
                 fetch('device/add', {
                     method: 'POST',
                     headers: {
@@ -27,6 +28,7 @@
                     body: JSON.stringify(this.device),
                 }).then(r => r.json()).then(data => {
                     this.device = data;
+                    this.$router.push('/');
                 }).catch(e => {
                     console.log(e);
                 });

@@ -7,9 +7,9 @@ namespace Backend.Models
         [Key]
         public Guid Id { get; set; }
         [Required]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         [Required]
-        public string Email { get; set; }
+        public string? Email { get; set; }
         [Required]
         public bool IsAdmin { get; set; } = false;
         [Required]
@@ -17,12 +17,11 @@ namespace Backend.Models
         [Required]
         public bool IsBlocked { get; set; } = false;
         [Required]
-        public string Description { get; set; }
+        public string? Description { get; set; }
         [Required]
         public DateTime DateTime { get; set; } = DateTime.Now;
         [Required]
         public Guid UserId { get; set; }
-        [Required]
-        public virtual User User { get; set; }
+        public virtual User? User { get; set; }
     }
 }

@@ -14,7 +14,7 @@ namespace Backend.Models
         [Key]
         public Guid Id { get; set; }
         [Required]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         [Required]
         public bool IsGone { get; set; } = false;
         [Required]
@@ -23,9 +23,8 @@ namespace Backend.Models
         public bool IsDeleted { get; set; } = false;
         [Required]
         public Guid UserId { get; set; }
-        [Required]
-        public virtual User User { get; set; }
-        public virtual ICollection<PersonDevice> PersonDevices { get; set; }
-        public virtual ICollection<PersonHistory> PersonHistories { get; set; }
+        public virtual User? User { get; set; }
+        public virtual ICollection<PersonDevice> PersonDevices { get; set; } = new List<PersonDevice>();
+        public virtual ICollection<PersonHistory> PersonHistories { get; set; } = new List<PersonHistory>();
     }
 }

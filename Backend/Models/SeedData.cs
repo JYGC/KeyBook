@@ -21,19 +21,16 @@ namespace Backend.Models
                     Email = __seedAdminEmail,
                     IsAdmin = true,
                 };
-                seedAdminUser.UserHistories = new List<UserHistory>
+                seedAdminUser.UserHistories.Add(new UserHistory
                 {
-                    new UserHistory
-                    {
-                        Name = seedAdminUser.Name,
-                        Email = seedAdminUser.Email,
-                        IsAdmin = seedAdminUser.IsAdmin,
-                        IsDeleted = seedAdminUser.IsDeleted,
-                        IsBlocked = seedAdminUser.IsBlocked,
-                        Description = "seeding admin user",
-                        User = seedAdminUser
-                    }
-                };
+                    Name = seedAdminUser.Name,
+                    Email = seedAdminUser.Email,
+                    IsAdmin = seedAdminUser.IsAdmin,
+                    IsDeleted = seedAdminUser.IsDeleted,
+                    IsBlocked = seedAdminUser.IsBlocked,
+                    Description = "seeding admin user",
+                    User = seedAdminUser
+                });
                 context.Users.Add(seedAdminUser);
             }
             else
@@ -69,19 +66,16 @@ namespace Backend.Models
                 };
                 foreach (Device device in seededDevices)
                 {
-                    device.DeviceHistories = new List<DeviceHistory>
+                    device.DeviceHistories.Add(new DeviceHistory
                     {
-                        new DeviceHistory
-                        {
-                            Name = device.Name,
-                            Identifier = device.Identifier,
-                            Status = device.Status,
-                            Type = device.Type,
-                            IsDeleted = device.IsDeleted,
-                            Description = "seeding device table",
-                            Device = device
-                        }
-                    };
+                        Name = device.Name,
+                        Identifier = device.Identifier,
+                        Status = device.Status,
+                        Type = device.Type,
+                        IsDeleted = device.IsDeleted,
+                        Description = "seeding device table",
+                        Device = device
+                    });
                 }
                 context.Devices.AddRange(seededDevices);
             }
@@ -117,15 +111,12 @@ namespace Backend.Models
                 };
                 foreach (Person person in seededPersons)
                 {
-                    person.PersonHistories = new List<PersonHistory>
+                    person.PersonHistories.Add(new PersonHistory
                     {
-                        new PersonHistory
-                        {
-                            Name = person.Name,
-                            Description = "seed person table",
-                            Person = person
-                        }
-                    };
+                        Name = person.Name,
+                        Description = "seed person table",
+                        Person = person
+                    });
                 }
                 context.Persons.AddRange(seededPersons);
             }

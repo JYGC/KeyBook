@@ -34,7 +34,7 @@ namespace Backend.Controllers
         [HttpGet("view/id/{id}")]
         public async Task<ActionResult<Device>> GetDevice(Guid id)
         {
-            var device = await _context.Devices.FindAsync(id);
+            Device device = await _context.Devices.FindAsync(id);
 
             if (device == null)
             {
@@ -49,7 +49,18 @@ namespace Backend.Controllers
         [HttpPost("add")]
         public async Task<ActionResult<Device>> DeviceAdd(Device device)
         {
-            System.Console.WriteLine(device.Name + " " + device.Identifier);
+            User user = await _context.Users.FirstOrDefaultAsync(u => u.Name == "Administrator"); //replace this - Authentication
+            device.User = user;
+            device.DeviceHistories.Add(new DeviceHistory
+            {
+                Name = device.Name,
+                Identifier = device.Identifier,
+                Status = device.Status,
+                Type = device.Type,
+                IsDeleted = device.IsDeleted,
+                Description = "create new device",
+                Device = device
+            });
             _context.Devices.Add(device);
             await _context.SaveChangesAsync();
 

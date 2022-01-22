@@ -1,6 +1,6 @@
 <template>
     <div v-if="device">
-        <device-details v-bind:device="device"></device-details>
+        <device-details v-bind:device="device" v-bind:disableType=true></device-details>
     </div>
     <div v-else>
         Can't fail device details.

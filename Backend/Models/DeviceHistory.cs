@@ -7,9 +7,9 @@ namespace Backend.Models
         [Key]
         public Guid Id { get; set; }
         [Required]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         [Required]
-        public string Identifier { get; set; }
+        public string? Identifier { get; set; }
         [Required]
         public Device.DeviceStatus Status { get; set; } = Device.DeviceStatus.NotUsed;
         [Required]
@@ -17,12 +17,11 @@ namespace Backend.Models
         [Required]
         public bool IsDeleted { get; set; } = false;
         [Required]
-        public string Description { get; set; }
+        public string? Description { get; set; }
         [Required]
         public DateTime DateTime { get; set; } = DateTime.Now;
         [Required]
         public Guid DeviceId { get; set; }
-        [Required]
-        public virtual Device Device { get; set; }
+        public virtual Device? Device { get; set; }
     }
 }

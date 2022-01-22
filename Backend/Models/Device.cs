@@ -26,9 +26,9 @@ namespace Backend.Models
         [Key]
         public Guid Id { get; set; }
         [Required]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         [Required]
-        public string Identifier { get; set; }
+        public string? Identifier { get; set; }
         [Required]
         public DeviceStatus Status { get; set; } = DeviceStatus.NotUsed;
         [Required]
@@ -37,9 +37,8 @@ namespace Backend.Models
         public bool IsDeleted { get; set; } = false;
         [Required]
         public Guid UserId { get; set; }
-        [Required]
-        public virtual User User { get; set; }
-        public virtual ICollection<PersonDevice> PersonDevices { get; set; }
-        public virtual ICollection<DeviceHistory> DeviceHistories { get; set; }
+        public virtual User? User { get; set; }
+        public virtual ICollection<PersonDevice> PersonDevices { get; set; } = new List<PersonDevice>();
+        public virtual ICollection<DeviceHistory> DeviceHistories { get; set; } = new List<DeviceHistory>();
     }
 }

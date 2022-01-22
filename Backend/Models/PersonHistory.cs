@@ -7,7 +7,7 @@ namespace Backend.Models
         [Key]
         public Guid Id { get; set; }
         [Required]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         [Required]
         public bool IsGone { get; set; } = false;
         [Required]
@@ -15,12 +15,11 @@ namespace Backend.Models
         [Required]
         public bool IsDeleted { get; set; } = false;
         [Required]
-        public string Description { get; set; }
+        public string? Description { get; set; }
         [Required]
         public DateTime DateTime { get; set; } = DateTime.Now;
         [Required]
         public Guid PersonId { get; set; }
-        [Required]
-        public virtual Person Person { get; set; }
+        public virtual Person? Person { get; set; }
     }
 }

@@ -18,7 +18,6 @@ namespace Backend.Models
         public DateTime DateTime { get; set; } = DateTime.Now;
         [Required]
         public Guid PersonDeviceId { get; set; }
-        [Required]
-        public virtual PersonDevice PersonDevice { get; set; }
+        public virtual PersonDevice? PersonDevice { get; set; }
     }
 }
