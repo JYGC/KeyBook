@@ -1,8 +1,9 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
-import DevicesListAll from '@/views/DevicesListAll.vue';
-import DeviceEdit from '@/views/DeviceEdit.vue';
+import DevicesListAll from '@/routes/DevicesListAll.vue';
+import DeviceEdit from '@/routes/DeviceEdit.vue';
+import DeviceAdd from '@/routes/DeviceAdd.vue';
 
 Vue.use(Router);
 
@@ -15,10 +16,15 @@ const router = new Router({
             component: DevicesListAll,
         },
         {
-            path: '/DeviceEdit/:id',
-            name: 'DeviceEdit',
+            path: '/device-edit/:deviceid',
+            name: 'device-edit',
             component: DeviceEdit,
             props: true,
+        },
+        {
+            path: '/device-add',
+            name: 'device-add',
+            component: DeviceAdd,
         },
         {
             path: '*',

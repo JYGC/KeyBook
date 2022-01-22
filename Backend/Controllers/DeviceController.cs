@@ -44,6 +44,18 @@ namespace Backend.Controllers
             return device;
         }
 
+        // POST: Device/add
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("add")]
+        public async Task<ActionResult<Device>> DeviceAdd(Device device)
+        {
+            System.Console.WriteLine(device.Name + " " + device.Identifier);
+            _context.Devices.Add(device);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetDevice", new { id = device.Id }, device);
+        }
+
         // PUT: api/Device/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -73,17 +85,6 @@ namespace Backend.Controllers
             }
 
             return NoContent();
-        }
-
-        // POST: api/Device
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Device>> PostDevice(Device device)
-        {
-            _context.Devices.Add(device);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetDevice", new { id = device.Id }, device);
         }
 
         // DELETE: api/Device/5
