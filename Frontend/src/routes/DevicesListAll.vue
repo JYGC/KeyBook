@@ -30,7 +30,7 @@
     import Vue from 'vue';
     
     export default Vue.extend({
-        name: 'DeviceListAll',
+        name: 'device-list-all',
         data() {
             return {
                 devices: null

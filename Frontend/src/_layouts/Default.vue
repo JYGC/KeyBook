@@ -2,7 +2,7 @@
     <div>
         <div id="nav">
             <router-link to="/">List All Devices</router-link> |
-            <router-link to="/TenantListAll">List All Tenants</router-link> |
+            <router-link to="/persons-list-all">List All Persons</router-link> |
             <div class="btn" v-on:click="logout()">Logout</div>
         </div>
         <slot />

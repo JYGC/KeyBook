@@ -3,7 +3,7 @@
         <device-details v-bind:device="device" v-bind:disableType=true></device-details>
     </div>
     <div v-else>
-        Can't fail device details.
+        Can't find device details.
     </div>
 </template>
 

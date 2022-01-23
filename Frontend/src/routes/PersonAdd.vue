@@ -1,9 +1,9 @@
 <template>
     <div>
         <div>
-            <device-details v-bind:device="device" v-bind:hideStatus=true></device-details>
+            <person-details v-bind:person="person" v-bind:hideIsGone=true></person-details>
         </div>
-        <div v-on:click="addDevice()">Add device</div>
+        <div v-on:click="addPerson()">Add person</div>
     </div>
 </template>
 
@@ -11,27 +11,27 @@
     import Vue from 'vue';
 
     export default Vue.extend({
-        name: 'device-add',
+        name: 'person-add',
         data() {
             return {
-                device: {},
+                person: {}
             };
         },
         methods: {
-            addDevice(): void {
-                fetch('device/add', {
+            addPerson(): void {
+                fetch('person/add', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(this.device),
+                    body: JSON.stringify(this.person),
                 }).then(r => r.json()).then(data => {
-                    this.device = data;
-                    this.$router.push('/');
+                    this.person = data;
+                    this.$router.push('/persons-list-all');
                 }).catch(e => {
                     console.log(e);
                 });
             },
-        },
+        }
     });
 </script>
