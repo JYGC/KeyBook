@@ -13,7 +13,7 @@ namespace Backend.Models
         public Guid DeviceId { get; set; }
         public virtual Device? Device { get; set; }
         [Required]
-        public bool IsNotHave { get; set; } = false;
+        public bool IsNoLongerHas { get; set; } = false;
         [Required]
         public bool IsDeleted { get; set; } = false;
         public virtual ICollection<PersonDeviceHistory> PersonDeviceHistories { get; set; } = new List<PersonDeviceHistory>();

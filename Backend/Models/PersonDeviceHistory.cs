@@ -15,6 +15,8 @@ namespace Backend.Models
         [Required]
         public bool IsDeleted { get; set; } = false;
         [Required]
+        public string? Description { get; set; }
+        [Required]
         public DateTime DateTime { get; set; } = DateTime.Now;
         [Required]
         public Guid PersonDeviceId { get; set; }

@@ -47,6 +47,18 @@ namespace Backend.Controllers
             {
                 return NotFound();
             }
+            User user = _context.Users.FirstOrDefault(u => u.Name == "Administrator");
+            person.PersonDevices = (from device in _context.Devices
+                                    join personDevice in _context.PersonDevices on device.Id equals personDevice.DeviceId
+                                    where device.UserId == user.Id && personDevice.PersonId == person.Id
+                                    select new PersonDevice
+                                    {
+                                        Id = personDevice.Id,
+                                        PersonId = personDevice.PersonId,
+                                        DeviceId = personDevice.DeviceId,
+                                        Device = device,
+                                        IsDeleted = personDevice.IsDeleted,
+                                    }).ToList();
 
             return person;
         }

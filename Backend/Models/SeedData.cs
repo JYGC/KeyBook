@@ -38,9 +38,10 @@ namespace Backend.Models
                 seedAdminUser = adminInDb;
             }
             // seed devices
+            List<Device> seededDevices;
             if (!context.Devices.Any())
             {
-                List<Device> seededDevices = new List<Device>
+                seededDevices = new List<Device>
                 {
                     new Device
                     {
@@ -62,6 +63,20 @@ namespace Backend.Models
                         Identifier = ";D:D:D:D",
                         Type = Device.DeviceType.Fob,
                         User = seedAdminUser
+                    },
+                    new Device
+                    {
+                        Name = "Remote 2",
+                        Identifier = "8D",
+                        Type = Device.DeviceType.Remote,
+                        User = seedAdminUser
+                    },
+                    new Device
+                    {
+                        Name = "Mail Kay 1",
+                        Identifier = "<h1>Hamburger</h1>",
+                        Type = Device.DeviceType.MailKey,
+                        User = seedAdminUser
                     }
                 };
                 foreach (Device device in seededDevices)
@@ -79,10 +94,15 @@ namespace Backend.Models
                 }
                 context.Devices.AddRange(seededDevices);
             }
+            else
+            {
+                seededDevices = context.Devices.Select(device => device).ToList();
+            }
             // seed persons
+            List<Person> seededPersons;
             if (!context.Persons.Any())
             {
-                List<Person> seededPersons = new List<Person>
+                seededPersons = new List<Person>
                 {
                     new Person
                     {
@@ -114,11 +134,58 @@ namespace Backend.Models
                     person.PersonHistories.Add(new PersonHistory
                     {
                         Name = person.Name,
-                        Description = "seed person table",
+                        Description = "seeding person table",
                         Person = person
                     });
                 }
                 context.Persons.AddRange(seededPersons);
+            }
+            else
+            {
+                seededPersons = context.Persons.Select(person => person).ToList();
+            }
+            // seed persondevices
+            if (!context.PersonDevices.Any())
+            {
+                List<PersonDevice> seededPersonDevices = new List<PersonDevice>
+                {
+                    new PersonDevice
+                    {
+                        Person = seededPersons[0],
+                        Device = seededDevices[0],
+                    },
+                    new PersonDevice
+                    {
+                        Person = seededPersons[2],
+                        Device = seededDevices[1],
+                    },
+                    new PersonDevice
+                    {
+                        Person = seededPersons[2],
+                        Device = seededDevices[2],
+                    },
+                    new PersonDevice
+                    {
+                        Person = seededPersons[2],
+                        Device = seededDevices[3],
+                    },
+                    new PersonDevice
+                    {
+                        Person = seededPersons[3],
+                        Device = seededDevices[4],
+                    }
+                };
+                foreach (PersonDevice personDevice in seededPersonDevices)
+                {
+                    personDevice.PersonDeviceHistories.Add(new PersonDeviceHistory
+                    {
+                        PersonId = personDevice.PersonId,
+                        DeviceId = personDevice.DeviceId,
+                        Description = "seeding person device table",
+                        PersonDevice = personDevice,
+                    });
+                }
+                context.PersonDevices.AddRange(seededPersonDevices);
             }
             context.SaveChanges();
         }
