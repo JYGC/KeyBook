@@ -32,8 +32,9 @@ namespace Backend.Controllers
         [HttpGet("allforuser")]
         public async Task<ActionResult<IEnumerable<Person>>> GetAllForUser()
         {
+            User user = _context.Users.FirstOrDefault(u => u.Name == "Administrator");
             return await _context.Persons.Where(
-                person => !person.IsDeleted
+                person => person.UserId == user.Id && !person.IsDeleted
             ).ToListAsync(); // Add filter user when adding auth
         }
 
