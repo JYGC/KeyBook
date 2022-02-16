@@ -5,10 +5,16 @@
             <label for="person">Person holding device:</label>
         </div>
         <div>
-            <!--<input type="text" name="person" id="person" v-model="device.personDevice.person" />-->
-            <v-select name="person" id="person" :options="personUsers" label="name">
-            </v-select>
+            <b-dropdown id="dropdown-1" :text="(selectedPerson === null) ? 'Not Used' : selectedPerson.name" v-model="selectedPerson" class="m-md-2">
+                <b-dropdown-item @click="selectedPerson = null">
+                    Not Used
+                </b-dropdown-item>
+                <b-dropdown-item v-for="person in personUsers" :key="person.id" @click="selectPerson(person.id)">
+                    {{ person.name }}
+                </b-dropdown-item>
+            </b-dropdown>
         </div>
+        <div v-on:click="saveDevice()">Add device</div>
     </div>
     <div v-else>
         Can't find device details.
@@ -18,15 +24,21 @@
 <script lang="ts">
     import Vue from 'vue';
 
-    import { deviceView, personAllForUser } from '../api/device-api';
+    import { deviceView, deviceSave } from '../api/device-api';
+    import { personAllForUser } from '../api/person-api';
     
     export default Vue.extend({
         name: 'device-edit',
         props: ['deviceId'],
-        data() {
+        data(): {
+            device: any,
+            personUsers: Array<any>,
+            selectedPerson: any
+        } {
             return {
                 device: null,
-                personUsers: null,
+                personUsers: [],
+                selectedPerson: null
             };
         },
         created() {
@@ -47,9 +59,19 @@
                 });
             },
             fetchAllPersonForUser(): void {
-                this.personUsers = null;
+                this.personUsers = [];
                 personAllForUser().then(data => {
                     this.personUsers = data;
+                }).catch(e => {
+                    alert('error:' + e); // Add error handling later
+                });
+            },
+            selectPerson(persionId: string): void {
+                this.selectedPerson = this.personUsers.find(p => p.id == persionId);
+            },
+            saveDevice(): void {
+                deviceSave(this.device, this.selectedPerson).then(data => {
+                    console.log(data)
                 }).catch(e => {
                     alert('error:' + e); // Add error handling later
                 });

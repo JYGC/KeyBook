@@ -11,7 +11,6 @@ using Backend.Models;
 namespace Backend.Controllers
 {
     [Route("[controller]")]
-    [ApiController]
     public class DeviceController : ControllerBase
     {
         private readonly KeyBookDbContext _context;
@@ -32,7 +31,7 @@ namespace Backend.Controllers
 
         // GET: Device/view/id/149BE541-9271-4E3B-8766-08D9D36C9255
         [HttpGet("view/id/{id}")]
-        public async Task<ActionResult<Device>> GetDevice(Guid id)
+        public async Task<ActionResult<Device>> DeviceView(Guid id)
         {
             Device device = await _context.Devices.FindAsync(id);
 
@@ -67,35 +66,15 @@ namespace Backend.Controllers
             return CreatedAtAction("GetDevice", new { id = device.Id }, device);
         }
 
-        // PUT: api/Device/5
+        // POST: Device/save
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutDevice(Guid id, Device device)
+        [HttpPost("save")]
+        public async Task<ActionResult<Device>> DeviceSave(Device device, Person person)
         {
-            if (id != device.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(device).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!DeviceExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            // Continue here - getting empty objects
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(device));
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(person));
+            return null;
         }
 
         // DELETE: api/Device/5

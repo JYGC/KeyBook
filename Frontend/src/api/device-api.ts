@@ -28,8 +28,11 @@ async function deviceView(deviceId: String): Promise<any> {
     return result.data;
 }
 
-async function personAllForUser(): Promise<any> {
-    const result = await Axios.get(`${API_URL}/device/allforuser`, { // Continue: End point not created yet
+async function deviceSave(existingDevice: Object, existingPerson: Object): Promise<any> {
+    const result = await Axios.post(`${API_URL}/device/save`, {
+        "device": existingDevice,
+        "person": existingPerson
+    }, {
         headers: {
             // Authentication goes here
         }
@@ -37,4 +40,4 @@ async function personAllForUser(): Promise<any> {
     return result.data;
 }
 
-export { deviceAllForUser, deviceAdd, deviceView, personAllForUser }
+export { deviceAllForUser, deviceAdd, deviceView, deviceSave }
