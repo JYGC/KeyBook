@@ -9,6 +9,7 @@
 
 <script lang="ts">
     import Vue from 'vue';
+    import { deviceAdd } from '../api/device-api';
 
     export default Vue.extend({
         name: 'device-add',
@@ -19,17 +20,11 @@
         },
         methods: {
             addDevice(): void {
-                fetch('device/add', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(this.device),
-                }).then(r => r.json()).then(data => {
-                    this.device = data;
+                deviceAdd(this.device).then(d => {
+                    this.device = d;
                     this.$router.push('/');
                 }).catch(e => {
-                    console.log(e);
+                    alert('error:' + e); // Add error handling later
                 });
             },
         },

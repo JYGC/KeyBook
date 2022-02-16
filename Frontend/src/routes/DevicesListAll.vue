@@ -27,6 +27,7 @@
 </template>
 
 <script lang="ts">
+    import { deviceAllForUser } from './../api/device-api';
     import Vue from 'vue';
     
     export default Vue.extend({
@@ -46,8 +47,10 @@
         methods: {
             fetchAllDevices(): void {
                 this.devices = null;
-                fetch('device').then(r => r.json()).then(data => {
-                    this.devices = data;
+                deviceAllForUser().then(d => {
+                    this.devices = d;
+                }).catch(e => {
+                    alert('error:' + e); // Add error handling later
                 });
             }
         }

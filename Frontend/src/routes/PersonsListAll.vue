@@ -27,6 +27,7 @@
 </template>
 
 <script lang="ts">
+    import { personAllForUser } from './../api/person-api';
     import Vue from 'vue';
 
     export default Vue.extend({
@@ -45,8 +46,10 @@
         methods: {
             fetchAllPersonsForUser(): void {
                 this.persons = null;
-                fetch('person/allforuser').then(r => r.json()).then(data => {
-                    this.persons = data;
+                personAllForUser().then(d => {
+                    this.persons = d;
+                }).catch(e => {
+                    alert('error:' + e); // Add error handling later
                 });
             }
         }

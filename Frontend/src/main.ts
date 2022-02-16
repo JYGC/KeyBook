@@ -11,8 +11,8 @@ Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 
 // Declare layouts
-import Default from './_layouts/Default.vue';
-import NotLoggedIn from './_layouts/NotLoggedIn.vue';
+import Default from './layouts/Default.vue';
+import NotLoggedIn from './layouts/NotLoggedIn.vue';
 Vue.component('default-layout', Default);
 Vue.component('not-logged-in-layout', NotLoggedIn);
 

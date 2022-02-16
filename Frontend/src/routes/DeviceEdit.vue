@@ -17,6 +17,8 @@
 
 <script lang="ts">
     import Vue from 'vue';
+
+    import { deviceView, personAllForUser } from '../api/device-api';
     
     export default Vue.extend({
         name: 'device-edit',
@@ -38,14 +40,18 @@
         methods: {
             fetchDeviceDetails(): void {
                 this.device = null;
-                fetch('device/view/id/' + this.deviceId).then(r => r.json()).then(data => {
+                deviceView(this.deviceId).then(data => {
                     this.device = data;
+                }).catch(e => {
+                    alert('error:' + e); // Add error handling later
                 });
             },
             fetchAllPersonForUser(): void {
                 this.personUsers = null;
-                fetch('device/allforuser').then(r => r.json()).then(data => {
+                personAllForUser().then(data => {
                     this.personUsers = data;
+                }).catch(e => {
+                    alert('error:' + e); // Add error handling later
                 });
             }
         },

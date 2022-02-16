@@ -9,6 +9,7 @@
 
 <script lang="ts">
     import Vue from 'vue';
+    import { personAdd } from '../api/person-api';
 
     export default Vue.extend({
         name: 'person-add',
@@ -19,18 +20,10 @@
         },
         methods: {
             addPerson(): void {
-                fetch('person/add', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(this.person),
-                }).then(r => r.json()).then(data => {
+                personAdd(this.person).then(data => {
                     this.person = data;
                     this.$router.push('/persons-list-all');
-                }).catch(e => {
-                    console.log(e);
-                });
+                })
             },
         }
     });

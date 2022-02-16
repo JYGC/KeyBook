@@ -32,6 +32,7 @@
 
 <script lang="ts">
     import Vue from 'vue';
+    import { personView } from '../api/person-api';
 
     export default Vue.extend({
         name: 'person-edit',
@@ -50,9 +51,11 @@
         methods: {
             fetchPersonDetails(): void {
                 this.person = null;
-                fetch('person/view/id/' + this.personId).then(r => r.json()).then(data => {
+                personView(this.personId).then(data => {
                     this.person = data;
-                });
+                }).catch(e => {
+                    alert('error:' + e); // Add error handling later
+                })
             }
         },
     });

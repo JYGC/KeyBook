@@ -364,3 +364,7 @@ FodyWeavers.xsd
 
 # Don't track database migrations
 Backend/Migrations
+
+# Don't rack sourceMap files
+/Frontend/src/*/*.js.map
+/Frontend/src/*/*.js
