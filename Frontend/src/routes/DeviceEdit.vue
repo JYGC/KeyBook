@@ -29,7 +29,7 @@
     
     export default Vue.extend({
         name: 'device-edit',
-        props: ['deviceId'],
+        props: { deviceId: String },
         data(): {
             device: any,
             personUsers: Array<any>,

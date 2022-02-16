@@ -32,9 +32,11 @@
     
     export default Vue.extend({
         name: 'device-list-all',
-        data() {
+        data(): {
+            devices: Array<any>
+        } {
             return {
-                devices: null
+                devices: []
             };
         },
         created() {
@@ -46,7 +48,7 @@
         },
         methods: {
             fetchAllDevices(): void {
-                this.devices = null;
+                this.devices = [];
                 deviceAllForUser().then(d => {
                     this.devices = d;
                 }).catch(e => {

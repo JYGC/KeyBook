@@ -13,7 +13,9 @@
 
     export default Vue.extend({
         name: 'device-add',
-        data() {
+        data(): {
+            device: object
+        } {
             return {
                 device: {},
             };

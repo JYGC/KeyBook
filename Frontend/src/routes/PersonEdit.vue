@@ -36,8 +36,10 @@
 
     export default Vue.extend({
         name: 'person-edit',
-        props: ['personId'],
-        data() {
+        props: { personId: String },
+        data(): {
+            person: any
+        } {
             return {
                 person: null
             };

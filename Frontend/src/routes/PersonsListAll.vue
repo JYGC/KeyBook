@@ -32,9 +32,11 @@
 
     export default Vue.extend({
         name: 'persons-list-all',
-        data() {
+        data(): {
+            persons: Array<any>
+        } {
             return {
-                persons: null,
+                persons: [],
             };
         },
         created() {
@@ -45,7 +47,7 @@
         },
         methods: {
             fetchAllPersonsForUser(): void {
-                this.persons = null;
+                this.persons = [];
                 personAllForUser().then(d => {
                     this.persons = d;
                 }).catch(e => {

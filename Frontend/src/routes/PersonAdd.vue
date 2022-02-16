@@ -13,7 +13,9 @@
 
     export default Vue.extend({
         name: 'person-add',
-        data() {
+        data(): {
+            person: object
+        } {
             return {
                 person: {}
             };
