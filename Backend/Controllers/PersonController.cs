@@ -38,7 +38,7 @@ namespace Backend.Controllers
             ).ToListAsync(); // Add filter user when adding auth
         }
 
-        // GET: Person/view/id/149BE541-9271-4E3B-8766-08D9D36C9255
+        // GET: Person/view/id/149BE541-9271-4E3B-8766-08D9D36C9255c
         [HttpGet("view/id/{id}")]
         public async Task<ActionResult<Person>> GetPerson(Guid id)
         {

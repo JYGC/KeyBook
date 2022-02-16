@@ -20,7 +20,8 @@ namespace Backend.Models
             Used,
             Lost,
             Damaged,
-            Retired
+            Retired,
+            Stolen
         }
 
         [Key]
