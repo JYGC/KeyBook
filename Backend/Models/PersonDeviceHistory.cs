@@ -11,9 +11,9 @@ namespace Backend.Models
         [Required]
         public Guid DeviceId { get; set; }
         [Required]
-        public bool IsNotHave { get; set; } = false;
+        public bool IsNoLongerHas { get; set; }
         [Required]
-        public bool IsDeleted { get; set; } = false;
+        public bool IsDeleted { get; set; }
         [Required]
         public string? Description { get; set; }
         [Required]

@@ -81,6 +81,28 @@ namespace Backend.Controllers
             // Continue here - getting empty objects
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(devicePerson.Device));
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(devicePerson.Person));
+            User user = await _context.Users.FirstOrDefaultAsync(u => u.Name == "Administrator"); //replace this - Authentication
+            Device deviceFromDb = await _context.Devices.Where(
+                d => d.Id == devicePerson.Device.Id && d.UserId == user.Id
+            ).FirstOrDefaultAsync();
+            if (deviceFromDb == null)
+            {
+                return this.StatusCode(StatusCodes.Status404NotFound, "Device not found");
+            }
+            deviceFromDb.Name = devicePerson.Device.Name;
+            deviceFromDb.Identifier = devicePerson.Device.Identifier;
+            deviceFromDb.Status = devicePerson.Device.Status;
+            deviceFromDb.DeviceHistories.Add(new DeviceHistory
+            {
+                Name = deviceFromDb.Name,
+                Identifier = deviceFromDb.Identifier,
+                Status = deviceFromDb.Status,
+                Type = deviceFromDb.Type,
+                IsDeleted = deviceFromDb.IsDeleted,
+                Description = "edit device",
+                Device = deviceFromDb
+            });
+            //continue here
             return null;
         }
 

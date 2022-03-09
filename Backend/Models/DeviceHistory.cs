@@ -11,7 +11,7 @@ namespace Backend.Models
         [Required]
         public string? Identifier { get; set; }
         [Required]
-        public Device.DeviceStatus Status { get; set; } = Device.DeviceStatus.NotUsed;
+        public Device.DeviceStatus Status { get; set; }
         [Required]
         public Device.DeviceType Type { get; set; }
         [Required]
