@@ -30,8 +30,8 @@ async function deviceView(deviceId: String): Promise<any> {
 
 async function deviceSave(existingDevice: Object, existingPerson: Object): Promise<any> {
     const result = await Axios.post(`${API_URL}/device/save`, {
-        "device": existingDevice,
-        "person": existingPerson
+        device: existingDevice,
+        person: existingPerson
     }, {
         headers: {
             // Authentication goes here

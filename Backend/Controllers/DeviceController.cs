@@ -11,6 +11,7 @@ using Backend.Models;
 namespace Backend.Controllers
 {
     [Route("[controller]")]
+    [ApiController]
     public class DeviceController : ControllerBase
     {
         private readonly KeyBookDbContext _context;
@@ -63,17 +64,23 @@ namespace Backend.Controllers
             _context.Devices.Add(device);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetDevice", new { id = device.Id }, device);
+            return CreatedAtAction("DeviceView", new { id = device.Id }, device);
         }
 
+        [BindProperties]
+        public class DeviceWithPersonRequest
+        {
+            public Device Device { get; set; }
+            public Person Person { get; set; }
+        }
         // POST: Device/save
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("save")]
-        public async Task<ActionResult<Device>> DeviceSave(Device device, Person person)
+        public async Task<ActionResult<Device>> DeviceSave(DeviceWithPersonRequest devicePerson)
         {
             // Continue here - getting empty objects
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(device));
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(person));
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(devicePerson.Device));
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(devicePerson.Person));
             return null;
         }
 
