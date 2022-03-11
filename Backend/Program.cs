@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Backend.Models;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +16,10 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 // Database
-builder.Services.AddDbContext<KeyBookDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<KeyBookDbContext>(options => options.UseNpgsql(
+    builder.Configuration.GetConnectionString("DefaultConnection"),
+    x => x.MigrationsHistoryTable("__efmigrationshistory", "public")
+).ReplaceService<IHistoryRepository, LoweredCaseMigrationHistoryRepository>());
 
 var app = builder.Build();
 
