@@ -16,11 +16,6 @@ namespace Backend.Models
         public DbSet<PersonDevice> PersonDevices { get; set; }
         public DbSet<PersonDeviceHistory> PersonDeviceHistories { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseNpgsql(@"Host=192.168.56.102;Port=5432;Database=KeyBook;Username=KeyBook;Password=keybook");
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().ToTable("User");
