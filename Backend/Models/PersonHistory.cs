@@ -17,7 +17,7 @@ namespace Backend.Models
         [Required]
         public string? Description { get; set; }
         [Required]
-        public DateTime DateTime { get; set; } = DateTime.Now;
+        public DateTime DateTime { get; set; } = DateTime.UtcNow;
         [Required]
         public Guid PersonId { get; set; }
         public virtual Person? Person { get; set; }

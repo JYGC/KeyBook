@@ -19,7 +19,7 @@ namespace Backend.Models
         [Required]
         public string? Description { get; set; }
         [Required]
-        public DateTime DateTime { get; set; } = DateTime.Now;
+        public DateTime DateTime { get; set; } = DateTime.UtcNow;
         [Required]
         public Guid DeviceId { get; set; }
         public virtual Device? Device { get; set; }
