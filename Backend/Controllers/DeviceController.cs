@@ -121,6 +121,7 @@ namespace Backend.Controllers
             }
             _context.Devices.Update(deviceFromDb);
             await _context.SaveChangesAsync();
+            //continue here
             return null;
         }
 
