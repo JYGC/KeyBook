@@ -7,6 +7,8 @@ namespace Backend.Models
         [Key]
         public Guid Id { get; set; }
         [Required]
+        public Guid PersonDeviceId { get; set; }
+        [Required]
         public Guid PersonId { get; set; }
         [Required]
         public Guid DeviceId { get; set; }
@@ -18,8 +20,5 @@ namespace Backend.Models
         public string? Description { get; set; }
         [Required]
         public DateTime DateTime { get; set; } = DateTime.UtcNow;
-        [Required]
-        public Guid PersonDeviceId { get; set; }
-        public virtual PersonDevice? PersonDevice { get; set; }
     }
 }

@@ -39,7 +39,7 @@ namespace Backend.Models
         [Required]
         public Guid UserId { get; set; }
         public virtual User? User { get; set; }
-        public virtual ICollection<PersonDevice> PersonDevices { get; set; } = new List<PersonDevice>();
+        public PersonDevice? PersonDevice { get; set; }
         public virtual ICollection<DeviceHistory> DeviceHistories { get; set; } = new List<DeviceHistory>();
     }
 }

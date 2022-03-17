@@ -16,6 +16,5 @@ namespace Backend.Models
         public bool IsNoLongerHas { get; set; } = false;
         [Required]
         public bool IsDeleted { get; set; } = false;
-        public virtual ICollection<PersonDeviceHistory> PersonDeviceHistories { get; set; } = new List<PersonDeviceHistory>();
     }
 }

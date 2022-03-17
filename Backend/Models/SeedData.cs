@@ -175,16 +175,18 @@ namespace Backend.Models
                         Device = seededDevices[4],
                     }
                 };
+                List<PersonDeviceHistory> seededPersonDeviceHistories = new List<PersonDeviceHistory>();
                 foreach (PersonDevice personDevice in seededPersonDevices)
                 {
-                    personDevice.PersonDeviceHistories.Add(new PersonDeviceHistory
+                    seededPersonDeviceHistories.Add(new PersonDeviceHistory
                     {
+                        PersonDeviceId = personDevice.Id,
                         PersonId = personDevice.PersonId,
                         DeviceId = personDevice.DeviceId,
-                        Description = "seeding person device table",
-                        PersonDevice = personDevice,
+                        Description = "seeding person device table"
                     });
                 }
+                context.PersonDeviceHistories.AddRange(seededPersonDeviceHistories);
                 context.PersonDevices.AddRange(seededPersonDevices);
             }
             context.SaveChanges();
