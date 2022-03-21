@@ -8,14 +8,14 @@
                 <tr>
                     <th>Device Name</th>
                     <th>Device Identifier</th>
-                    <th>Status</th>
+                    <!--<th>Status</th>-->
                     <th>Type</th>
                     <th></th>
                 </tr>
                 <tr v-for="device in devices" v-bind:key="device.id">
                     <td>{{ device.name }}</td>
                     <td>{{ device.identifier }}</td>
-                    <td>{{ device.status }}</td>
+                    <!--<td>{{ device.status }}</td>-->
                     <td>{{ device.type }}</td>
                     <td>
                         <router-link :to="{ name: 'device-edit', params: { deviceId: device.id } }">Details</router-link>

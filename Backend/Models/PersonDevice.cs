@@ -5,7 +5,7 @@ namespace Backend.Models
     public class PersonDevice
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
         public Guid PersonId { get; set; }
         public virtual Person? Person { get; set; }

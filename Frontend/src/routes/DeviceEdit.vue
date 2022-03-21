@@ -42,32 +42,31 @@
             };
         },
         created() {
-            this.fetchDeviceDetails();
-            this.fetchAllPersonForUser();
+            // fetch user's all persons
+            this.personUsers = [];
+            personAllForUser().then(data => {
+                this.personUsers = data;
+                // fetch device details
+                this.device = null;
+                deviceView(this.deviceId).then(data => {
+                    this.device = data;
+                    if (this.device.personDevice !== null) {
+                        this.selectedPerson = this.personUsers.find(p => p.id == this.device.personDevice.personId);
+                    }
+                }).catch(e => {
+                    alert('error:' + e); // Add error handling later
+                });
+            }).catch(e => {
+                alert('error:' + e); // Add error handling later
+            });
         },
         watch: {
             // call again the method if the route changes
             '$route': 'fetchDevice'
         },
         methods: {
-            fetchDeviceDetails(): void {
-                this.device = null;
-                deviceView(this.deviceId).then(data => {
-                    this.device = data;
-                }).catch(e => {
-                    alert('error:' + e); // Add error handling later
-                });
-            },
-            fetchAllPersonForUser(): void {
-                this.personUsers = [];
-                personAllForUser().then(data => {
-                    this.personUsers = data;
-                }).catch(e => {
-                    alert('error:' + e); // Add error handling later
-                });
-            },
-            selectPerson(persionId: string): void {
-                this.selectedPerson = this.personUsers.find(p => p.id == persionId);
+            selectPerson(personId: string): void {
+                this.selectedPerson = this.personUsers.find(p => p.id === personId);
             },
             saveDevice(): void {
                 deviceSave(this.device, this.selectedPerson).then(data => {

@@ -5,7 +5,7 @@ namespace Backend.Models
     public class PersonDeviceHistory
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
         public Guid PersonDeviceId { get; set; }
         [Required]

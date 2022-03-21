@@ -5,7 +5,7 @@ namespace Backend.Models
     public class UserHistory
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
         public string? Name { get; set; }
         [Required]
@@ -19,7 +19,7 @@ namespace Backend.Models
         [Required]
         public string? Description { get; set; }
         [Required]
-        public DateTime DateTime { get; set; } = DateTime.Now;
+        public DateTime DateTime { get; set; } = DateTime.UtcNow;
         [Required]
         public Guid UserId { get; set; }
         public virtual User? User { get; set; }

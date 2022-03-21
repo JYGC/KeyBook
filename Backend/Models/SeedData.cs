@@ -181,8 +181,8 @@ namespace Backend.Models
                     seededPersonDeviceHistories.Add(new PersonDeviceHistory
                     {
                         PersonDeviceId = personDevice.Id,
-                        PersonId = personDevice.PersonId,
-                        DeviceId = personDevice.DeviceId,
+                        PersonId = personDevice.Person.Id,
+                        DeviceId = personDevice.Device.Id,
                         Description = "seeding person device table"
                     });
                 }
