@@ -18,7 +18,8 @@ namespace Backend.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(@"Host=192.168.56.102;Port=5432;Database=KeyBook;Username=KeyBook;Password=keybook");
+            //optionsBuilder.UseNpgsql(@"Host=172.19.73.33;Port=5432;Database=KeyBook;Username=KeyBook;Password=keybook");
+            optionsBuilder.UseNpgsql(DAL.ConfigSettings.DefaultConnection);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
