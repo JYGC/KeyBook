@@ -364,7 +364,11 @@ FodyWeavers.xsd
 
 # Don't track database migrations
 Backend/Migrations
+KeyBook/Migrations
 
 # Don't rack sourceMap files
 /Frontend/src/*/*.js.map
 /Frontend/src/*/*.js
+
+# Don't track JavaScript files compiled from TypeScript
+/KeyBook/wwwroot/js/build
