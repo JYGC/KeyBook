@@ -23,15 +23,15 @@
                 <th></th>
             </tr>
             {#each devices as device}
-            <tr id={device.id}>
-                <td>{device.name}</td>
-                <td>{device.identifier}</td>
-                <!--<td>{device.Status}</td>-->
-                <td>{device.type}</td>
-                <td>
-                    <button on:click={() => window.location.href = "/Device/Edit/" + device.id}>Details</button>
-                </td>
-            </tr>
+                <tr id={device.id}>
+                    <td>{device.name}</td>
+                    <td>{device.identifier}</td>
+                    <!--<td>{device.Status}</td>-->
+                    <td>{device.type}</td>
+                    <td>
+                        <button on:click={() => window.location.href = "/Device/Edit/" + device.id}>Details</button>
+                    </td>
+                </tr>
             {/each}
         </table>
     </div>
