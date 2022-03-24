@@ -32,6 +32,7 @@ namespace KeyBook.Controllers
 
         public IActionResult Edit(Guid id)
         {
+            User user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); // replace - add user auth
             Device device = _context.Devices.Find(id);
             device.PersonDevice = _context.PersonDevices.FirstOrDefault(pd => pd.DeviceId == device.Id);
 
@@ -40,7 +41,21 @@ namespace KeyBook.Controllers
                 return NotFound();
             }
 
-            return View(device);
+            return View(new DevicePersonListViewModel
+            {
+                Device = device,
+                PersonList = _context.Persons.Where(
+                    person => person.UserId == user.Id && !person.IsDeleted
+                ).ToList()
+            });
+        }
+
+        [HttpPost]
+        //[ValidateAntiForgeryToken] - Add XSRF protection later 
+        public RedirectToActionResult Save([Bind("Id,Name,Identifier,Status,Type")] Device device) // continue here - not all properties are passing
+        {
+            Console.WriteLine(device);
+            return RedirectToAction("Index", "Device");
         }
     }
 }
