@@ -11,7 +11,7 @@ namespace KeyBook.Models
         [Required]
         public bool IsGone { get; set; } = false;
         [Required]
-        public PersonType Type { get; set; } = PersonType.Tenant;
+        public Person.PersonType Type { get; set; } = Person.PersonType.Tenant;
         [Required]
         public bool IsDeleted { get; set; } = false;
         [Required]

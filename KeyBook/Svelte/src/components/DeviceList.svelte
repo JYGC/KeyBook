@@ -1,17 +1,12 @@
 ﻿<svelte:options tag="device-list-svelte" />
 <script lang="ts">
 	export let devicesjson;
-
     let devices = JSON.parse(devicesjson);
-
-    function test() {
-        alert(1);
-    }
 </script>
 
 <main>
     <div>
-        <button on:click={test}>Add device</button>
+        <button on:click={() => window.location.href = "/Device/New"}>Add device</button>
     </div>
     <div>
         <table>
@@ -23,7 +18,7 @@
                 <th></th>
             </tr>
             {#each devices as device}
-                <tr id={device.id}>
+                <tr>
                     <td>{device.name}</td>
                     <td>{device.identifier}</td>
                     <!--<td>{device.Status}</td>-->

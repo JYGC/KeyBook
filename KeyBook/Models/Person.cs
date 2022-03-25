@@ -2,15 +2,15 @@
 
 namespace KeyBook.Models
 {
-    public enum PersonType
-    {
-        Tenant,
-        Owner,
-        Manager
-    }
-
     public class Person
     {
+        public enum PersonType
+        {
+            Tenant,
+            Owner,
+            Manager
+        }
+
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
         [Required]

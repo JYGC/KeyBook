@@ -372,3 +372,5 @@ KeyBook/Migrations
 
 # Don't track JavaScript files compiled from TypeScript
 /KeyBook/wwwroot/js/build
+/KeyBook/Svelte/src/*.js.map
+/KeyBook/Svelte/src/*.js

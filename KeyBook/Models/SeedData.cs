@@ -107,25 +107,25 @@ namespace KeyBook.Models
                     new Person
                     {
                         Name = "Administrator",
-                        Type = PersonType.Owner,
+                        Type = Person.PersonType.Owner,
                         User = seedAdminUser
                     },
                     new Person
                     {
                         Name = "CheeJay von Kelhiem",
-                        Type = PersonType.Manager,
+                        Type = Person.PersonType.Manager,
                         User = seedAdminUser
                     },
                     new Person
                     {
                         Name = "Rachel DeSantis",
-                        Type = PersonType.Tenant,
+                        Type = Person.PersonType.Tenant,
                         User = seedAdminUser
                     },
                     new Person
                     {
                         Name = "William Coldfuchs",
-                        Type = PersonType.Tenant,
+                        Type = Person.PersonType.Tenant,
                         User = seedAdminUser
                     }
                 };
