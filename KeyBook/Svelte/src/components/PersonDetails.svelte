@@ -12,6 +12,7 @@
     
     Axios.get(`/Person/GetPersonTypes`).then(response => {
         persontypes = response.data;
+        type = String(type) // select value cannot recognise numbers
     }).catch(e => {
         alert('error: ' + e); // Add error handling later
     });
@@ -36,9 +37,6 @@
             <label for="type">Person Type:</label>
         </div>
         <div>
-            <input type="text" name="type" id="type" bind:value="{type}" disabled={disabletype} /> <!--continue here: replace with downdown for add and editing in both device and persons-->
-        </div>
-        <div>
             <select name="type" id="type" bind:value={type} disabled={disabletype}>
                 {#each Object.keys(persontypes) as key}
                     <option value={key}>{persontypes[key]}</option>
@@ -46,5 +44,4 @@
             </select>
         </div>
     </div>
-    {type}
 </main>

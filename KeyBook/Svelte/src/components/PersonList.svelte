@@ -6,7 +6,7 @@
 
 <main>
     <div>
-        <button on:click={() => window.location.href = "/Person/New"}>Add device</button>
+        <button on:click={() => window.location.href = "/Person/New"}>Add person</button>
     </div>
     <div>
         <table>

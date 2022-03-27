@@ -6,6 +6,17 @@
     export let type;
     export let hidestatus = false;
     export let disabletype = false;
+
+    import Axios from 'axios';
+
+    let devicetypes = {};
+    
+    Axios.get(`/Device/GetDeviceTypes`).then(response => {
+        devicetypes = response.data;
+        type = String(type) // select value cannot recognise numbers
+    }).catch(e => {
+        alert('error: ' + e); // Add error handling later
+    });
 </script>
 <main>
     <div>
@@ -33,7 +44,11 @@
             <label for="type">Device Type:</label>
         </div>
         <div>
-            <input type="text" name="type" id="type" bind:value={type} disabled={disabletype} />
+            <select name="type" id="type" bind:value={type} disabled={disabletype}>
+                {#each Object.keys(devicetypes) as key}
+                    <option value={key}>{devicetypes[key]}</option>
+                {/each}
+            </select>
         </div>
     </div>
 </main>

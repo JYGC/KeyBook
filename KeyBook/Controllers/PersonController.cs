@@ -82,14 +82,13 @@ namespace KeyBook.Controllers
 
         public IActionResult Edit(Guid id)
         {
-
-            Person? person = _context.Persons.Find(id);
+            User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+            Person? person = _context.Persons.Where(p => p.Id == id && p.UserId == user.Id).FirstOrDefault();
 
             if (person == null)
             {
                 return NotFound();
             }
-            User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator");
             person.PersonDevices = (from device in _context.Devices
                                     join personDevice in _context.PersonDevices on device.Id equals personDevice.DeviceId
                                     where device.UserId == user.Id && personDevice.PersonId == person.Id

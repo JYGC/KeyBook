@@ -10,7 +10,7 @@ namespace KeyBook.Models
             Key,
             Remote,
             RoomKey,
-            MailKey
+            MailboxKey
         }
 
         public enum DeviceStatus

@@ -75,7 +75,7 @@ namespace KeyBook.Models
                     {
                         Name = "Mail Kay 1",
                         Identifier = "<h1>Hamburger</h1>",
-                        Type = Device.DeviceType.MailKey,
+                        Type = Device.DeviceType.MailboxKey,
                         User = seedAdminUser
                     }
                 };
@@ -106,7 +106,7 @@ namespace KeyBook.Models
                 {
                     new Person
                     {
-                        Name = "Administrator",
+                        Name = __seedAdminName,
                         Type = Person.PersonType.Owner,
                         User = seedAdminUser
                     },

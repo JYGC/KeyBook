@@ -36,6 +36,11 @@ namespace KeyBook.Controllers
             return View();
         }
 
+        public ActionResult<Dictionary<int, string>> GetDeviceTypes()
+        {
+            return Enum.GetValues(typeof(Device.DeviceType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
+        }
+
         public class NewDeviceBindModel
         {
             public string Name { get; set; }
