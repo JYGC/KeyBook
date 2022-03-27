@@ -30,7 +30,7 @@
                 <label for="isgone">Person Is Gone:</label>
             </div>
             <div>
-                <input type="checkbox" name="isgone" id="name" bind:value="{isgone}" />
+                <input type="checkbox" name="isgone" id="name" bind:checked="{isgone}" />
             </div>
         {/if}
         <div>
@@ -43,5 +43,6 @@
                 {/each}
             </select>
         </div>
+        {isgone}
     </div>
 </main>

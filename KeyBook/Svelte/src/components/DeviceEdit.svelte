@@ -7,9 +7,9 @@
 
     let personId;
     if (devicepersonlist.device.personDevice != null) personId = devicepersonlist.device.personDevice.personId;
-    let saveableDetails = ["name", "identifier", "status", "type"]
 </script>
 <main>
+    <button on:click="{() => window.history.back()}">Back</button>
     <DeviceDetails
       bind:name={devicepersonlist.device.name}
       bind:identifier={devicepersonlist.device.identifier}
@@ -30,9 +30,10 @@
     <div>
         <form action="/Device/Save" method="POST">
             <input type="hidden" name="deviceid" id="deviceid" value={devicepersonlist.device.id} />
-            {#each saveableDetails as saveableDetail}
-                <input type="hidden" name="{saveableDetail}" id="{saveableDetail}" value="{devicepersonlist.device[saveableDetail]}" />
-            {/each}
+            <input type="hidden" name="name" id="name" value={devicepersonlist.device.name} />
+            <input type="hidden" name="identifier" id="identifier" value={devicepersonlist.device.identifier} />
+            <input type="hidden" name="status" id="status" value={devicepersonlist.device.status} />
+            <input type="hidden" name="type" id="type" value={devicepersonlist.device.type} />
             <input type="hidden" name="personid" id="personid" value={personId} />
             <input type="hidden" name="frompersondetailspersonid" id="frompersondetailspersonid" value={devicepersonlist.fromPersonDetailsPersonId} />
             <button>Save device</button>

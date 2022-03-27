@@ -4,9 +4,9 @@
 
     let person = JSON.parse(personjson);
     import PersonDetails from './PersonDetails.svelte';
-    let saveableDetails = ["name", "type"];
 </script>
 <main>
+    <button on:click="{() => window.history.back()}">Back</button>
     <PersonDetails bind:name={person.name} bind:type={person.type} bind:isgone={person.isGone} disabletype=true />
     {#if person.personDevices && person.personDevices.length > 0}
         <div>
@@ -38,9 +38,8 @@
     <div>
         <form action="/Person/Save" method="POST">
             <input type="hidden" name="personid" id="personid" value={person.id} />
-            {#each saveableDetails as saveableDetail}
-                <input type="hidden" name="{saveableDetail}" id="{saveableDetail}" value="{person[saveableDetail]}" />
-            {/each}
+            <input type="hidden" name="name" id="name" value="{person.name}" />
+            <input type="hidden" name="isgone" id="isgone" value="{person.isGone}" />
             <button>Save person</button>
         </form>
     </div>

@@ -8,15 +8,15 @@
     };
 </script>
 <main>
+    <button on:click="{() => window.history.back()}">Back</button>
     <PersonDetails
       bind:name={person.name}
       bind:type={person.type}
       hideisgone=true/>
     <div>
         <form action="/Person/Add" method="POST">
-            {#each Object.keys(person) as key}
-                <input type="hidden" name="{key}" id="{key}" value="{person[key]}" />
-            {/each}
+            <input type="hidden" name="name" id="name" value="{person.name}" />
+            <input type="hidden" name="type" id="type" value="{person.type}" />
             <button>Add person</button>
         </form>
     </div>

@@ -104,13 +104,44 @@ namespace KeyBook.Controllers
             return View(person);
         }
 
+        [BindProperties]
+        public class PersonBindModel
+        {
+            public string PersonId { get; set; }
+            public string Name { get; set; }
+            public bool IsGone { get; set; }
+        }
         [HttpPost]
-        public IActionResult Save()
+        public IActionResult Save(PersonBindModel personBindModel)
         {
             using IDbContextTransaction transaction = _context.Database.BeginTransaction();
             try
             {
-                return null;
+                User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+                Person? personFromDb = _context.Persons.Where(
+                    p => p.Id == Guid.Parse(personBindModel.PersonId) && p.UserId == user.Id
+                ).FirstOrDefault();
+                if (personFromDb == null) return NotFound("Person not found");
+                bool isNameChange;
+                if (isNameChange = (personFromDb.Name != personBindModel.Name)) personFromDb.Name = personBindModel.Name;
+                bool isIsGoneChange;
+                if (isIsGoneChange = (personFromDb.IsGone != personBindModel.IsGone)) personFromDb.IsGone = personBindModel.IsGone;
+                if (isNameChange || isIsGoneChange)
+                {
+                    _context.PersonHistories.Add(new PersonHistory
+                    {
+                        Name = personFromDb.Name,
+                        IsGone = personFromDb.IsGone,
+                        Type = personFromDb.Type,
+                        IsDeleted = personFromDb.IsDeleted,
+                        Description = (personFromDb.IsGone) ? "person left" : "edit person",
+                        PersonId = personFromDb.Id
+                    });
+                }
+                _context.Persons.Update(personFromDb);
+                _context.SaveChanges();
+                transaction.Commit();
+                return RedirectToAction("Index", "Person");
             }
             catch (Exception ex)
             {

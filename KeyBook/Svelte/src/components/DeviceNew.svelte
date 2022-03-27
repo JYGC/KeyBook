@@ -9,6 +9,7 @@
     };
 </script>
 <main>
+    <button on:click="{() => window.history.back()}">Back</button>
     <DeviceDetails
       bind:name={device.name}
       bind:identifier={device.identifier}
@@ -19,6 +20,9 @@
             {#each Object.keys(device) as key}
                 <input type="hidden" name="{key}" id="{key}" value="{device[key]}" />
             {/each}
+            <input type="hidden" name="name" id="name" value="{device.name}" />
+            <input type="hidden" name="identifier" id="identifier" value="{device.identifier}" />
+            <input type="hidden" name="type" id="type" value="{device.type}" />
             <button>Add device</button>
         </form>
     </div>

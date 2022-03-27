@@ -125,9 +125,8 @@ namespace KeyBook.Controllers
             {
                 User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
                 // Update device
-                Guid InboundDeviceId = Guid.Parse(devicePersonViewModel.DeviceId);
                 Device? deviceFromDb = _context.Devices.Where(
-                    d => d.Id == InboundDeviceId && d.UserId == user.Id
+                    d => d.Id == Guid.Parse(devicePersonViewModel.DeviceId) && d.UserId == user.Id
                 ).FirstOrDefault();
                 if (deviceFromDb == null) return NotFound("Device not found");
                 bool isNameChange;
