@@ -4,6 +4,13 @@
 
     let devicepersonlist = JSON.parse(devicepersonlistjson);
     import DeviceDetails from './DeviceDetails.svelte';
+    
+    let personNames = {}
+    import { GetPersonNamesAPI } from '../api/person';
+    let getPersonNamesAPI = new GetPersonNamesAPI();
+    getPersonNamesAPI.successCallback = r => { personNames = r.data; };
+    getPersonNamesAPI.failedCallback = e => { alert('error: ' + e); /* Add error handling later */ }
+    getPersonNamesAPI.call();
 
     let personId;
     if (devicepersonlist.device.personDevice != null) personId = devicepersonlist.device.personDevice.personId;
@@ -22,8 +29,8 @@
     <div>
         <select name="person" id="person" bind:value={personId}>
             <option value="">Not Used</option>
-            {#each devicepersonlist.personList as person}
-                <option value="{person.id}">{person.name}</option>
+            {#each Object.keys(personNames) as personId}
+                <option value="{personId}">{personNames[personId]}</option>
             {/each}
         </select>
     </div>
@@ -39,5 +46,4 @@
             <button>Save device</button>
         </form>
     </div>
-    {devicepersonlist.fromPersonDetailsPersonId}
 </main>

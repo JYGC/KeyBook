@@ -149,5 +149,11 @@ namespace KeyBook.Controllers
                 return NotFound(ex);
             }
         }
+
+        public ActionResult<Dictionary<Guid, string?>> GetPersonNames()
+        {
+            User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); // replace - add user auth
+            return _context.Persons.Where(p => p.UserId == user.Id).ToDictionary(p => p.Id, p => p.Name);
+        }
     }
 }

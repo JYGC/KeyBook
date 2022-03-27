@@ -95,12 +95,9 @@ namespace KeyBook.Controllers
                 return NotFound();
             }
 
-            return View(new DevicePersonListViewModel // May need to retrieve personlist seperately by API call
+            return View(new DevicePersonDetailsPersonIdViewModel
             {
                 Device = device,
-                PersonList = _context.Persons.Where(
-                    person => person.UserId == user.Id && !person.IsDeleted
-                ).ToList(),
                 FromPersonDetailsPersonId = fromPersonDetailsPersonId
             });
         }

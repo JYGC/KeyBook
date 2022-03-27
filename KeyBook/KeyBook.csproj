@@ -13,7 +13,9 @@
   </Target>
 
   <ItemGroup>
-    <None Remove="Svelte\src\api\get-types.ts" />
+    <None Remove="Svelte\src\api\device.ts" />
+    <None Remove="Svelte\src\api\person.ts" />
+    <None Remove="Svelte\src\api\_api-call.ts" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,7 +34,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <TypeScriptCompile Include="Svelte\src\api\get-types.ts" />
+    <TypeScriptCompile Include="Svelte\src\api\device.ts" />
+    <TypeScriptCompile Include="Svelte\src\api\person.ts" />
+    <TypeScriptCompile Include="Svelte\src\api\_api-call.ts" />
   </ItemGroup>
 
 </Project>

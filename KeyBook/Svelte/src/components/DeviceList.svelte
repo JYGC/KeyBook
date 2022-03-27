@@ -4,8 +4,11 @@
     let devices = JSON.parse(devicesjson);
 
     let deviceTypes = {};
-    import { getDeviceTypes } from '../api/get-types';
-    getDeviceTypes(r => { deviceTypes = r.data; }, e => { alert('error: ' + e); /* Add error handling later */ });
+    import { GetDeviceTypesAPI } from '../api/device';
+    let getDeviceTypesAPI = new GetDeviceTypesAPI();
+    getDeviceTypesAPI.successCallback = r => { deviceTypes = r.data; };
+    getDeviceTypesAPI.failedCallback = e => { alert('error: ' + e); /* Add error handling later */ }
+    getDeviceTypesAPI.call();
 </script>
 
 <main>

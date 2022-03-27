@@ -5,14 +5,16 @@
     export let isgone;
     export let hideisgone = false;
     export let disabletype = false;
-
+    
     let personTypes = {};
-
-    import { getPersonTypes } from '../api/get-types';
-    getPersonTypes(r => {
+    import { GetPersonTypesAPI } from '../api/person';
+    let getPersonTypesAPI = new GetPersonTypesAPI();
+    getPersonTypesAPI.successCallback = r => {
         personTypes = r.data;
         type = String(type) // select value cannot recognise numbers
-    }, e => { alert('error: ' + e); /* Add error handling later */ });
+    };
+    getPersonTypesAPI.failedCallback = e => { alert('error: ' + e); /* Add error handling later */ }
+    getPersonTypesAPI.call();
 </script>
 <main>
     <div>
@@ -40,6 +42,5 @@
                 {/each}
             </select>
         </div>
-        {isgone}
     </div>
 </main>

@@ -6,14 +6,16 @@
     export let type;
     export let hidestatus = false;
     export let disabletype = false;
-
+    
     let deviceTypes = {};
-
-    import { getDeviceTypes } from '../api/get-types';
-    getDeviceTypes(r => {
+    import { GetDeviceTypesAPI } from '../api/device';
+    let getDeviceTypesAPI = new GetDeviceTypesAPI();
+    getDeviceTypesAPI.successCallback = r => {
         deviceTypes = r.data;
         type = String(type) // select value cannot recognise numbers
-    }, e => { alert('error: ' + e); /* Add error handling later */ });
+    };
+    getDeviceTypesAPI.failedCallback = e => { alert('error: ' + e); /* Add error handling later */ }
+    getDeviceTypesAPI.call();
 </script>
 <main>
     <div>

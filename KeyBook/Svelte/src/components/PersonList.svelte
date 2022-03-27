@@ -4,12 +4,16 @@
     let persons = JSON.parse(personsjson);
 
     let personTypes = {};
-    import { getPersonTypes } from '../api/get-types';
-    getPersonTypes(r => { personTypes = r.data; }, e => { alert('error: ' + e); /* Add error handling later */ });
+    import { GetPersonTypesAPI } from '../api/person';
+    let getPersonTypesAPI = new GetPersonTypesAPI();
+    getPersonTypesAPI.successCallback = r => { personTypes = r.data; };
+    getPersonTypesAPI.failedCallback = e => { alert('error: ' + e); /* Add error handling later */ }
+    getPersonTypesAPI.call();
 </script>
 
 <main>
     <div>
+        <!-- FIX LATER: Back button goes to device if device was saved from person edit -->
         <button on:click={() => window.location.href = "/Person/New"}>Add person</button>
     </div>
     <div>
