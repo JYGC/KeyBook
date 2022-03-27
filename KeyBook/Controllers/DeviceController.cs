@@ -114,6 +114,7 @@ namespace KeyBook.Controllers
             public string Status { get; set; }
             public string Type { get; set; }
             public string PersonId { get; set; }
+            public string? FromPersonDetailsPersonId { get; set; } = null;
         }
         [HttpPost]
         //[ValidateAntiForgeryToken] - Add XSRF protection later 
@@ -184,7 +185,12 @@ namespace KeyBook.Controllers
                 _context.Devices.Update(deviceFromDb);
                 _context.SaveChanges();
                 transaction.Commit();
-                return RedirectToAction("Index", "Device");
+                return (devicePersonViewModel.FromPersonDetailsPersonId == null)
+                    ? RedirectToAction("Index", "Device")
+                    : RedirectToAction("Edit", "Person", new
+                    {
+                        id = devicePersonViewModel.FromPersonDetailsPersonId
+                    });
             }
             catch (Exception ex)
             {

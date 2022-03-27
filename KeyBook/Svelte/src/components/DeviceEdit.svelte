@@ -34,6 +34,7 @@
                 <input type="hidden" name="{saveableDetail}" id="{saveableDetail}" value="{devicepersonlist.device[saveableDetail]}" />
             {/each}
             <input type="hidden" name="personid" id="personid" value={personId} />
+            <input type="hidden" name="frompersondetailspersonid" id="frompersondetailspersonid" value={devicepersonlist.fromPersonDetailsPersonId} />
             <button>Save device</button>
         </form>
     </div>
