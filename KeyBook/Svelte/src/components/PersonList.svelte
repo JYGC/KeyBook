@@ -2,6 +2,10 @@
 <script lang="ts">
     export let personsjson;
     let persons = JSON.parse(personsjson);
+
+    let personTypes = {};
+    import { getPersonTypes } from '../api/get-types';
+    getPersonTypes(r => { personTypes = r.data; }, e => { alert('error: ' + e); /* Add error handling later */ });
 </script>
 
 <main>
@@ -21,7 +25,7 @@
                 <tr>
                     <td>{person.name}</td>
                     <td>{person.isGone}</td>
-                    <td>{person.type}</td>
+                    <td>{personTypes[person.type]}</td>
                     <td>
                         {#each person.personDevices as personDevice}
                             {personDevice.device.name}<br />

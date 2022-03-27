@@ -13,6 +13,10 @@
   </Target>
 
   <ItemGroup>
+    <None Remove="Svelte\src\api\get-types.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.2">
@@ -25,6 +29,10 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="Svelte\src\api\get-types.ts" />
   </ItemGroup>
 
 </Project>

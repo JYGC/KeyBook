@@ -2,6 +2,10 @@
 <script lang="ts">
 	export let devicesjson;
     let devices = JSON.parse(devicesjson);
+
+    let deviceTypes = {};
+    import { getDeviceTypes } from '../api/get-types';
+    getDeviceTypes(r => { deviceTypes = r.data; }, e => { alert('error: ' + e); /* Add error handling later */ });
 </script>
 
 <main>
@@ -22,7 +26,7 @@
                     <td>{device.name}</td>
                     <td>{device.identifier}</td>
                     <!--<td>{device.Status}</td>-->
-                    <td>{device.type}</td>
+                    <td>{deviceTypes[device.type]}</td>
                     <td>
                         <button on:click={() => window.location.href = "/Device/Edit/" + device.id}>Details</button>
                     </td>

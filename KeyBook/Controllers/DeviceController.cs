@@ -95,7 +95,7 @@ namespace KeyBook.Controllers
                 return NotFound();
             }
 
-            return View(new DevicePersonListViewModel
+            return View(new DevicePersonListViewModel // May need to retrieve personlist seperately by API call
             {
                 Device = device,
                 PersonList = _context.Persons.Where(

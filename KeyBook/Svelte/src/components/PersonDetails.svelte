@@ -6,16 +6,13 @@
     export let hideisgone = false;
     export let disabletype = false;
 
-    import Axios from 'axios';
+    let personTypes = {};
 
-    let persontypes = {};
-    
-    Axios.get(`/Person/GetPersonTypes`).then(response => {
-        persontypes = response.data;
+    import { getPersonTypes } from '../api/get-types';
+    getPersonTypes(r => {
+        personTypes = r.data;
         type = String(type) // select value cannot recognise numbers
-    }).catch(e => {
-        alert('error: ' + e); // Add error handling later
-    });
+    }, e => { alert('error: ' + e); /* Add error handling later */ });
 </script>
 <main>
     <div>
@@ -38,8 +35,8 @@
         </div>
         <div>
             <select name="type" id="type" bind:value={type} disabled={disabletype}>
-                {#each Object.keys(persontypes) as key}
-                    <option value={key}>{persontypes[key]}</option>
+                {#each Object.keys(personTypes) as key}
+                    <option value={key}>{personTypes[key]}</option>
                 {/each}
             </select>
         </div>
