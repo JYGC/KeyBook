@@ -1,6 +1,7 @@
 ﻿using KeyBook.Models;
 using KeyBook.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace KeyBook.Controllers
@@ -16,11 +17,27 @@ namespace KeyBook.Controllers
 
         public IActionResult Index()
         {
+            User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+            var devicePersonAssocRowQuery = (from device in _context.Devices
+                                             join personDevice in _context.PersonDevices on device.Id equals personDevice.DeviceId into NullablePersonDevice
+                                             from nullablePersonDevice in NullablePersonDevice.DefaultIfEmpty()
+                                             join person in _context.Persons on nullablePersonDevice.PersonId equals person.Id into NullablePerson
+                                             from nullablePerson in NullablePerson.DefaultIfEmpty()
+                                             where device.UserId == user.Id && (device.Status == Device.DeviceStatus.NotUsed || device.Status == Device.DeviceStatus.WithManager || device.Status == Device.DeviceStatus.Used)
+                                             select new { device, nullablePersonDevice, nullablePerson });
+            List<Device> devices = new List<Device>();
+            foreach (var row in devicePersonAssocRowQuery.ToArray())
+            {
+                if (row.nullablePersonDevice != null)
+                {
+                    row.device.PersonDevice = row.nullablePersonDevice;
+                    row.device.PersonDevice.Person = row.nullablePerson;
+                }
+                devices.Add(row.device);
+            }
             return View(new DeviceListViewModel
             {
-                Devices = _context.Devices.Where(
-                    device => device.Status == Device.DeviceStatus.NotUsed || device.Status == Device.DeviceStatus.WithManager || device.Status == Device.DeviceStatus.Used
-                ).ToList()
+                Devices = devices
             });
         }
 
@@ -98,7 +115,10 @@ namespace KeyBook.Controllers
             return View(new DevicePersonDetailsPersonIdViewModel
             {
                 Device = device,
-                FromPersonDetailsPersonId = fromPersonDetailsPersonId
+                FromPersonDetailsPersonId = fromPersonDetailsPersonId,
+                DeviceActivityHistoryList = _context.DeviceActivityHistory.FromSqlRaw(
+                    $"SELECT * FROM public.sp_GetDeviceActivityHistory('{device.Id}')"
+                ).ToList()
             });
         }
 

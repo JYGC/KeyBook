@@ -41,6 +41,20 @@ namespace KeyBook.Models
             List<Device> seededDevices;
             if (!context.Devices.Any())
             {
+                var MakeDEviceHistoryWithRecordDate = (Device device, DateTime recordDateTime) =>
+                {
+                    return new DeviceHistory
+                    {
+                        Name = device.Name,
+                        Identifier = device.Identifier,
+                        Status = device.Status,
+                        Type = device.Type,
+                        IsDeleted = device.IsDeleted,
+                        Description = "seeding device table",
+                        RecordDateTime = recordDateTime,
+                        Device = device,
+                    };
+                };
                 seededDevices = new List<Device>
                 {
                     new Device
@@ -79,17 +93,26 @@ namespace KeyBook.Models
                         User = seedAdminUser
                     }
                 };
-                foreach (Device device in seededDevices)
+                DateTime[] recordDateTime = new DateTime[]
                 {
-                    device.DeviceHistories.Add(new DeviceHistory
+                    new DateTime(2021, 6, 25, 11, 0, 0, DateTimeKind.Utc),
+                    new DateTime(2021, 8, 10, 11, 0, 0, DateTimeKind.Utc),
+                    new DateTime(2016, 1, 1, 11, 0, 0, DateTimeKind.Utc),
+                    new DateTime(2018, 10, 22, 11, 0, 0, DateTimeKind.Utc),
+                    new DateTime(2014, 4, 9, 11, 0, 0, DateTimeKind.Utc),
+                };
+                for (int i = 0; i < seededDevices.Count; i++)
+                {
+                    seededDevices[i].DeviceHistories.Add(new DeviceHistory
                     {
-                        Name = device.Name,
-                        Identifier = device.Identifier,
-                        Status = device.Status,
-                        Type = device.Type,
-                        IsDeleted = device.IsDeleted,
+                        Name = seededDevices[i].Name,
+                        Identifier = seededDevices[i].Identifier,
+                        Status = seededDevices[i].Status,
+                        Type = seededDevices[i].Type,
+                        IsDeleted = seededDevices[i].IsDeleted,
                         Description = "seeding device table",
-                        Device = device
+                        Device = seededDevices[i],
+                        RecordDateTime = recordDateTime[i],
                     });
                 }
                 context.Devices.AddRange(seededDevices);
@@ -176,14 +199,16 @@ namespace KeyBook.Models
                     }
                 };
                 List<PersonDeviceHistory> seededPersonDeviceHistories = new List<PersonDeviceHistory>();
-                foreach (PersonDevice personDevice in seededPersonDevices)
+                int[] givenDaysAfterCreation = new int[] { 9, 32, 64, 128, 256 };
+                for (int i = 0; i < seededPersonDevices.Count; i++)
                 {
                     seededPersonDeviceHistories.Add(new PersonDeviceHistory
                     {
-                        PersonDeviceId = personDevice.Id,
-                        PersonId = personDevice.Person.Id,
-                        DeviceId = personDevice.Device.Id,
-                        Description = "seeding person device table"
+                        PersonDeviceId = seededPersonDevices[i].Id,
+                        PersonId = seededPersonDevices[i].Person.Id,
+                        DeviceId = seededPersonDevices[i].Device.Id,
+                        Description = "seeding person device table",
+                        RecordDateTime = seededPersonDevices[i].Device.DeviceHistories.ToList()[0].RecordDateTime.AddDays(givenDaysAfterCreation[i]),
                     });
                 }
                 context.PersonDeviceHistories.AddRange(seededPersonDeviceHistories);

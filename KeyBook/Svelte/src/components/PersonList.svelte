@@ -7,7 +7,7 @@
     import { GetPersonTypesAPI } from '../api/person';
     let getPersonTypesAPI = new GetPersonTypesAPI();
     getPersonTypesAPI.successCallback = r => { personTypes = r.data; };
-    getPersonTypesAPI.failedCallback = e => { alert('error: ' + e); /* Add error handling later */ }
+    getPersonTypesAPI.failedCallback = e => { alert('error: ' + e); /* Add error handling later */ };
     getPersonTypesAPI.call();
 </script>
 

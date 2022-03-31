@@ -19,6 +19,8 @@ namespace KeyBook.Models
         [Required]
         public string? Description { get; set; }
         [Required]
+        public DateTime RecordDateTime { get; set; } = DateTime.UtcNow;
+        [Required]
         public DateTime DateTime { get; set; } = DateTime.UtcNow;
     }
 }

@@ -10,6 +10,7 @@ namespace KeyBook.Models
     
         public DbSet<User> Users { get; set; }
         public DbSet<Device> Devices { get; set; }
+        public DbSet<DeviceActivityHistory> DeviceActivityHistory { get; set; }
         public DbSet<DeviceHistory> DeviceHistories { get; set; }
         public DbSet<Person> Persons { get; set; }
         public DbSet<PersonHistory> PersonHistories { get; set; }
@@ -18,7 +19,6 @@ namespace KeyBook.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseNpgsql(@"Host=172.19.73.33;Port=5432;Database=KeyBook;Username=KeyBook;Password=keybook");
             optionsBuilder.UseNpgsql(DAL.ConfigSettings.DefaultConnection);
         }
 
@@ -28,6 +28,7 @@ namespace KeyBook.Models
             modelBuilder.Entity<Device>().HasOne(u => u.User).WithMany(u => u.Devices).HasForeignKey(d => d.UserId).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Device>().HasOne(d => d.PersonDevice).WithOne(pd => pd.Device).IsRequired(false).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Device>().ToTable("Device");
+            modelBuilder.Entity<DeviceActivityHistory>().HasNoKey().ToView("DeviceActionHistory"); // Will not be a table
             modelBuilder.Entity<DeviceHistory>().ToTable("DeviceHistory");
             modelBuilder.Entity<Person>().HasOne(p => p.User).WithMany(u => u.Persons).HasForeignKey(p => p.UserId).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Person>().ToTable("Person");

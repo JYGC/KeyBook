@@ -13,7 +13,7 @@
         personTypes = r.data;
         type = String(type) // select value cannot recognise numbers
     };
-    getPersonTypesAPI.failedCallback = e => { alert('error: ' + e); /* Add error handling later */ }
+    getPersonTypesAPI.failedCallback = e => { alert('error: ' + e); /* Add error handling later */ };
     getPersonTypesAPI.call();
 </script>
 <main>

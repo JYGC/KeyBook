@@ -46,4 +46,16 @@
             <button>Save device</button>
         </form>
     </div>
+    <div>
+        <label for="deviceActivityHistoryList">Device activity history:</label>
+    </div>
+    <table>
+        {#each devicepersonlist.deviceActivityHistoryList as deviceActivityHistory}
+	        <tr>
+                <td>{deviceActivityHistory.recordDateTime}</td>
+                <td>|</td>
+                <td>{deviceActivityHistory.description}</td>
+            </tr>
+        {/each}
+    </table>
 </main>

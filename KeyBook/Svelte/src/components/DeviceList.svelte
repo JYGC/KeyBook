@@ -7,7 +7,7 @@
     import { GetDeviceTypesAPI } from '../api/device';
     let getDeviceTypesAPI = new GetDeviceTypesAPI();
     getDeviceTypesAPI.successCallback = r => { deviceTypes = r.data; };
-    getDeviceTypesAPI.failedCallback = e => { alert('error: ' + e); /* Add error handling later */ }
+    getDeviceTypesAPI.failedCallback = e => { alert('error: ' + e); /* Add error handling later */ };
     getDeviceTypesAPI.call();
 </script>
 
@@ -22,6 +22,7 @@
                 <th>Device Identifier</th>
                 <!--<th>Status</th>-->
                 <th>Type</th>
+                <th>Current holder</th>
                 <th></th>
             </tr>
             {#each devices as device}
@@ -30,6 +31,11 @@
                     <td>{device.identifier}</td>
                     <!--<td>{device.Status}</td>-->
                     <td>{deviceTypes[device.type]}</td>
+                    <td>
+                        {#if device.personDevice != null}
+                            {device.personDevice.person.name}
+                        {/if}
+                    </td>
                     <td>
                         <button on:click={() => window.location.href = "/Device/Edit/" + device.id}>Details</button>
                     </td>

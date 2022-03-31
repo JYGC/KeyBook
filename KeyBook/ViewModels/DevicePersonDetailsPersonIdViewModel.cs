@@ -6,5 +6,6 @@ namespace KeyBook.ViewModels
     {
         public Device Device { get; set; }
         public Guid? FromPersonDetailsPersonId { get; set; }
+        public List<DeviceActivityHistory> DeviceActivityHistoryList { get; set; }
     }
 }

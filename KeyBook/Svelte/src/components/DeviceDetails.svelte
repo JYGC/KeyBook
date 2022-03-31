@@ -14,7 +14,7 @@
         deviceTypes = r.data;
         type = String(type) // select value cannot recognise numbers
     };
-    getDeviceTypesAPI.failedCallback = e => { alert('error: ' + e); /* Add error handling later */ }
+    getDeviceTypesAPI.failedCallback = e => { alert('error: ' + e); /* Add error handling later */ };
     getDeviceTypesAPI.call();
 </script>
 <main>
