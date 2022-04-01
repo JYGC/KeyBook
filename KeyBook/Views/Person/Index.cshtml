@@ -1,0 +1,4 @@
+﻿@{
+    ViewData["Title"] = "Person";
+}
+<person-list-svelte personsjson='@Html.Raw(Json.Serialize(Model.Persons))'></person-list-svelte>
