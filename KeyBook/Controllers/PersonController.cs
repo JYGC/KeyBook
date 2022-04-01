@@ -23,6 +23,7 @@ namespace KeyBook.Controllers
                                     where person.UserId == user.Id && !person.IsDeleted
                                     select new { person, personDevice, device };
             List<Person> personsWithDuplicates = personDeviceQuery.ToList().Select(pdq => pdq.person).ToList();
+            // remove duplicates
             Dictionary<Guid, Person> personsDict = new Dictionary<Guid, Person>();
             foreach (Person person in personsWithDuplicates)
             {

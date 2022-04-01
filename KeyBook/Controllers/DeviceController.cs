@@ -18,20 +18,18 @@ namespace KeyBook.Controllers
         public IActionResult Index()
         {
             User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
-            var devicePersonAssocRowQuery = (from device in _context.Devices
-                                             join personDevice in _context.PersonDevices on device.Id equals personDevice.DeviceId into NullablePersonDevice
-                                             from nullablePersonDevice in NullablePersonDevice.DefaultIfEmpty()
-                                             join person in _context.Persons on nullablePersonDevice.PersonId equals person.Id into NullablePerson
-                                             from nullablePerson in NullablePerson.DefaultIfEmpty()
-                                             where device.UserId == user.Id && (device.Status == Device.DeviceStatus.NotUsed || device.Status == Device.DeviceStatus.WithManager || device.Status == Device.DeviceStatus.Used)
-                                             select new { device, nullablePersonDevice, nullablePerson });
-            List<Device> devices = new List<Device>();
+            var devicePersonAssocRowQuery = from device in _context.Devices
+                                            from personDevice in _context.PersonDevices.Where(personDevice => device.Id == personDevice.DeviceId).DefaultIfEmpty()
+                                            from person in _context.Persons.Where(person => personDevice.PersonId == person.Id)
+                                            where device.UserId == user.Id && (device.Status == Device.DeviceStatus.NotUsed || device.Status == Device.DeviceStatus.WithManager || device.Status == Device.DeviceStatus.Used)
+                                            select new { device, personDevice, person };
+            List < Device > devices = new List<Device>();
             foreach (var row in devicePersonAssocRowQuery.ToArray())
             {
-                if (row.nullablePersonDevice != null)
+                if (row.personDevice != null)
                 {
-                    row.device.PersonDevice = row.nullablePersonDevice;
-                    row.device.PersonDevice.Person = row.nullablePerson;
+                    row.device.PersonDevice = row.personDevice;
+                    row.device.PersonDevice.Person = row.person;
                 }
                 devices.Add(row.device);
             }
@@ -39,13 +37,6 @@ namespace KeyBook.Controllers
             {
                 Devices = devices
             });
-        }
-
-        public IActionResult Welcome(string name, int Id = 1)
-        {
-            ViewData["name"] = "Hello" + name;
-            ViewData["id"] = Id;
-            return View();
         }
 
         public IActionResult New()
