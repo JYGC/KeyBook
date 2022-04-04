@@ -3,30 +3,4 @@
     ViewData["Title"] = "Device";
 }
 
-@*<div>
-    <button>Add device</button>
-</div>
-<div>
-    <table>
-        <tr>
-            <th>Device Name</th>
-            <th>Device Identifier</th>
-            <!--<th>Status</th>-->
-            <th>Type</th>
-            <th></th>
-        </tr>
-        @foreach (Device device in Model.Devices)
-        {
-            <tr>
-                <td>@device.Name</td>
-                <td>@device.Identifier</td>
-                <!--<td>@device.Status</td>-->
-                <td>@device.Type</td>
-                <td>
-                    <button>Details</button>
-                </td>
-            </tr>
-        }
-    </table>
-</div>*@
 <device-list-svelte devicesjson='@Html.Raw(Json.Serialize(Model.Devices))'></device-list-svelte>
