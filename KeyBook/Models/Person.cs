@@ -13,6 +13,7 @@ namespace KeyBook.Models
 
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
+        public string? ImportIdentifier { get; set; }
         [Required]
         public string? Name { get; set; }
         [Required]

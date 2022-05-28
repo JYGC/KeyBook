@@ -20,10 +20,10 @@ namespace KeyBook.Controllers
             User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
             var devicePersonAssocRowQuery = from device in _context.Devices
                                             from personDevice in _context.PersonDevices.Where(personDevice => device.Id == personDevice.DeviceId).DefaultIfEmpty()
-                                            from person in _context.Persons.Where(person => personDevice.PersonId == person.Id)
+                                            from person in _context.Persons.Where(person => personDevice.PersonId == person.Id).DefaultIfEmpty()
                                             where device.UserId == user.Id && (device.Status == Device.DeviceStatus.NotUsed || device.Status == Device.DeviceStatus.WithManager || device.Status == Device.DeviceStatus.Used)
                                             select new { device, personDevice, person };
-            List < Device > devices = new List<Device>();
+            List <Device> devices = new List<Device>();
             foreach (var row in devicePersonAssocRowQuery.ToArray())
             {
                 if (row.personDevice != null)

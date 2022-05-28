@@ -1,0 +1,16 @@
+﻿@using System.Data
+@{
+    List<string> list = (List<string>)Model;
+}
+<html>
+    <body>
+        <table>
+            @foreach(string rw in list)
+            {
+                <tr>
+                    <td>@rw</td>
+                </tr>
+            }
+        </table>
+    </body>
+</html>
