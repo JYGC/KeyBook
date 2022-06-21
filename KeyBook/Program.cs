@@ -20,12 +20,16 @@ builder.Services.AddDbContext<KeyBookDbContext>(options => options.UseNpgsql(
     x => x.MigrationsHistoryTable("__efmigrationshistory", "public")
 ).ReplaceService<IHistoryRepository, LoweredCaseMigrationHistoryRepository>());
 
+builder.Services.AddDefaultIdentity<AuthUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<KeyBookDbContext>();;
+
+
 var app = builder.Build();
 
 using (IServiceScope scope = app.Services.CreateScope())
 {
     IServiceProvider services = scope.ServiceProvider;
-    KeyBook.Models.SeedData.Initialize(services);
+    SeedData.Initialize(services);
 }
 
 // Configure the HTTP request pipeline.
@@ -42,11 +46,13 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseAuthentication();;
 
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Device}/{action=Index}/{id?}");
+app.MapRazorPages();
 
 app.Run();

@@ -1,14 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace KeyBook.Models
 {
-    public class KeyBookDbContext : DbContext
+    public class KeyBookDbContext : IdentityDbContext<AuthUser>
     {
         public KeyBookDbContext(DbContextOptions<KeyBookDbContext> options) : base(options)
         {
         }
-    
-        public DbSet<User> Users { get; set; }
+
+        public DbSet<User> UserTable { get; set; }
+        public DbSet<UserHistory> UserHistory { get; set; }
         public DbSet<Device> Devices { get; set; }
         public DbSet<DeviceActivityHistory> DeviceActivityHistory { get; set; }
         public DbSet<DeviceHistory> DeviceHistories { get; set; }
@@ -24,8 +26,10 @@ namespace KeyBook.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<User>().ToTable("User");
-            modelBuilder.Entity<Device>().HasOne(u => u.User).WithMany(u => u.Devices).HasForeignKey(d => d.UserId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<UserHistory>().ToTable("UserHistory");
+            modelBuilder.Entity<Device>().HasOne(d => d.User).WithMany(u => u.Devices).HasForeignKey(d => d.UserId).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Device>().HasOne(d => d.PersonDevice).WithOne(pd => pd.Device).IsRequired(false).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Device>().ToTable("Device");
             modelBuilder.Entity<DeviceActivityHistory>().HasNoKey().ToView("DeviceActionHistory"); // Will not be a table

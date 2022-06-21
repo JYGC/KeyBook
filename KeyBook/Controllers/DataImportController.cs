@@ -29,7 +29,7 @@ namespace KeyBook.Controllers
         //[ValidateAntiForgeryToken] - Add XSRF protection later 
         public IActionResult Excel(IFormFile postedFile)
         {
-            User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+            User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
             if (postedFile == null || (!postedFile.FileName.EndsWith(".xls") && !postedFile.FileName.EndsWith(".xlsx"))) return NotFound();
             using IDbContextTransaction transaction = _context.Database.BeginTransaction();
             try

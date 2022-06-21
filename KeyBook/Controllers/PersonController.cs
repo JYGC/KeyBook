@@ -16,7 +16,7 @@ namespace KeyBook.Controllers
 
         public IActionResult Index()
         {
-            User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+            User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
             var personDeviceQuery = from person in _context.Set<Person>()
                                     from personDevice in _context.Set<PersonDevice>().Where(personDevice => personDevice.PersonId == person.Id).DefaultIfEmpty()
                                     from device in _context.Set<Device>().Where(device => device.Id == personDevice.DeviceId).DefaultIfEmpty()
@@ -53,7 +53,7 @@ namespace KeyBook.Controllers
             using IDbContextTransaction transaction = _context.Database.BeginTransaction();
             try
             {
-                User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+                User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
                 Person newPerson = new Person
                 {
                     Name = newPersonBindModel.Name,
@@ -83,7 +83,7 @@ namespace KeyBook.Controllers
 
         public IActionResult Edit(Guid id)
         {
-            User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+            User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
             Person? person = _context.Persons.Where(p => p.Id == id && p.UserId == user.Id).FirstOrDefault();
 
             if (person == null)
@@ -118,7 +118,7 @@ namespace KeyBook.Controllers
             using IDbContextTransaction transaction = _context.Database.BeginTransaction();
             try
             {
-                User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+                User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
                 Person? personFromDb = _context.Persons.Where(
                     p => p.Id == Guid.Parse(personBindModel.PersonId) && p.UserId == user.Id
                 ).FirstOrDefault();
@@ -153,7 +153,7 @@ namespace KeyBook.Controllers
 
         public ActionResult<Dictionary<Guid, string?>> GetPersonNames()
         {
-            User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); // replace - add user auth
+            User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); // replace - add user auth
             return _context.Persons.Where(p => p.UserId == user.Id).ToDictionary(p => p.Id, p => p.Name);
         }
     }

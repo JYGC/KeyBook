@@ -12,7 +12,7 @@ namespace KeyBook.Models
             using KeyBookDbContext context = new(serviceProvider.GetRequiredService<DbContextOptions<KeyBookDbContext>>());
             // seed users
             User seedAdminUser;
-            User? adminInDb = context.Users.FirstOrDefault(u => u.Name == __seedAdminName && u.IsAdmin == true);
+            User? adminInDb = context.UserTable.FirstOrDefault(u => u.Name == __seedAdminName && u.IsAdmin == true);
             if (adminInDb == null)
             {
                 seedAdminUser = new User
@@ -31,7 +31,7 @@ namespace KeyBook.Models
                     Description = "seeding admin user",
                     User = seedAdminUser
                 });
-                context.Users.Add(seedAdminUser);
+                context.UserTable.Add(seedAdminUser);
             }
             else
             {

@@ -17,7 +17,7 @@ namespace KeyBook.Controllers
 
         public IActionResult Index()
         {
-            User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+            User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
             var devicePersonAssocRowQuery = from device in _context.Devices
                                             from personDevice in _context.PersonDevices.Where(personDevice => device.Id == personDevice.DeviceId).DefaultIfEmpty()
                                             from person in _context.Persons.Where(person => personDevice.PersonId == person.Id).DefaultIfEmpty()
@@ -62,7 +62,7 @@ namespace KeyBook.Controllers
             using IDbContextTransaction transaction = _context.Database.BeginTransaction();
             try
             {
-                User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+                User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
                 Device newDevice = new Device
                 {
                     Name = newDeviceBindModel.Name,
@@ -94,7 +94,7 @@ namespace KeyBook.Controllers
 
         public IActionResult Edit(Guid id, Guid? fromPersonDetailsPersonId)
         {
-            User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); // replace - add user auth
+            User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); // replace - add user auth
             Device? device = _context.Devices.Find(id);
             device.PersonDevice = _context.PersonDevices.FirstOrDefault(pd => pd.DeviceId == device.Id);
 
@@ -131,7 +131,7 @@ namespace KeyBook.Controllers
             using IDbContextTransaction transaction = _context.Database.BeginTransaction();
             try
             {
-                User? user = _context.Users.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+                User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
                 // Update device
                 Device? deviceFromDb = _context.Devices.Where(
                     d => d.Id == Guid.Parse(devicePersonViewModel.DeviceId) && d.UserId == user.Id
