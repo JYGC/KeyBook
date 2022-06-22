@@ -1,10 +1,12 @@
 ﻿using KeyBook.Models;
 using KeyBook.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace KeyBook.Controllers
 {
+    [Authorize]
     public class PersonController : Controller
     {
         private readonly KeyBookDbContext _context;

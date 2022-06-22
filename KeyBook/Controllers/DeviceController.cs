@@ -1,11 +1,14 @@
 ﻿using KeyBook.Models;
 using KeyBook.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace KeyBook.Controllers
 {
+    [Authorize]
+    //[ValidateAntiForgeryToken] - Add XSRF protection later
     public class DeviceController : Controller
     {
         private readonly KeyBookDbContext _context;
@@ -55,8 +58,7 @@ namespace KeyBook.Controllers
             public string Identifier { get; set; }
             public int Type { get; set; }
         }
-        [HttpPost]
-        //[ValidateAntiForgeryToken] - Add XSRF protection later 
+        [HttpPost] 
         public IActionResult Add(NewDeviceBindModel newDeviceBindModel)
         {
             using IDbContextTransaction transaction = _context.Database.BeginTransaction();
@@ -125,7 +127,6 @@ namespace KeyBook.Controllers
             public string? FromPersonDetailsPersonId { get; set; } = null;
         }
         [HttpPost]
-        //[ValidateAntiForgeryToken] - Add XSRF protection later 
         public IActionResult Save(DevicePersonBindModel devicePersonViewModel) // continue here - not all properties are passing
         {
             using IDbContextTransaction transaction = _context.Database.BeginTransaction();

@@ -1,5 +1,6 @@
 ﻿using ExcelDataReader;
 using KeyBook.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -7,6 +8,7 @@ using System.Data;
 
 namespace KeyBook.Controllers
 {
+    [Authorize]
     public class DataImportController : Controller
     {
         private const string __UPLOAD_FOLDER = "Uploads";
@@ -43,8 +45,7 @@ namespace KeyBook.Controllers
                 Dictionary<int, DateTime> datesWithColNum = new Dictionary<int, DateTime>();
                 DateTime[] dateTimeHeading = dataTableCollection[0].Rows[0].ItemArray.Select(d =>
                 {
-                    DateTime dateTime;
-                    DateTime.TryParse(d.ToString(), out dateTime);
+                    DateTime.TryParse(d.ToString(), out DateTime dateTime);
                     return dateTime;
                 }).ToArray();
                 // Get users
