@@ -1,5 +1,5 @@
-﻿using KeyBook.Models;
-using KeyBook.Security;
+﻿using KeyBook.Constants;
+using KeyBook.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
@@ -21,7 +21,7 @@ namespace KeyBook.Seeds
                 if (user == null)
                 {
                     await userManager.CreateAsync(defaultUser, "&bC12357");
-                    await userManager.AddToRoleAsync(defaultUser, UserRoles.Owner.ToString());
+                    await userManager.AddToRoleAsync(defaultUser, Roles.Owner.ToString());
                 }
             }
         }
@@ -40,10 +40,10 @@ namespace KeyBook.Seeds
                 if (user == null)
                 {
                     await userManager.CreateAsync(defaultUser, "Test3r$");
-                    await userManager.AddToRoleAsync(defaultUser, UserRoles.Manager.ToString());
-                    await userManager.AddToRoleAsync(defaultUser, UserRoles.Owner.ToString());
-                    await userManager.AddToRoleAsync(defaultUser, UserRoles.Admin.ToString());
-                    await userManager.AddToRoleAsync(defaultUser, UserRoles.SuperAdmin.ToString());
+                    await userManager.AddToRoleAsync(defaultUser, Roles.Manager.ToString());
+                    await userManager.AddToRoleAsync(defaultUser, Roles.Owner.ToString());
+                    await userManager.AddToRoleAsync(defaultUser, Roles.Admin.ToString());
+                    await userManager.AddToRoleAsync(defaultUser, Roles.SuperAdmin.ToString());
                 }
                 await roleManager.SeedClaimsForSuperAdmin();
             }

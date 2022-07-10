@@ -1,4 +1,4 @@
-﻿namespace KeyBook.Security
+﻿namespace KeyBook.Constants
 {
     public static class Permissions
     {

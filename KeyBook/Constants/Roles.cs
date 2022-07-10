@@ -1,6 +1,6 @@
-﻿namespace KeyBook.Models
+﻿namespace KeyBook.Constants
 {
-    public enum UserRoles
+    public enum Roles
     {
         SuperAdmin,
         Admin,

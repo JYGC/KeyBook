@@ -1,4 +1,5 @@
-﻿using KeyBook.Models;
+﻿using KeyBook.Constants;
+using KeyBook.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace KeyBook.Seeds
@@ -7,10 +8,10 @@ namespace KeyBook.Seeds
     {
         public static async Task SeedAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            await roleManager.CreateAsync(new IdentityRole(UserRoles.SuperAdmin.ToString()));
-            await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin.ToString()));
-            await roleManager.CreateAsync(new IdentityRole(UserRoles.Owner.ToString()));
-            await roleManager.CreateAsync(new IdentityRole(UserRoles.Manager.ToString()));
+            await roleManager.CreateAsync(new IdentityRole(Roles.SuperAdmin.ToString()));
+            await roleManager.CreateAsync(new IdentityRole(Roles.Admin.ToString()));
+            await roleManager.CreateAsync(new IdentityRole(Roles.Owner.ToString()));
+            await roleManager.CreateAsync(new IdentityRole(Roles.Manager.ToString()));
         }
     }
 }

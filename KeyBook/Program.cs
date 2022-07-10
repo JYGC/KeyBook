@@ -1,5 +1,7 @@
 using KeyBook.Models;
+using KeyBook.Permission;
 using KeyBook.Seeds;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -16,6 +18,8 @@ builder.Services.AddControllersWithViews().AddJsonOptions(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 // Database
 builder.Services.AddDbContext<KeyBookDbContext>(options => options.UseNpgsql(
     builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -33,15 +37,6 @@ var app = builder.Build();
 using (IServiceScope scope = app.Services.CreateScope())
 {
     IServiceProvider services = scope.ServiceProvider;
-    //var ttt = async () =>
-    //{
-    //    UserManager<ApplicationUser> userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-    //    RoleManager<IdentityRole> roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-    //    await DefaultRoles.SeedAsync(userManager, roleManager);
-    //    await DefaultUsers.SeedBasicUserAsync(userManager, roleManager);
-    //    await DefaultUsers.SeedSuperAdminAsync(userManager, roleManager);
-    //};
-    //await ttt();
     UserManager<ApplicationUser> userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
     RoleManager<IdentityRole> roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     await DefaultRoles.SeedAsync(userManager, roleManager);
