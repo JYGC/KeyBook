@@ -1,8 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using KeyBook.Models
 
-@inject SignInManager<AuthUser> SignInManager
-@inject UserManager<AuthUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))

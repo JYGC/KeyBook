@@ -20,7 +20,7 @@ namespace KeyBook.Controllers
 
         public IActionResult Index()
         {
-            User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+            User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Seed"); //replace this - Authentication
             var devicePersonAssocRowQuery = from device in _context.Devices
                                             from personDevice in _context.PersonDevices.Where(personDevice => device.Id == personDevice.DeviceId).DefaultIfEmpty()
                                             from person in _context.Persons.Where(person => personDevice.PersonId == person.Id).DefaultIfEmpty()

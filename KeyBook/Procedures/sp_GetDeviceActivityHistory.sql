@@ -1,5 +1,5 @@
 CREATE OR REPLACE FUNCTION
-	public.sp_GetDeviceActivityHistory
+	"KeyBook".sp_GetDeviceActivityHistory
 	(
 		DeviceId uuid
 	)

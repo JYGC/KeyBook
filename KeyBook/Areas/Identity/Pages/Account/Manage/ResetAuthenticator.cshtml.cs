@@ -14,13 +14,13 @@ namespace KeyBook.Areas.Identity.Pages.Account.Manage
 {
     public class ResetAuthenticatorModel : PageModel
     {
-        private readonly UserManager<AuthUser> _userManager;
-        private readonly SignInManager<AuthUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<ResetAuthenticatorModel> _logger;
 
         public ResetAuthenticatorModel(
-            UserManager<AuthUser> userManager,
-            SignInManager<AuthUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             ILogger<ResetAuthenticatorModel> logger)
         {
             _userManager = userManager;

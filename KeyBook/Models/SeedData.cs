@@ -1,41 +1,72 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace KeyBook.Models
 {
     public static class SeedData
     {
-        private const string __seedAdminName = "Administrator";
-        private const string __seedAdminEmail = "admin@company.com";
+        private const string __seedUserName = "Seed";
+        private const string __seedUserEmail = "seed@app.server";
+        private const string __seedUserPassword = "$Eed3D";
 
         public static void Initialize(IServiceProvider serviceProvider)
         {
             using KeyBookDbContext context = new(serviceProvider.GetRequiredService<DbContextOptions<KeyBookDbContext>>());
+            // seed roles
+            //foreach (UserRoles userRole in Enum.GetValues(typeof(UserRoles)))
+            //{
+            //    bool roleExist = await roleManager.RoleExistsAsync(userRole.ToString());
+            //    if (!roleExist) await roleManager.CreateAsync(new IdentityRole(userRole.ToString()));
+            //}
             // seed users
-            User seedAdminUser;
-            User? adminInDb = context.UserTable.FirstOrDefault(u => u.Name == __seedAdminName && u.IsAdmin == true);
-            if (adminInDb == null)
+            //ApplicationUser? superuserInDb = context.ApplicationUsers.FirstOrDefault(u => u.UserName == __seedUserName && u.Email == __seedUserEmail);
+            //if (superuserInDb)
+            //{
+            //AuthUser superuser = new()
+            //{
+            //    Id = Guid.NewGuid().ToString(),
+            //    UserName = __seedAdminName,
+            //    Email = __seedAdminEmail,
+            //    NormalizedUserName = __seedAdminEmail,
+            //    NormalizedEmail = __seedAdminEmail,
+            //    LockoutEnabled = false,
+            //    EmailConfirmed = true,
+            //    PhoneNumberConfirmed = true,
+            //    SecurityStamp = Guid.NewGuid().ToString("D")
+            //};
+            ////context.AuthUsers.Add(superuser);
+            //PasswordHasher<AuthUser> passwordHasher = new PasswordHasher<AuthUser>();
+            //superuser.SecurityStamp = Guid.NewGuid().ToString();
+            //superuser.PasswordHash = passwordHasher.HashPassword(superuser, __seedSuperuserPassword);
+            //UserStore<ApplicationUser> userStore = new UserStore<ApplicationUser>(context);
+            //UserManager<ApplicationUser> userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            //if (!userManager.CreateAsync(new ApplicationUser { UserName = __seedUserName, Email = __seedUserEmail }, __seedUserPassword).Result.Succeeded) throw new Exception("Superuser could not be created");
+            //}
+            User seedUser;
+            User? seedUserInDb = context.UserTable.FirstOrDefault(u => u.Name == __seedUserName);
+            if (seedUserInDb == null)
             {
-                seedAdminUser = new User
+                seedUser = new User
                 {
-                    Name = __seedAdminName,
-                    Email = __seedAdminEmail,
-                    IsAdmin = true,
+                    Name = __seedUserName,
+                    Email = __seedUserEmail,
                 };
-                seedAdminUser.UserHistories.Add(new UserHistory
+                seedUser.UserHistories.Add(new UserHistory
                 {
-                    Name = seedAdminUser.Name,
-                    Email = seedAdminUser.Email,
-                    IsAdmin = seedAdminUser.IsAdmin,
-                    IsDeleted = seedAdminUser.IsDeleted,
-                    IsBlocked = seedAdminUser.IsBlocked,
+                    Name = seedUser.Name,
+                    Email = seedUser.Email,
+                    IsAdmin = seedUser.IsAdmin,
+                    IsDeleted = seedUser.IsDeleted,
+                    IsBlocked = seedUser.IsBlocked,
                     Description = "seeding admin user",
-                    User = seedAdminUser
+                    User = seedUser
                 });
-                context.UserTable.Add(seedAdminUser);
+                context.UserTable.Add(seedUser);
             }
             else
             {
-                seedAdminUser = adminInDb;
+                seedUser = seedUserInDb;
             }
             // seed devices
             List<Device> seededDevices;
@@ -62,35 +93,35 @@ namespace KeyBook.Models
                         Name = "Remote 1",
                         Identifier = "`'\"; OR 1=\'1",
                         Type = Device.DeviceType.Remote,
-                        User = seedAdminUser
+                        User = seedUser
                     },
                     new Device
                     {
                         Name = "Key 2",
                         Identifier = "<script>alert(1);</script>",
                         Type = Device.DeviceType.Key,
-                        User = seedAdminUser
+                        User = seedUser
                     },
                     new Device
                     {
                         Name = "Fob 2",
                         Identifier = ";D:D:D:D",
                         Type = Device.DeviceType.Fob,
-                        User = seedAdminUser
+                        User = seedUser
                     },
                     new Device
                     {
                         Name = "Remote 2",
                         Identifier = "8D",
                         Type = Device.DeviceType.Remote,
-                        User = seedAdminUser
+                        User = seedUser
                     },
                     new Device
                     {
                         Name = "Mail Kay 1",
                         Identifier = "<h1>Hamburger</h1>",
                         Type = Device.DeviceType.MailboxKey,
-                        User = seedAdminUser
+                        User = seedUser
                     }
                 };
                 DateTime[] recordDateTime = new DateTime[]
@@ -129,27 +160,27 @@ namespace KeyBook.Models
                 {
                     new Person
                     {
-                        Name = __seedAdminName,
+                        Name = __seedUserName,
                         Type = Person.PersonType.Owner,
-                        User = seedAdminUser
+                        User = seedUser
                     },
                     new Person
                     {
                         Name = "CheeJay von Kelhiem",
                         Type = Person.PersonType.Manager,
-                        User = seedAdminUser
+                        User = seedUser
                     },
                     new Person
                     {
                         Name = "Rachel DeSantis",
                         Type = Person.PersonType.Tenant,
-                        User = seedAdminUser
+                        User = seedUser
                     },
                     new Person
                     {
                         Name = "William Coldfuchs",
                         Type = Person.PersonType.Tenant,
-                        User = seedAdminUser
+                        User = seedUser
                     }
                 };
                 foreach (Person person in seededPersons)

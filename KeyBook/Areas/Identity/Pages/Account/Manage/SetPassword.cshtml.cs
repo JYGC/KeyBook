@@ -14,12 +14,12 @@ namespace KeyBook.Areas.Identity.Pages.Account.Manage
 {
     public class SetPasswordModel : PageModel
     {
-        private readonly UserManager<AuthUser> _userManager;
-        private readonly SignInManager<AuthUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
         public SetPasswordModel(
-            UserManager<AuthUser> userManager,
-            SignInManager<AuthUser> signInManager)
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;

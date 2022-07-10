@@ -3,12 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KeyBook.Models
 {
-    public class KeyBookDbContext : IdentityDbContext<AuthUser>
+    public class KeyBookDbContext : IdentityDbContext<ApplicationUser>
     {
         public KeyBookDbContext(DbContextOptions<KeyBookDbContext> options) : base(options)
         {
         }
 
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<User> UserTable { get; set; }
         public DbSet<UserHistory> UserHistory { get; set; }
         public DbSet<Device> Devices { get; set; }
@@ -27,6 +28,7 @@ namespace KeyBook.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.HasDefaultSchema("KeyBook");
             modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<UserHistory>().ToTable("UserHistory");
             modelBuilder.Entity<Device>().HasOne(d => d.User).WithMany(u => u.Devices).HasForeignKey(d => d.UserId).OnDelete(DeleteBehavior.Restrict);

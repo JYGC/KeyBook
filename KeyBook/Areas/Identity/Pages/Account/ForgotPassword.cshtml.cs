@@ -19,10 +19,10 @@ namespace KeyBook.Areas.Identity.Pages.Account
 {
     public class ForgotPasswordModel : PageModel
     {
-        private readonly UserManager<AuthUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
 
-        public ForgotPasswordModel(UserManager<AuthUser> userManager, IEmailSender emailSender)
+        public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender)
         {
             _userManager = userManager;
             _emailSender = emailSender;

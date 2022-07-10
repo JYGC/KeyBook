@@ -18,13 +18,14 @@ namespace KeyBook.Controllers
 
         public IActionResult Index()
         {
-            User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+            User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Seed"); //replace this - Authentication
             var personDeviceQuery = from person in _context.Set<Person>()
                                     from personDevice in _context.Set<PersonDevice>().Where(personDevice => personDevice.PersonId == person.Id).DefaultIfEmpty()
                                     from device in _context.Set<Device>().Where(device => device.Id == personDevice.DeviceId).DefaultIfEmpty()
                                     where person.UserId == user.Id && !person.IsDeleted
                                     select new { person, personDevice, device };
-            List<Person> personsWithDuplicates = personDeviceQuery.ToList().Select(pdq => pdq.person).ToList();
+
+            List<Person> personsWithDuplicates = personDeviceQuery.ToArray().Select(pdq => pdq.person).ToList();
             // remove duplicates
             Dictionary<Guid, Person> personsDict = new Dictionary<Guid, Person>();
             foreach (Person person in personsWithDuplicates)

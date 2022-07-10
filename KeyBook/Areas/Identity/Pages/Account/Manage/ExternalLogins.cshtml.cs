@@ -17,14 +17,14 @@ namespace KeyBook.Areas.Identity.Pages.Account.Manage
 {
     public class ExternalLoginsModel : PageModel
     {
-        private readonly UserManager<AuthUser> _userManager;
-        private readonly SignInManager<AuthUser> _signInManager;
-        private readonly IUserStore<AuthUser> _userStore;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IUserStore<ApplicationUser> _userStore;
 
         public ExternalLoginsModel(
-            UserManager<AuthUser> userManager,
-            SignInManager<AuthUser> signInManager,
-            IUserStore<AuthUser> userStore)
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            IUserStore<ApplicationUser> userStore)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -70,7 +70,7 @@ namespace KeyBook.Areas.Identity.Pages.Account.Manage
                 .ToList();
 
             string passwordHash = null;
-            if (_userStore is IUserPasswordStore<AuthUser> userPasswordStore)
+            if (_userStore is IUserPasswordStore<ApplicationUser> userPasswordStore)
             {
                 passwordHash = await userPasswordStore.GetPasswordHashAsync(user, HttpContext.RequestAborted);
             }

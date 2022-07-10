@@ -15,13 +15,13 @@ namespace KeyBook.Areas.Identity.Pages.Account.Manage
 {
     public class ChangePasswordModel : PageModel
     {
-        private readonly UserManager<AuthUser> _userManager;
-        private readonly SignInManager<AuthUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<ChangePasswordModel> _logger;
 
         public ChangePasswordModel(
-            UserManager<AuthUser> userManager,
-            SignInManager<AuthUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             ILogger<ChangePasswordModel> logger)
         {
             _userManager = userManager;

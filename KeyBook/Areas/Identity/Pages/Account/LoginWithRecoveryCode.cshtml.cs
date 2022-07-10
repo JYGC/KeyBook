@@ -16,13 +16,13 @@ namespace KeyBook.Areas.Identity.Pages.Account
 {
     public class LoginWithRecoveryCodeModel : PageModel
     {
-        private readonly SignInManager<AuthUser> _signInManager;
-        private readonly UserManager<AuthUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<LoginWithRecoveryCodeModel> _logger;
 
         public LoginWithRecoveryCodeModel(
-            SignInManager<AuthUser> signInManager,
-            UserManager<AuthUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            UserManager<ApplicationUser> userManager,
             ILogger<LoginWithRecoveryCodeModel> logger)
         {
             _signInManager = signInManager;
