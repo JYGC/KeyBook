@@ -30,8 +30,8 @@ namespace KeyBook.Seeds
         {
             var defaultUser = new ApplicationUser
             {
-                UserName = "superadmin@gmail.com",
-                Email = "superadmin@gmail.com",
+                UserName = "superadmin@app.server",
+                Email = "superadmin@app.server",
                 EmailConfirmed = true
             };
             if (userManager.Users.All(u => u.Id != defaultUser.Id))
@@ -39,7 +39,7 @@ namespace KeyBook.Seeds
                 var user = await userManager.FindByEmailAsync(defaultUser.Email);
                 if (user == null)
                 {
-                    await userManager.CreateAsync(defaultUser, "Test3r$");
+                    await userManager.CreateAsync(defaultUser, "$uperUs3r");
                     await userManager.AddToRoleAsync(defaultUser, Roles.Manager.ToString());
                     await userManager.AddToRoleAsync(defaultUser, Roles.Owner.ToString());
                     await userManager.AddToRoleAsync(defaultUser, Roles.Admin.ToString());
