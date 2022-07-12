@@ -1,4 +1,12 @@
-﻿<!DOCTYPE html>
+﻿@{
+    string[] publicRoutes = new string[]
+    {
+        "/Identity/Account/Login",
+        "/Identity/Account/Register"
+    };
+    string currentRoute = @Context.Request.Path;
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -42,6 +50,14 @@
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="DataImport" asp-action="Index">Import Devices and Persons</a>
                                 </li>
+                            }
+
+                            @if (publicRoutes.Contains(currentRoute))
+                            {
+                                //Replace
+                                <script lang="text/javascript">
+                                    window.location.href = "/";
+                                </script>
                             }
                         }
                     </ul>
