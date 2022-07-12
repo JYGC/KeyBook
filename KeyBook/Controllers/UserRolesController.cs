@@ -1,4 +1,5 @@
-﻿using KeyBook.Models;
+﻿using KeyBook.Constants;
+using KeyBook.Models;
 using KeyBook.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -24,7 +25,7 @@ namespace KeyBook.Controllers
         {
             List<UserRolesViewModel> userRolesViewModels = new List<UserRolesViewModel>();
             ApplicationUser user = await __userManager.FindByIdAsync(userId);
-            foreach (IdentityRole role in __roleManager.Roles.ToList())
+            foreach (IdentityRole role in __roleManager.Roles.Where(r => r.Name != Roles.SuperAdmin.ToString()).ToList())
             {
                 UserRolesViewModel userRolesViewModel = new UserRolesViewModel
                 {
