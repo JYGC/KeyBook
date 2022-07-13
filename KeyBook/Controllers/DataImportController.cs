@@ -1,6 +1,7 @@
 ﻿using ExcelDataReader;
 using KeyBook.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -13,13 +14,15 @@ namespace KeyBook.Controllers
     {
         private const string __UPLOAD_FOLDER = "Uploads";
 
-        private readonly KeyBookDbContext _context;
+        private readonly UserManager<ApplicationUser> __userManager;
+        private readonly KeyBookDbContext __context;
         private IHostEnvironment __environment;
 
-        public DataImportController(IHostEnvironment environment, KeyBookDbContext context)
+        public DataImportController(UserManager<ApplicationUser> signInManager, IHostEnvironment environment, KeyBookDbContext context)
         {
+            __userManager = signInManager;
             __environment = environment;
-            _context = context;
+            __context = context;
         }
 
         public IActionResult Index()
@@ -29,11 +32,11 @@ namespace KeyBook.Controllers
 
         [HttpPost]
         //[ValidateAntiForgeryToken] - Add XSRF protection later 
-        public IActionResult Excel(IFormFile postedFile)
+        public async Task<IActionResult> Excel(IFormFile postedFile)
         {
-            User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+            ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
             if (postedFile == null || (!postedFile.FileName.EndsWith(".xls") && !postedFile.FileName.EndsWith(".xlsx"))) return NotFound();
-            using IDbContextTransaction transaction = _context.Database.BeginTransaction();
+            using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
             {
                 DataTableCollection dataTableCollection = __ConvertUploadToDataTable(postedFile);
@@ -57,10 +60,10 @@ namespace KeyBook.Controllers
                     {
                         Name = personName,
                         ImportIdentifier = dataTableCollection[1].Rows[r1][1].ToString(),
-                        User = user,
+                        OrganizationId = user.OrganizationId,
                     };
                 }
-                Person[] existingPersons = _context.Persons.Where(p => p.UserId == user.Id && personsWithName.Keys.Contains(p.ImportIdentifier)).ToArray();
+                Person[] existingPersons = __context.Persons.Where(p => p.OrganizationId == user.OrganizationId && personsWithName.Keys.Contains(p.ImportIdentifier)).ToArray();
                 foreach (Person existingPerson in existingPersons)
                 {
                     personsWithName[existingPerson.Name] = existingPerson;
@@ -77,7 +80,7 @@ namespace KeyBook.Controllers
                         Name = deviceName,
                         Identifier = deviceIdentifier,
                         Type = (Device.DeviceType)Enum.Parse(typeof(Device.DeviceType), dataTableCollection[0].Rows[r0][2].ToString()),
-                        User = user,
+                        Organization = user.Organization,
                     };
                     personDevicesHistories[deviceIdentifier] = new Dictionary<string, PersonDeviceHistory>();
                     for (int c = 3; c < dataTableCollection[0].Rows[r0].ItemArray.Length; c++)
@@ -94,7 +97,7 @@ namespace KeyBook.Controllers
                         };
                     }
                 }
-                Device[] existingDevices = _context.Devices.Include(d => d.PersonDevice).Where(d => d.UserId == user.Id && inboundDevicesWithIdent.Keys.Contains(d.Identifier)).ToArray();
+                Device[] existingDevices = __context.Devices.Include(d => d.PersonDevice).Where(d => d.OrganizationId == user.OrganizationId && inboundDevicesWithIdent.Keys.Contains(d.Identifier)).ToArray();
                 foreach (Device existingDevice in existingDevices)
                 {
                     existingDevice.Name = inboundDevicesWithIdent[existingDevice.Identifier].Name;
@@ -123,9 +126,9 @@ namespace KeyBook.Controllers
                         Device = newDevice
                     });
                 }
-                _context.Devices.AddRange(inboundDevicesWithIdent.Values);
-                _context.DeviceHistories.AddRange(deviceHistories);
-                _context.SaveChanges();
+                __context.Devices.AddRange(inboundDevicesWithIdent.Values);
+                __context.DeviceHistories.AddRange(deviceHistories);
+                __context.SaveChanges();
                 transaction.Commit();
                 return RedirectToAction("Index", "Device");
             }

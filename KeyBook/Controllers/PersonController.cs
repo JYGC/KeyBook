@@ -1,6 +1,7 @@
 ﻿using KeyBook.Models;
 using KeyBook.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -9,20 +10,22 @@ namespace KeyBook.Controllers
     [Authorize]
     public class PersonController : Controller
     {
-        private readonly KeyBookDbContext _context;
+        private readonly UserManager<ApplicationUser> __userManager;
+        private readonly KeyBookDbContext __context;
 
-        public PersonController(KeyBookDbContext context)
+        public PersonController(UserManager<ApplicationUser> userManager, KeyBookDbContext context)
         {
-            _context = context;
+            __userManager = userManager;
+            __context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Seed"); //replace this - Authentication
-            var personDeviceQuery = from person in _context.Set<Person>()
-                                    from personDevice in _context.Set<PersonDevice>().Where(personDevice => personDevice.PersonId == person.Id).DefaultIfEmpty()
-                                    from device in _context.Set<Device>().Where(device => device.Id == personDevice.DeviceId).DefaultIfEmpty()
-                                    where person.UserId == user.Id && !person.IsDeleted
+            ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
+            var personDeviceQuery = from person in __context.Set<Person>()
+                                    from personDevice in __context.Set<PersonDevice>().Where(personDevice => personDevice.PersonId == person.Id).DefaultIfEmpty()
+                                    from device in __context.Set<Device>().Where(device => device.Id == personDevice.DeviceId).DefaultIfEmpty()
+                                    where person.OrganizationId == user.OrganizationId && !person.IsDeleted
                                     select new { person, personDevice, device };
 
             List<Person> personsWithDuplicates = personDeviceQuery.ToArray().Select(pdq => pdq.person).ToList();
@@ -51,17 +54,17 @@ namespace KeyBook.Controllers
             public int Type { get; set; }
         }
         [HttpPost]
-        public IActionResult Add(NewPersonBindModel newPersonBindModel)
+        public async Task<IActionResult> Add(NewPersonBindModel newPersonBindModel)
         {
-            using IDbContextTransaction transaction = _context.Database.BeginTransaction();
+            using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
             {
-                User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+                ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
                 Person newPerson = new Person
                 {
                     Name = newPersonBindModel.Name,
                     Type = (Person.PersonType)Enum.ToObject(typeof(Person.PersonType), newPersonBindModel.Type),
-                    User = user,
+                    OrganizationId = user.OrganizationId,
                 };
                 newPerson.PersonHistories.Add(new PersonHistory
                 {
@@ -72,8 +75,8 @@ namespace KeyBook.Controllers
                     Description = "create new person",
                     Person = newPerson
                 });
-                _context.Persons.Add(newPerson);
-                _context.SaveChanges();
+                __context.Persons.Add(newPerson);
+                __context.SaveChanges();
                 transaction.Commit();
                 return RedirectToAction("Index", "Person");
             }
@@ -84,18 +87,18 @@ namespace KeyBook.Controllers
             }
         }
 
-        public IActionResult Edit(Guid id)
+        public async Task<IActionResult> Edit(Guid id)
         {
-            User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
-            Person? person = _context.Persons.Where(p => p.Id == id && p.UserId == user.Id).FirstOrDefault();
+            ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
+            Person? person = __context.Persons.Where(p => p.Id == id && p.OrganizationId == user.OrganizationId).FirstOrDefault();
 
             if (person == null)
             {
                 return NotFound();
             }
-            person.PersonDevices = (from device in _context.Devices
-                                    join personDevice in _context.PersonDevices on device.Id equals personDevice.DeviceId
-                                    where device.UserId == user.Id && personDevice.PersonId == person.Id
+            person.PersonDevices = (from device in __context.Devices
+                                    join personDevice in __context.PersonDevices on device.Id equals personDevice.DeviceId
+                                    where device.OrganizationId == user.OrganizationId && personDevice.PersonId == person.Id
                                     select new PersonDevice
                                     {
                                         Id = personDevice.Id,
@@ -116,14 +119,14 @@ namespace KeyBook.Controllers
             public bool IsGone { get; set; }
         }
         [HttpPost]
-        public IActionResult Save(PersonBindModel personBindModel)
+        public async Task<IActionResult> Save(PersonBindModel personBindModel)
         {
-            using IDbContextTransaction transaction = _context.Database.BeginTransaction();
+            using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
             {
-                User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
-                Person? personFromDb = _context.Persons.Where(
-                    p => p.Id == Guid.Parse(personBindModel.PersonId) && p.UserId == user.Id
+                ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
+                Person? personFromDb = __context.Persons.Where(
+                    p => p.Id == Guid.Parse(personBindModel.PersonId) && p.OrganizationId == user.OrganizationId
                 ).FirstOrDefault();
                 if (personFromDb == null) return NotFound("Person not found");
                 bool isNameChange;
@@ -132,7 +135,7 @@ namespace KeyBook.Controllers
                 if (isIsGoneChange = (personFromDb.IsGone != personBindModel.IsGone)) personFromDb.IsGone = personBindModel.IsGone;
                 if (isNameChange || isIsGoneChange)
                 {
-                    _context.PersonHistories.Add(new PersonHistory
+                    __context.PersonHistories.Add(new PersonHistory
                     {
                         Name = personFromDb.Name,
                         IsGone = personFromDb.IsGone,
@@ -142,8 +145,8 @@ namespace KeyBook.Controllers
                         PersonId = personFromDb.Id
                     });
                 }
-                _context.Persons.Update(personFromDb);
-                _context.SaveChanges();
+                __context.Persons.Update(personFromDb);
+                __context.SaveChanges();
                 transaction.Commit();
                 return RedirectToAction("Index", "Person");
             }
@@ -154,10 +157,10 @@ namespace KeyBook.Controllers
             }
         }
 
-        public ActionResult<Dictionary<Guid, string?>> GetPersonNames()
+        public async Task<ActionResult<Dictionary<Guid, string?>>> GetPersonNames()
         {
-            User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); // replace - add user auth
-            return _context.Persons.Where(p => p.UserId == user.Id).ToDictionary(p => p.Id, p => p.Name);
+            ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
+            return __context.Persons.Where(p => p.OrganizationId == user.OrganizationId).ToDictionary(p => p.Id, p => p.Name);
         }
     }
 }

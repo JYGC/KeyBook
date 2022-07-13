@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using System.Text.Json.Serialization;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews().AddJsonOptions(options =>
@@ -32,7 +32,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddDefaultTokenProviders()
     .AddRoles<IdentityRole>();
 
-var app = builder.Build();
+WebApplication? app = builder.Build();
 
 using (IServiceScope scope = app.Services.CreateScope())
 {
@@ -42,7 +42,7 @@ using (IServiceScope scope = app.Services.CreateScope())
     await DefaultRoles.SeedAsync(userManager, roleManager);
     await DefaultUsers.SeedBasicUserAsync(userManager, roleManager);
     await DefaultUsers.SeedSuperAdminAsync(userManager, roleManager);
-    SeedData.Initialize(services);
+    await DefaultData.SeedAsync(services);
 }
 
 // Configure the HTTP request pipeline.

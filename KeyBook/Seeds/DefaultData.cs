@@ -1,91 +1,21 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using KeyBook.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace KeyBook.Models
+namespace KeyBook.Seeds
 {
-    public static class SeedData
+    public static class DefaultData
     {
-        private const string __seedUserName = "Seed";
-        private const string __seedUserEmail = "seed@app.server";
-        private const string __seedUserPassword = "$Eed3D";
-
-        public static void Initialize(IServiceProvider serviceProvider)
+        public static async Task SeedAsync(IServiceProvider serviceProvider)
         {
             using KeyBookDbContext context = new(serviceProvider.GetRequiredService<DbContextOptions<KeyBookDbContext>>());
-            // seed roles
-            //foreach (UserRoles userRole in Enum.GetValues(typeof(UserRoles)))
-            //{
-            //    bool roleExist = await roleManager.RoleExistsAsync(userRole.ToString());
-            //    if (!roleExist) await roleManager.CreateAsync(new IdentityRole(userRole.ToString()));
-            //}
-            // seed users
-            //ApplicationUser? superuserInDb = context.ApplicationUsers.FirstOrDefault(u => u.UserName == __seedUserName && u.Email == __seedUserEmail);
-            //if (superuserInDb)
-            //{
-            //AuthUser superuser = new()
-            //{
-            //    Id = Guid.NewGuid().ToString(),
-            //    UserName = __seedAdminName,
-            //    Email = __seedAdminEmail,
-            //    NormalizedUserName = __seedAdminEmail,
-            //    NormalizedEmail = __seedAdminEmail,
-            //    LockoutEnabled = false,
-            //    EmailConfirmed = true,
-            //    PhoneNumberConfirmed = true,
-            //    SecurityStamp = Guid.NewGuid().ToString("D")
-            //};
-            ////context.AuthUsers.Add(superuser);
-            //PasswordHasher<AuthUser> passwordHasher = new PasswordHasher<AuthUser>();
-            //superuser.SecurityStamp = Guid.NewGuid().ToString();
-            //superuser.PasswordHash = passwordHasher.HashPassword(superuser, __seedSuperuserPassword);
-            //UserStore<ApplicationUser> userStore = new UserStore<ApplicationUser>(context);
-            //UserManager<ApplicationUser> userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            //if (!userManager.CreateAsync(new ApplicationUser { UserName = __seedUserName, Email = __seedUserEmail }, __seedUserPassword).Result.Succeeded) throw new Exception("Superuser could not be created");
-            //}
-            User seedUser;
-            User? seedUserInDb = context.UserTable.FirstOrDefault(u => u.Name == __seedUserName);
-            if (seedUserInDb == null)
-            {
-                seedUser = new User
-                {
-                    Name = __seedUserName,
-                    Email = __seedUserEmail,
-                };
-                seedUser.UserHistories.Add(new UserHistory
-                {
-                    Name = seedUser.Name,
-                    Email = seedUser.Email,
-                    IsAdmin = seedUser.IsAdmin,
-                    IsDeleted = seedUser.IsDeleted,
-                    IsBlocked = seedUser.IsBlocked,
-                    Description = "seeding admin user",
-                    User = seedUser
-                });
-                context.UserTable.Add(seedUser);
-            }
-            else
-            {
-                seedUser = seedUserInDb;
-            }
+            ApplicationUser seedUser = await serviceProvider.GetRequiredService<UserManager<ApplicationUser>>().Users.Where(u => u.UserName == "seeduser@app.server").FirstAsync();
+            seedUser.Organization = await context.Organizations.Where(o => o.Users.Where(u => u.Email == seedUser.Email).Any()).FirstAsync();
             // seed devices
-            List<Device> seededDevices;
+            List <Device> seededDevices;
             if (!context.Devices.Any())
             {
-                var MakeDEviceHistoryWithRecordDate = (Device device, DateTime recordDateTime) =>
-                {
-                    return new DeviceHistory
-                    {
-                        Name = device.Name,
-                        Identifier = device.Identifier,
-                        Status = device.Status,
-                        Type = device.Type,
-                        IsDeleted = device.IsDeleted,
-                        Description = "seeding device table",
-                        RecordDateTime = recordDateTime,
-                        Device = device,
-                    };
-                };
                 seededDevices = new List<Device>
                 {
                     new Device
@@ -93,35 +23,35 @@ namespace KeyBook.Models
                         Name = "Remote 1",
                         Identifier = "`'\"; OR 1=\'1",
                         Type = Device.DeviceType.Remote,
-                        User = seedUser
+                        OrganizationId = seedUser.OrganizationId
                     },
                     new Device
                     {
                         Name = "Key 2",
                         Identifier = "<script>alert(1);</script>",
                         Type = Device.DeviceType.Key,
-                        User = seedUser
+                        OrganizationId = seedUser.OrganizationId
                     },
                     new Device
                     {
                         Name = "Fob 2",
                         Identifier = ";D:D:D:D",
                         Type = Device.DeviceType.Fob,
-                        User = seedUser
+                        OrganizationId = seedUser.OrganizationId
                     },
                     new Device
                     {
                         Name = "Remote 2",
                         Identifier = "8D",
                         Type = Device.DeviceType.Remote,
-                        User = seedUser
+                        OrganizationId = seedUser.OrganizationId
                     },
                     new Device
                     {
                         Name = "Mail Kay 1",
                         Identifier = "<h1>Hamburger</h1>",
                         Type = Device.DeviceType.MailboxKey,
-                        User = seedUser
+                        OrganizationId = seedUser.OrganizationId
                     }
                 };
                 DateTime[] recordDateTime = new DateTime[]
@@ -160,27 +90,27 @@ namespace KeyBook.Models
                 {
                     new Person
                     {
-                        Name = __seedUserName,
+                        Name = seedUser.Name,
                         Type = Person.PersonType.Owner,
-                        User = seedUser
+                        OrganizationId = seedUser.OrganizationId
                     },
                     new Person
                     {
                         Name = "CheeJay von Kelhiem",
                         Type = Person.PersonType.Manager,
-                        User = seedUser
+                        OrganizationId = seedUser.OrganizationId
                     },
                     new Person
                     {
                         Name = "Rachel DeSantis",
                         Type = Person.PersonType.Tenant,
-                        User = seedUser
+                        OrganizationId = seedUser.OrganizationId
                     },
                     new Person
                     {
                         Name = "William Coldfuchs",
                         Type = Person.PersonType.Tenant,
-                        User = seedUser
+                        OrganizationId = seedUser.OrganizationId
                     }
                 };
                 foreach (Person person in seededPersons)

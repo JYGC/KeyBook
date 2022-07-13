@@ -37,8 +37,8 @@ namespace KeyBook.Models
         [Required]
         public bool IsDeleted { get; set; } = false;
         [Required]
-        public Guid UserId { get; set; }
-        public virtual User? User { get; set; }
+        public Guid OrganizationId { get; set; }
+        public virtual Organization Organization { get; set; }
         public PersonDevice? PersonDevice { get; set; }
         public virtual ICollection<DeviceHistory> DeviceHistories { get; set; } = new List<DeviceHistory>();
     }

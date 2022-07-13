@@ -17,7 +17,7 @@ BEGIN
 		SELECT
 			dh."DeviceId", dh."RecordDateTime", dh."Description"
 		FROM
-			public."DeviceHistory" dh
+			"KeyBook"."DeviceHistory" dh
 		WHERE
 			dh."DeviceId" = DeviceId
 
@@ -26,7 +26,7 @@ BEGIN
 		SELECT
 			pdh."DeviceId", pdh."RecordDateTime", pdh."Description"
 		FROM
-			public."PersonDeviceHistory" pdh
+			"KeyBook"."PersonDeviceHistory" pdh
 		WHERE
 			pdh."DeviceId" = DeviceId
 	) historyList

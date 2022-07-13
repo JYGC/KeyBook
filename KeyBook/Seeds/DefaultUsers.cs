@@ -12,8 +12,13 @@ namespace KeyBook.Seeds
             ApplicationUser defaultUser = new ApplicationUser
             {
                 UserName = "seeduser@app.server",
+                Name = "Sean Ulysses",
                 Email = "seeduser@app.server",
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Organization = new Organization
+                {
+                    Name = "Seed Organization"
+                }
             };
             if (userManager.Users.All(u => u.Id != defaultUser.Id))
             {
@@ -28,22 +33,27 @@ namespace KeyBook.Seeds
 
         public static async Task SeedSuperAdminAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            var defaultUser = new ApplicationUser
+            ApplicationUser superAdmin = new ApplicationUser
             {
                 UserName = "superadmin@app.server",
+                Name = "SuperAdmin",
                 Email = "superadmin@app.server",
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Organization = new Organization
+                {
+                    Name = "SuperAdmin"
+                }
             };
-            if (userManager.Users.All(u => u.Id != defaultUser.Id))
+            if (userManager.Users.All(u => u.Id != superAdmin.Id))
             {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
+                ApplicationUser? user = await userManager.FindByEmailAsync(superAdmin.Email);
                 if (user == null)
                 {
-                    await userManager.CreateAsync(defaultUser, "$uperUs3r");
-                    await userManager.AddToRoleAsync(defaultUser, Roles.Manager.ToString());
-                    await userManager.AddToRoleAsync(defaultUser, Roles.Owner.ToString());
-                    await userManager.AddToRoleAsync(defaultUser, Roles.Admin.ToString());
-                    await userManager.AddToRoleAsync(defaultUser, Roles.SuperAdmin.ToString());
+                    await userManager.CreateAsync(superAdmin, "$uperUs3r");
+                    await userManager.AddToRoleAsync(superAdmin, Roles.Manager.ToString());
+                    await userManager.AddToRoleAsync(superAdmin, Roles.Owner.ToString());
+                    await userManager.AddToRoleAsync(superAdmin, Roles.Admin.ToString());
+                    await userManager.AddToRoleAsync(superAdmin, Roles.SuperAdmin.ToString());
                 }
                 await roleManager.SeedClaimsForSuperAdmin();
             }
@@ -51,15 +61,15 @@ namespace KeyBook.Seeds
 
         private async static Task SeedClaimsForSuperAdmin(this RoleManager<IdentityRole> roleManager)
         {
-            var adminRole = await roleManager.FindByNameAsync("SuperAdmin");
+            IdentityRole? adminRole = await roleManager.FindByNameAsync("SuperAdmin");
             await roleManager.AddPermissionClaim(adminRole, "Products");
         }
 
         public static async Task AddPermissionClaim(this RoleManager<IdentityRole> roleManager, IdentityRole role, string module)
         {
-            var allClaims = await roleManager.GetClaimsAsync(role);
-            var allPermissions = Permissions.GeneratePermissionsForModule(module);
-            foreach (var permission in allPermissions)
+            IList<Claim>? allClaims = await roleManager.GetClaimsAsync(role);
+            List<string>? allPermissions = Permissions.GeneratePermissionsForModule(module);
+            foreach (string permission in allPermissions)
             {
                 if (!allClaims.Any(a => a.Type == "Permission" && a.Value == permission))
                 {

@@ -1,6 +1,7 @@
 ﻿using KeyBook.Models;
 using KeyBook.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -11,20 +12,22 @@ namespace KeyBook.Controllers
     //[ValidateAntiForgeryToken] - Add XSRF protection later
     public class DeviceController : Controller
     {
-        private readonly KeyBookDbContext _context;
+        private readonly UserManager<ApplicationUser> __userManager;
+        private readonly KeyBookDbContext __context;
 
-        public DeviceController(KeyBookDbContext context)
+        public DeviceController(UserManager<ApplicationUser> userManager, KeyBookDbContext context)
         {
-            _context = context;
+            __context = context;
+            __userManager = userManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Seed"); //replace this - Authentication
-            var devicePersonAssocRowQuery = from device in _context.Devices
-                                            from personDevice in _context.PersonDevices.Where(personDevice => device.Id == personDevice.DeviceId).DefaultIfEmpty()
-                                            from person in _context.Persons.Where(person => personDevice.PersonId == person.Id).DefaultIfEmpty()
-                                            where device.UserId == user.Id && (device.Status == Device.DeviceStatus.NotUsed || device.Status == Device.DeviceStatus.WithManager || device.Status == Device.DeviceStatus.Used)
+            ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
+            var devicePersonAssocRowQuery = from device in __context.Devices
+                                            from personDevice in __context.PersonDevices.Where(personDevice => device.Id == personDevice.DeviceId).DefaultIfEmpty()
+                                            from person in __context.Persons.Where(person => personDevice.PersonId == person.Id).DefaultIfEmpty()
+                                            where device.OrganizationId == user.OrganizationId && (device.Status == Device.DeviceStatus.NotUsed || device.Status == Device.DeviceStatus.WithManager || device.Status == Device.DeviceStatus.Used)
                                             select new { device, personDevice, person };
             List <Device> devices = new List<Device>();
             foreach (var row in devicePersonAssocRowQuery.ToArray())
@@ -59,18 +62,18 @@ namespace KeyBook.Controllers
             public int Type { get; set; }
         }
         [HttpPost] 
-        public IActionResult Add(NewDeviceBindModel newDeviceBindModel)
+        public async Task<IActionResult> Add(NewDeviceBindModel newDeviceBindModel)
         {
-            using IDbContextTransaction transaction = _context.Database.BeginTransaction();
+            using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
             {
-                User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+                ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
                 Device newDevice = new Device
                 {
                     Name = newDeviceBindModel.Name,
                     Identifier = newDeviceBindModel.Identifier,
                     Type = (Device.DeviceType)Enum.ToObject(typeof(Device.DeviceType), newDeviceBindModel.Type),
-                    User = user,
+                    OrganizationId = user.OrganizationId,
                 };
                 newDevice.DeviceHistories.Add(new DeviceHistory
                 {
@@ -82,8 +85,8 @@ namespace KeyBook.Controllers
                     Description = "create new device",
                     Device = newDevice
                 });
-                _context.Devices.Add(newDevice);
-                _context.SaveChanges();
+                __context.Devices.Add(newDevice);
+                __context.SaveChanges();
                 transaction.Commit();
                 return RedirectToAction("Index", "Device");
             }
@@ -94,11 +97,11 @@ namespace KeyBook.Controllers
             }
         }
 
-        public IActionResult Edit(Guid id, Guid? fromPersonDetailsPersonId)
+        public async Task<IActionResult> Edit(Guid id, Guid? fromPersonDetailsPersonId)
         {
-            User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); // replace - add user auth
-            Device? device = _context.Devices.Find(id);
-            device.PersonDevice = _context.PersonDevices.FirstOrDefault(pd => pd.DeviceId == device.Id);
+            ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
+            Device? device = __context.Devices.Find(id);
+            device.PersonDevice = __context.PersonDevices.FirstOrDefault(pd => pd.DeviceId == device.Id);
 
             if (device == null)
             {
@@ -109,8 +112,8 @@ namespace KeyBook.Controllers
             {
                 Device = device,
                 FromPersonDetailsPersonId = fromPersonDetailsPersonId,
-                DeviceActivityHistoryList = _context.DeviceActivityHistory.FromSqlRaw(
-                    $"SELECT * FROM public.sp_GetDeviceActivityHistory('{device.Id}')"
+                DeviceActivityHistoryList = __context.DeviceActivityHistory.FromSqlRaw(
+                    $"SELECT * FROM \"KeyBook\".sp_GetDeviceActivityHistory('{device.Id}')"
                 ).ToList()
             });
         }
@@ -124,18 +127,18 @@ namespace KeyBook.Controllers
             public string Status { get; set; }
             public string Type { get; set; }
             public string PersonId { get; set; }
-            public string? FromPersonDetailsPersonId { get; set; } = null;
+            public string FromPersonDetailsPersonId { get; set; } = null;
         }
         [HttpPost]
-        public IActionResult Save(DevicePersonBindModel devicePersonViewModel) // continue here - not all properties are passing
+        public async Task<IActionResult> Save(DevicePersonBindModel devicePersonViewModel) // continue here - not all properties are passing
         {
-            using IDbContextTransaction transaction = _context.Database.BeginTransaction();
+            using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
             {
-                User? user = _context.UserTable.FirstOrDefault(u => u.Name == "Administrator"); //replace this - Authentication
+                ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
                 // Update device
-                Device? deviceFromDb = _context.Devices.Where(
-                    d => d.Id == Guid.Parse(devicePersonViewModel.DeviceId) && d.UserId == user.Id
+                Device? deviceFromDb = __context.Devices.Where(
+                    d => d.Id == Guid.Parse(devicePersonViewModel.DeviceId) && d.OrganizationId == user.OrganizationId
                 ).FirstOrDefault();
                 if (deviceFromDb == null) return NotFound("Device not found");
                 bool isNameChange;
@@ -147,7 +150,7 @@ namespace KeyBook.Controllers
                 if (isSatusChange = (deviceFromDb.Status != inboundDeviceStatus)) deviceFromDb.Status = inboundDeviceStatus;
                 if (isNameChange || isIdentifierChange || isSatusChange)
                 {
-                    _context.DeviceHistories.Add(new DeviceHistory
+                    __context.DeviceHistories.Add(new DeviceHistory
                     {
                         Name = deviceFromDb.Name,
                         Identifier = deviceFromDb.Identifier,
@@ -157,9 +160,9 @@ namespace KeyBook.Controllers
                         Description = "edit device",
                         Device = deviceFromDb
                     });
-                    _context.SaveChanges();
+                    __context.SaveChanges();
                 }
-                PersonDevice? personDevice = _context.PersonDevices.FirstOrDefault(pd => deviceFromDb.Id == pd.DeviceId);
+                PersonDevice? personDevice = __context.PersonDevices.FirstOrDefault(pd => deviceFromDb.Id == pd.DeviceId);
                 // Update PersonDevices
                 Guid inboundPersonId;
                 Guid.TryParse(devicePersonViewModel.PersonId, out inboundPersonId);
@@ -171,27 +174,27 @@ namespace KeyBook.Controllers
                 else if (inboundPersonId != Guid.Empty && (personDevice == null || personDevice.PersonId != inboundPersonId))
                 {
                     if (personDevice != null) __RemovePersonDeviceAndEditAssociateHistory(deviceFromDb);
-                    Person? personFromDb = _context.Persons.Where(
-                        p => p.Id == inboundPersonId && p.UserId == user.Id
+                    Person? personFromDb = __context.Persons.Where(
+                        p => p.Id == inboundPersonId && p.OrganizationId == user.OrganizationId
                     ).FirstOrDefault();
                     personDevice = new PersonDevice
                     {
                         Person = personFromDb,
                         Device = deviceFromDb
                     };
-                    _context.PersonDevices.Add(personDevice);
-                    _context.SaveChanges();
-                    _context.PersonDeviceHistories.Add(new PersonDeviceHistory
+                    __context.PersonDevices.Add(personDevice);
+                    __context.SaveChanges();
+                    __context.PersonDeviceHistories.Add(new PersonDeviceHistory
                     {
                         PersonDeviceId = personDevice.Id,
                         PersonId = personDevice.Person.Id,
                         DeviceId = personDevice.Device.Id,
                         Description = String.Format("{0} assigned to {1} {2}", deviceFromDb.Name, personFromDb.Type, personFromDb.Name)
                     });
-                    _context.Persons.Update(personFromDb);
+                    __context.Persons.Update(personFromDb);
                 }
-                _context.Devices.Update(deviceFromDb);
-                _context.SaveChanges();
+                __context.Devices.Update(deviceFromDb);
+                __context.SaveChanges();
                 transaction.Commit();
                 return (devicePersonViewModel.FromPersonDetailsPersonId == null)
                     ? RedirectToAction("Index", "Device")
@@ -210,7 +213,7 @@ namespace KeyBook.Controllers
         private void __RemovePersonDeviceAndEditAssociateHistory(Device deviceFromDb)
         {
             deviceFromDb.PersonDevice.IsNoLongerHas = true;
-            _context.PersonDeviceHistories.Add(new PersonDeviceHistory
+            __context.PersonDeviceHistories.Add(new PersonDeviceHistory
             {
                 PersonDeviceId = deviceFromDb.PersonDevice.Id,
                 PersonId = deviceFromDb.PersonDevice.PersonId,
@@ -218,8 +221,8 @@ namespace KeyBook.Controllers
                 Description = "person no longer has device",
                 IsNoLongerHas = deviceFromDb.PersonDevice.IsNoLongerHas
             });
-            _context.PersonDevices.Remove(deviceFromDb.PersonDevice);
-            _context.SaveChanges();
+            __context.PersonDevices.Remove(deviceFromDb.PersonDevice);
+            __context.SaveChanges();
         }
     }
 }
