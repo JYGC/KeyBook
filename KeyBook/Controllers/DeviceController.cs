@@ -12,10 +12,10 @@ namespace KeyBook.Controllers
     //[ValidateAntiForgeryToken] - Add XSRF protection later
     public class DeviceController : Controller
     {
-        private readonly UserManager<ApplicationUser> __userManager;
+        private readonly UserManager<User> __userManager;
         private readonly KeyBookDbContext __context;
 
-        public DeviceController(UserManager<ApplicationUser> userManager, KeyBookDbContext context)
+        public DeviceController(UserManager<User> userManager, KeyBookDbContext context)
         {
             __context = context;
             __userManager = userManager;
@@ -23,7 +23,7 @@ namespace KeyBook.Controllers
 
         public async Task<IActionResult> Index()
         {
-            ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
+            User? user = await __userManager.GetUserAsync(HttpContext.User);
             var devicePersonAssocRowQuery = from device in __context.Devices
                                             from personDevice in __context.PersonDevices.Where(personDevice => device.Id == personDevice.DeviceId).DefaultIfEmpty()
                                             from person in __context.Persons.Where(person => personDevice.PersonId == person.Id).DefaultIfEmpty()
@@ -67,7 +67,7 @@ namespace KeyBook.Controllers
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
             {
-                ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
+                User? user = await __userManager.GetUserAsync(HttpContext.User);
                 Device newDevice = new Device
                 {
                     Name = newDeviceBindModel.Name,
@@ -99,7 +99,7 @@ namespace KeyBook.Controllers
 
         public async Task<IActionResult> Edit(Guid id, Guid? fromPersonDetailsPersonId)
         {
-            ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
+            User? user = await __userManager.GetUserAsync(HttpContext.User);
             Device? device = __context.Devices.Find(id);
             device.PersonDevice = __context.PersonDevices.FirstOrDefault(pd => pd.DeviceId == device.Id);
 
@@ -135,7 +135,7 @@ namespace KeyBook.Controllers
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
             {
-                ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
+                User? user = await __userManager.GetUserAsync(HttpContext.User);
                 // Update device
                 Device? deviceFromDb = __context.Devices.Where(
                     d => d.Id == Guid.Parse(devicePersonViewModel.DeviceId) && d.OrganizationId == user.OrganizationId

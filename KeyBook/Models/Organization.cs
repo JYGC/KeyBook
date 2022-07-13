@@ -10,7 +10,7 @@ namespace KeyBook.Models
         public string Name { get; set; }
         [Required]
         public bool IsDeleted { get; set; } = false;
-        public virtual ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
+        public virtual ICollection<User> Users { get; set; } = new List<User>();
         public virtual ICollection<Person> Persons { get; set; } = new List<Person>();
         public virtual ICollection<Device> Devices { get; set; } = new List<Device>();
     }

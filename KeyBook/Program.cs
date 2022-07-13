@@ -26,7 +26,7 @@ builder.Services.AddDbContext<KeyBookDbContext>(options => options.UseNpgsql(
     x => x.MigrationsHistoryTable("__efmigrationshistory", "public")
 ).ReplaceService<IHistoryRepository, LoweredCaseMigrationHistoryRepository>());
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<KeyBookDbContext>()
     .AddDefaultUI()
     .AddDefaultTokenProviders()
@@ -37,7 +37,7 @@ WebApplication? app = builder.Build();
 using (IServiceScope scope = app.Services.CreateScope())
 {
     IServiceProvider services = scope.ServiceProvider;
-    UserManager<ApplicationUser> userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+    UserManager<User> userManager = services.GetRequiredService<UserManager<User>>();
     RoleManager<IdentityRole> roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     await DefaultRoles.SeedAsync(userManager, roleManager);
     await DefaultUsers.SeedBasicUserAsync(userManager, roleManager);

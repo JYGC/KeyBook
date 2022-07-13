@@ -1,5 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Identity;
-@model IEnumerable<ApplicationUser>
+@model IEnumerable<User>
 <h1>User List</h1>
 <br />
 <table class="table table-striped" id="userTable">
@@ -17,7 +17,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach(ApplicationUser user in Model)
+        @foreach(User user in Model)
         {
             <tr>
                 <td>

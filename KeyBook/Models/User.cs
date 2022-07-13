@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace KeyBook.Models;
 
 // Add profile data for application users by adding properties to the AuthUser class
-public class ApplicationUser : IdentityUser
+public class User : IdentityUser
 {
     [Required]
     public string Name { get; set; }

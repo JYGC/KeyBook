@@ -14,11 +14,11 @@ namespace KeyBook.Controllers
     {
         private const string __UPLOAD_FOLDER = "Uploads";
 
-        private readonly UserManager<ApplicationUser> __userManager;
+        private readonly UserManager<User> __userManager;
         private readonly KeyBookDbContext __context;
         private IHostEnvironment __environment;
 
-        public DataImportController(UserManager<ApplicationUser> signInManager, IHostEnvironment environment, KeyBookDbContext context)
+        public DataImportController(UserManager<User> signInManager, IHostEnvironment environment, KeyBookDbContext context)
         {
             __userManager = signInManager;
             __environment = environment;
@@ -34,7 +34,7 @@ namespace KeyBook.Controllers
         //[ValidateAntiForgeryToken] - Add XSRF protection later 
         public async Task<IActionResult> Excel(IFormFile postedFile)
         {
-            ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
+            User? user = await __userManager.GetUserAsync(HttpContext.User);
             if (postedFile == null || (!postedFile.FileName.EndsWith(".xls") && !postedFile.FileName.EndsWith(".xlsx"))) return NotFound();
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try

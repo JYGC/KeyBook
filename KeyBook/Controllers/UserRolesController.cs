@@ -10,11 +10,11 @@ namespace KeyBook.Controllers
     [Authorize(Roles = "SuperAdmin")]
     public class UserRolesController : Controller
     {
-        private readonly SignInManager<ApplicationUser> __signInManager;
-        private readonly UserManager<ApplicationUser> __userManager;
+        private readonly SignInManager<User> __signInManager;
+        private readonly UserManager<User> __userManager;
         private readonly RoleManager<IdentityRole> __roleManager;
 
-        public UserRolesController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public UserRolesController(SignInManager<User> signInManager, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
             __signInManager = signInManager;
             __userManager = userManager;
@@ -24,7 +24,7 @@ namespace KeyBook.Controllers
         public async Task<IActionResult> Index(string userId)
         {
             List<UserRolesViewModel> userRolesViewModels = new List<UserRolesViewModel>();
-            ApplicationUser user = await __userManager.FindByIdAsync(userId);
+            User user = await __userManager.FindByIdAsync(userId);
             foreach (IdentityRole role in __roleManager.Roles.Where(r => r.Name != Roles.SuperAdmin.ToString()).ToList())
             {
                 UserRolesViewModel userRolesViewModel = new UserRolesViewModel
@@ -44,10 +44,10 @@ namespace KeyBook.Controllers
 
         public async Task<IActionResult> Manage(string id, ManageUserRolesViewModel model)
         {
-            ApplicationUser user = await __userManager.FindByIdAsync(id);
+            User user = await __userManager.FindByIdAsync(id);
             IList<string> roles = await __userManager.GetRolesAsync(user);
             IdentityResult result = await __userManager.RemoveFromRolesAsync(user, roles);
-            ApplicationUser currentUser = await __userManager.GetUserAsync(User);
+            User currentUser = await __userManager.GetUserAsync(User);
             await __signInManager.RefreshSignInAsync(currentUser);
             await Seeds.DefaultUsers.SeedSuperAdminAsync(__userManager, __roleManager); // fallback code in case one admin tries to change the roles of another - Find better implementation?
             return RedirectToAction("Index", new { userId = id });
@@ -55,7 +55,7 @@ namespace KeyBook.Controllers
 
         public async Task<IActionResult> Update(string id, ManageUserRolesViewModel model)
         {
-            ApplicationUser user = await __userManager.FindByIdAsync(id);
+            User user = await __userManager.FindByIdAsync(id);
             foreach (UserRolesViewModel userRolesViewModel in model.UserRoles)
             {
                 if (userRolesViewModel.Selected)

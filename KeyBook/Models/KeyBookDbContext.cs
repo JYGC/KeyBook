@@ -3,13 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KeyBook.Models
 {
-    public class KeyBookDbContext : IdentityDbContext<ApplicationUser>
+    public class KeyBookDbContext : IdentityDbContext<User>
     {
         public KeyBookDbContext(DbContextOptions<KeyBookDbContext> options) : base(options)
         {
         }
 
-        public DbSet<ApplicationUser> UserTable { get; set; }
+        public DbSet<User> UserTable { get; set; }
         public DbSet<Organization> Organizations { get; set; }
         public DbSet<UserHistory> UserHistory { get; set; }
         public DbSet<Device> Devices { get; set; }
@@ -30,7 +30,7 @@ namespace KeyBook.Models
             base.OnModelCreating(modelBuilder);
             modelBuilder.HasDefaultSchema("KeyBook");
             modelBuilder.Entity<Organization>().ToTable("Organization");
-            modelBuilder.Entity<ApplicationUser>().HasOne(u => u.Organization).WithMany(o => o.Users).HasForeignKey(u => u.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<User>().HasOne(u => u.Organization).WithMany(o => o.Users).HasForeignKey(u => u.OrganizationId).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<UserHistory>().ToTable("UserHistory");
             modelBuilder.Entity<Device>().HasOne(d => d.Organization).WithMany(o => o.Devices).HasForeignKey(d => d.OrganizationId).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Device>().HasOne(d => d.PersonDevice).WithOne(pd => pd.Device).IsRequired(false).OnDelete(DeleteBehavior.Restrict);

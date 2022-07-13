@@ -10,10 +10,10 @@ namespace KeyBook.Controllers
     [Authorize]
     public class PersonController : Controller
     {
-        private readonly UserManager<ApplicationUser> __userManager;
+        private readonly UserManager<User> __userManager;
         private readonly KeyBookDbContext __context;
 
-        public PersonController(UserManager<ApplicationUser> userManager, KeyBookDbContext context)
+        public PersonController(UserManager<User> userManager, KeyBookDbContext context)
         {
             __userManager = userManager;
             __context = context;
@@ -21,7 +21,7 @@ namespace KeyBook.Controllers
 
         public async Task<IActionResult> Index()
         {
-            ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
+            User? user = await __userManager.GetUserAsync(HttpContext.User);
             var personDeviceQuery = from person in __context.Set<Person>()
                                     from personDevice in __context.Set<PersonDevice>().Where(personDevice => personDevice.PersonId == person.Id).DefaultIfEmpty()
                                     from device in __context.Set<Device>().Where(device => device.Id == personDevice.DeviceId).DefaultIfEmpty()
@@ -59,7 +59,7 @@ namespace KeyBook.Controllers
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
             {
-                ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
+                User? user = await __userManager.GetUserAsync(HttpContext.User);
                 Person newPerson = new Person
                 {
                     Name = newPersonBindModel.Name,
@@ -89,7 +89,7 @@ namespace KeyBook.Controllers
 
         public async Task<IActionResult> Edit(Guid id)
         {
-            ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
+            User? user = await __userManager.GetUserAsync(HttpContext.User);
             Person? person = __context.Persons.Where(p => p.Id == id && p.OrganizationId == user.OrganizationId).FirstOrDefault();
 
             if (person == null)
@@ -124,7 +124,7 @@ namespace KeyBook.Controllers
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
             {
-                ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
+                User? user = await __userManager.GetUserAsync(HttpContext.User);
                 Person? personFromDb = __context.Persons.Where(
                     p => p.Id == Guid.Parse(personBindModel.PersonId) && p.OrganizationId == user.OrganizationId
                 ).FirstOrDefault();
@@ -159,7 +159,7 @@ namespace KeyBook.Controllers
 
         public async Task<ActionResult<Dictionary<Guid, string?>>> GetPersonNames()
         {
-            ApplicationUser? user = await __userManager.GetUserAsync(HttpContext.User);
+            User? user = await __userManager.GetUserAsync(HttpContext.User);
             return __context.Persons.Where(p => p.OrganizationId == user.OrganizationId).ToDictionary(p => p.Id, p => p.Name);
         }
     }

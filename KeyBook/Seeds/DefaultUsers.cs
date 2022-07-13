@@ -7,9 +7,9 @@ namespace KeyBook.Seeds
 {
     public static class DefaultUsers
     {
-        public static async Task SeedBasicUserAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public static async Task SeedBasicUserAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
-            ApplicationUser defaultUser = new ApplicationUser
+            User defaultUser = new User
             {
                 UserName = "seeduser@app.server",
                 Name = "Sean Ulysses",
@@ -22,7 +22,7 @@ namespace KeyBook.Seeds
             };
             if (userManager.Users.All(u => u.Id != defaultUser.Id))
             {
-                ApplicationUser user = await userManager.FindByEmailAsync(defaultUser.Email);
+                User user = await userManager.FindByEmailAsync(defaultUser.Email);
                 if (user == null)
                 {
                     await userManager.CreateAsync(defaultUser, "&bC12357");
@@ -31,9 +31,9 @@ namespace KeyBook.Seeds
             }
         }
 
-        public static async Task SeedSuperAdminAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public static async Task SeedSuperAdminAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
-            ApplicationUser superAdmin = new ApplicationUser
+            User superAdmin = new User
             {
                 UserName = "superadmin@app.server",
                 Name = "SuperAdmin",
@@ -46,7 +46,7 @@ namespace KeyBook.Seeds
             };
             if (userManager.Users.All(u => u.Id != superAdmin.Id))
             {
-                ApplicationUser? user = await userManager.FindByEmailAsync(superAdmin.Email);
+                User? user = await userManager.FindByEmailAsync(superAdmin.Email);
                 if (user == null)
                 {
                     await userManager.CreateAsync(superAdmin, "$uperUs3r");
