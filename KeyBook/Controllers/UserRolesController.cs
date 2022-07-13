@@ -52,5 +52,22 @@ namespace KeyBook.Controllers
             await Seeds.DefaultUsers.SeedSuperAdminAsync(__userManager, __roleManager); // fallback code in case one admin tries to change the roles of another - Find better implementation?
             return RedirectToAction("Index", new { userId = id });
         }
+
+        public async Task<IActionResult> Update(string id, ManageUserRolesViewModel model)
+        {
+            ApplicationUser user = await __userManager.FindByIdAsync(id);
+            foreach (UserRolesViewModel userRolesViewModel in model.UserRoles)
+            {
+                if (userRolesViewModel.Selected)
+                {
+                    await __userManager.AddToRoleAsync(user, userRolesViewModel.RoleName);
+                }
+                else
+                {
+                    await __userManager.RemoveFromRoleAsync(user, userRolesViewModel.RoleName);
+                }
+            }
+            return RedirectToAction("Index", new { userId = id });
+        }
     }
 }

@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using KeyBook.Models;
+using KeyBook.Constants;
 
 namespace KeyBook.Areas.Identity.Pages.Account
 {
@@ -71,6 +72,10 @@ namespace KeyBook.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
+            [Required]
+            [Display(Name = "Name")]
+            public string Name { get; set; }
+
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -115,9 +120,16 @@ namespace KeyBook.Areas.Identity.Pages.Account
             {
                 var user = CreateUser();
 
+                user.Name = Input.Name;
+                user.Organization = new Organization
+                {
+                    Name = Input.Name // Future modification - Different than user's name for enterprise customers and other B2B ops?
+                };
+
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
+                await _userManager.AddToRoleAsync(user, Roles.Owner.ToString());
 
                 if (result.Succeeded)
                 {
