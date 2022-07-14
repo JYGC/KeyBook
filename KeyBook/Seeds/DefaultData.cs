@@ -10,7 +10,7 @@ namespace KeyBook.Seeds
         public static async Task SeedAsync(IServiceProvider serviceProvider)
         {
             using KeyBookDbContext context = new(serviceProvider.GetRequiredService<DbContextOptions<KeyBookDbContext>>());
-            User seedUser = await serviceProvider.GetRequiredService<UserManager<User>>().Users.Where(u => u.UserName == "seeduser@app.server").FirstAsync();
+            User seedUser = await serviceProvider.GetRequiredService<UserManager<User>>().Users.Where(u => u.UserName == DefaultUsers.SeedUserEmail).FirstAsync();
             seedUser.Organization = await context.Organizations.Where(o => o.Users.Where(u => u.Email == seedUser.Email).Any()).FirstAsync();
             // seed devices
             List <Device> seededDevices;

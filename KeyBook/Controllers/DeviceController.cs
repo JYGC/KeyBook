@@ -157,13 +157,13 @@ namespace KeyBook.Controllers
                         Status = deviceFromDb.Status,
                         Type = deviceFromDb.Type,
                         IsDeleted = deviceFromDb.IsDeleted,
-                        Description = "edit device",
+                        Description = "device details and status edited",
                         Device = deviceFromDb
                     });
                     __context.SaveChanges();
                 }
-                PersonDevice? personDevice = __context.PersonDevices.FirstOrDefault(pd => deviceFromDb.Id == pd.DeviceId);
                 // Update PersonDevices
+                PersonDevice? personDevice = __context.PersonDevices.FirstOrDefault(pd => deviceFromDb.Id == pd.DeviceId);
                 Guid inboundPersonId;
                 Guid.TryParse(devicePersonViewModel.PersonId, out inboundPersonId);
                 if (inboundPersonId == Guid.Empty && personDevice != null)

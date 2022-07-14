@@ -18,14 +18,14 @@ builder.Services.AddControllersWithViews().AddJsonOptions(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-//builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+//builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>(); // Possible future permissions implementation?
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 // Database
 builder.Services.AddDbContext<KeyBookDbContext>(options => options.UseNpgsql(
     builder.Configuration.GetConnectionString("DefaultConnection"),
     x => x.MigrationsHistoryTable("__efmigrationshistory", "public")
 ).ReplaceService<IHistoryRepository, LoweredCaseMigrationHistoryRepository>());
-
+// Authentication and roles
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<KeyBookDbContext>()
     .AddDefaultUI()
@@ -33,7 +33,7 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddRoles<IdentityRole>();
 
 WebApplication? app = builder.Build();
-
+// Seed default data went database is empty
 using (IServiceScope scope = app.Services.CreateScope())
 {
     IServiceProvider services = scope.ServiceProvider;

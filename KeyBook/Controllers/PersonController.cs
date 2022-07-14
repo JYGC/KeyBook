@@ -27,9 +27,8 @@ namespace KeyBook.Controllers
                                     from device in __context.Set<Device>().Where(device => device.Id == personDevice.DeviceId).DefaultIfEmpty()
                                     where person.OrganizationId == user.OrganizationId && !person.IsDeleted
                                     select new { person, personDevice, device };
-
             List<Person> personsWithDuplicates = personDeviceQuery.ToArray().Select(pdq => pdq.person).ToList();
-            // remove duplicates
+            // group device possession by person
             Dictionary<Guid, Person> personsDict = new Dictionary<Guid, Person>();
             foreach (Person person in personsWithDuplicates)
             {
@@ -43,7 +42,7 @@ namespace KeyBook.Controllers
             return View();
         }
 
-        public ActionResult<Dictionary<int, string>> GetPersonTypes()
+        public ActionResult<Dictionary<int, string>> GetPersonTypesAPI()
         {
             return Enum.GetValues(typeof(Person.PersonType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
         }
@@ -157,7 +156,7 @@ namespace KeyBook.Controllers
             }
         }
 
-        public async Task<ActionResult<Dictionary<Guid, string?>>> GetPersonNames()
+        public async Task<ActionResult<Dictionary<Guid, string?>>> GetPersonNamesAPI()
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
             return __context.Persons.Where(p => p.OrganizationId == user.OrganizationId).ToDictionary(p => p.Id, p => p.Name);

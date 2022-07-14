@@ -7,26 +7,38 @@ namespace KeyBook.Seeds
 {
     public static class DefaultUsers
     {
+        // Default seed user passwords - CHANGE THESE ON WEB IN PRODUCTION!!!!
+        private const string __SeedUserPassword = "&bC12357";
+        private const string __DefaultSuperAdminPassword = "$uperUs3r";
+
+        // Seed user details
+        public const string SeedUserEmail = "seeduser@app.server";
+        public const string SeedUsersName = "Sean Ulysses";
+        public const string SeedUsersOrganizationName = "Seed Organization";
+        // SuperAdmin details
+        public const string SuperAdminEmail = "superadmin@app.server";
+        public const string SuperAdminName = "SuperAdmin";
+
         public static async Task SeedBasicUserAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
-            User defaultUser = new User
+            User seedUser = new User
             {
-                UserName = "seeduser@app.server",
-                Name = "Sean Ulysses",
-                Email = "seeduser@app.server",
+                UserName = SeedUserEmail,
+                Name = SeedUsersName,
+                Email = SeedUserEmail,
                 EmailConfirmed = true,
                 Organization = new Organization
                 {
-                    Name = "Seed Organization"
+                    Name = SeedUsersOrganizationName // Normal users use same name
                 }
             };
-            if (userManager.Users.All(u => u.Id != defaultUser.Id))
+            if (userManager.Users.All(u => u.Id != seedUser.Id))
             {
-                User user = await userManager.FindByEmailAsync(defaultUser.Email);
+                User user = await userManager.FindByEmailAsync(seedUser.Email);
                 if (user == null)
                 {
-                    await userManager.CreateAsync(defaultUser, "&bC12357");
-                    await userManager.AddToRoleAsync(defaultUser, Roles.Owner.ToString());
+                    await userManager.CreateAsync(seedUser, __SeedUserPassword);
+                    await userManager.AddToRoleAsync(seedUser, Roles.Owner.ToString());
                 }
             }
         }
@@ -35,13 +47,13 @@ namespace KeyBook.Seeds
         {
             User superAdmin = new User
             {
-                UserName = "superadmin@app.server",
-                Name = "SuperAdmin",
-                Email = "superadmin@app.server",
+                UserName = SuperAdminEmail,
+                Name = SuperAdminName,
+                Email = SuperAdminEmail,
                 EmailConfirmed = true,
                 Organization = new Organization
                 {
-                    Name = "SuperAdmin"
+                    Name = SuperAdminName
                 }
             };
             if (userManager.Users.All(u => u.Id != superAdmin.Id))
@@ -49,19 +61,19 @@ namespace KeyBook.Seeds
                 User? user = await userManager.FindByEmailAsync(superAdmin.Email);
                 if (user == null)
                 {
-                    await userManager.CreateAsync(superAdmin, "$uperUs3r");
+                    await userManager.CreateAsync(superAdmin, __DefaultSuperAdminPassword);
                     await userManager.AddToRoleAsync(superAdmin, Roles.Manager.ToString());
                     await userManager.AddToRoleAsync(superAdmin, Roles.Owner.ToString());
                     await userManager.AddToRoleAsync(superAdmin, Roles.Admin.ToString());
                     await userManager.AddToRoleAsync(superAdmin, Roles.SuperAdmin.ToString());
                 }
-                await roleManager.SeedClaimsForSuperAdmin();
+                await roleManager.SeedClaimsForSuperAdmin(); // NOT USED - Saved for possible implementation of permissions
             }
         }
 
         private async static Task SeedClaimsForSuperAdmin(this RoleManager<IdentityRole> roleManager)
         {
-            IdentityRole? adminRole = await roleManager.FindByNameAsync("SuperAdmin");
+            IdentityRole? adminRole = await roleManager.FindByNameAsync(SuperAdminName);
             await roleManager.AddPermissionClaim(adminRole, "Products");
         }
 

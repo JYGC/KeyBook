@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// For permission implementation. Must remove later
+using Microsoft.AspNetCore.Mvc;
 
 namespace KeyBook.Controllers
 {

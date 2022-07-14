@@ -1,5 +1,8 @@
 ﻿namespace KeyBook.Constants
 {
+    /// <summary>
+    /// NOT USED - saved for later implementation of permissions
+    /// </summary>
     public static class Permissions
     {
         public static List<string> GeneratePermissionsForModule(string module)
@@ -12,6 +15,7 @@
                 $"Permissions.{module}.Delete",
             };
         }
+
         public static class Products
         {
             public const string View = "Permissions.Products.View";
