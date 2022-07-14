@@ -21,7 +21,7 @@ namespace KeyBook.Models
         [Required]
         public DateTime DateTime { get; set; } = DateTime.UtcNow;
         [Required]
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
         public virtual User? User { get; set; }
     }
 }

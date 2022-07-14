@@ -1,60 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using KeyBook.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
-namespace KeyBook.Models
+namespace KeyBook.Seeds
 {
-    public static class SeedData
+    public static class DefaultData
     {
-        private const string __seedAdminName = "Administrator";
-        private const string __seedAdminEmail = "admin@company.com";
-
-        public static void Initialize(IServiceProvider serviceProvider)
+        public static async Task SeedAsync(IServiceProvider serviceProvider)
         {
             using KeyBookDbContext context = new(serviceProvider.GetRequiredService<DbContextOptions<KeyBookDbContext>>());
-            // seed users
-            User seedAdminUser;
-            User? adminInDb = context.Users.FirstOrDefault(u => u.Name == __seedAdminName && u.IsAdmin == true);
-            if (adminInDb == null)
-            {
-                seedAdminUser = new User
-                {
-                    Name = __seedAdminName,
-                    Email = __seedAdminEmail,
-                    IsAdmin = true,
-                };
-                seedAdminUser.UserHistories.Add(new UserHistory
-                {
-                    Name = seedAdminUser.Name,
-                    Email = seedAdminUser.Email,
-                    IsAdmin = seedAdminUser.IsAdmin,
-                    IsDeleted = seedAdminUser.IsDeleted,
-                    IsBlocked = seedAdminUser.IsBlocked,
-                    Description = "seeding admin user",
-                    User = seedAdminUser
-                });
-                context.Users.Add(seedAdminUser);
-            }
-            else
-            {
-                seedAdminUser = adminInDb;
-            }
+            User seedUser = await serviceProvider.GetRequiredService<UserManager<User>>().Users.Where(u => u.UserName == DefaultUsers.SeedUserEmail).FirstAsync();
+            seedUser.Organization = await context.Organizations.Where(o => o.Users.Where(u => u.Email == seedUser.Email).Any()).FirstAsync();
             // seed devices
-            List<Device> seededDevices;
+            List <Device> seededDevices;
             if (!context.Devices.Any())
             {
-                var MakeDEviceHistoryWithRecordDate = (Device device, DateTime recordDateTime) =>
-                {
-                    return new DeviceHistory
-                    {
-                        Name = device.Name,
-                        Identifier = device.Identifier,
-                        Status = device.Status,
-                        Type = device.Type,
-                        IsDeleted = device.IsDeleted,
-                        Description = "seeding device table",
-                        RecordDateTime = recordDateTime,
-                        Device = device,
-                    };
-                };
                 seededDevices = new List<Device>
                 {
                     new Device
@@ -62,35 +23,35 @@ namespace KeyBook.Models
                         Name = "Remote 1",
                         Identifier = "`'\"; OR 1=\'1",
                         Type = Device.DeviceType.Remote,
-                        User = seedAdminUser
+                        OrganizationId = seedUser.OrganizationId
                     },
                     new Device
                     {
                         Name = "Key 2",
                         Identifier = "<script>alert(1);</script>",
                         Type = Device.DeviceType.Key,
-                        User = seedAdminUser
+                        OrganizationId = seedUser.OrganizationId
                     },
                     new Device
                     {
                         Name = "Fob 2",
                         Identifier = ";D:D:D:D",
                         Type = Device.DeviceType.Fob,
-                        User = seedAdminUser
+                        OrganizationId = seedUser.OrganizationId
                     },
                     new Device
                     {
                         Name = "Remote 2",
                         Identifier = "8D",
                         Type = Device.DeviceType.Remote,
-                        User = seedAdminUser
+                        OrganizationId = seedUser.OrganizationId
                     },
                     new Device
                     {
                         Name = "Mail Kay 1",
                         Identifier = "<h1>Hamburger</h1>",
                         Type = Device.DeviceType.MailboxKey,
-                        User = seedAdminUser
+                        OrganizationId = seedUser.OrganizationId
                     }
                 };
                 DateTime[] recordDateTime = new DateTime[]
@@ -129,27 +90,27 @@ namespace KeyBook.Models
                 {
                     new Person
                     {
-                        Name = __seedAdminName,
+                        Name = seedUser.Name,
                         Type = Person.PersonType.Owner,
-                        User = seedAdminUser
+                        OrganizationId = seedUser.OrganizationId
                     },
                     new Person
                     {
                         Name = "CheeJay von Kelhiem",
                         Type = Person.PersonType.Manager,
-                        User = seedAdminUser
+                        OrganizationId = seedUser.OrganizationId
                     },
                     new Person
                     {
                         Name = "Rachel DeSantis",
                         Type = Person.PersonType.Tenant,
-                        User = seedAdminUser
+                        OrganizationId = seedUser.OrganizationId
                     },
                     new Person
                     {
                         Name = "William Coldfuchs",
                         Type = Person.PersonType.Tenant,
-                        User = seedAdminUser
+                        OrganizationId = seedUser.OrganizationId
                     }
                 };
                 foreach (Person person in seededPersons)

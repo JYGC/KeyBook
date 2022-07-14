@@ -1,23 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
-namespace KeyBook.Models
+namespace KeyBook.Models;
+
+// Add profile data for application users by adding properties to the AuthUser class
+public class User : IdentityUser
 {
-    public class User
-    {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-        [Required]
-        public string? Name { get; set; }
-        [Required]
-        public string? Email { get; set; }
-        [Required]
-        public bool IsAdmin { get; set; } = false;
-        [Required]
-        public bool IsDeleted { get; set; } = false;
-        [Required]
-        public bool IsBlocked { get; set; } = false;
-        public virtual ICollection<Person> Persons { get; set; } = new List<Person>();
-        public virtual ICollection<Device> Devices { get; set; } = new List<Device>();
-        public virtual ICollection<UserHistory> UserHistories { get; set; } = new List<UserHistory>();
-    }
+    [Required]
+    public string Name { get; set; }
+    [Required]
+    public Guid OrganizationId { get; set; }
+    public virtual Organization Organization { get; set; }
+    public virtual ICollection<UserHistory> UserHistories { get; set; } = new List<UserHistory>();
 }
+

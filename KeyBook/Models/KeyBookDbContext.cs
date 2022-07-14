@@ -1,14 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace KeyBook.Models
 {
-    public class KeyBookDbContext : DbContext
+    public class KeyBookDbContext : IdentityDbContext<User>
     {
         public KeyBookDbContext(DbContextOptions<KeyBookDbContext> options) : base(options)
         {
         }
-    
-        public DbSet<User> Users { get; set; }
+
+        public DbSet<User> UserTable { get; set; }
+        public DbSet<Organization> Organizations { get; set; }
+        public DbSet<UserHistory> UserHistory { get; set; }
         public DbSet<Device> Devices { get; set; }
         public DbSet<DeviceActivityHistory> DeviceActivityHistory { get; set; }
         public DbSet<DeviceHistory> DeviceHistories { get; set; }
@@ -24,13 +27,17 @@ namespace KeyBook.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>().ToTable("User");
-            modelBuilder.Entity<Device>().HasOne(u => u.User).WithMany(u => u.Devices).HasForeignKey(d => d.UserId).OnDelete(DeleteBehavior.Restrict);
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.HasDefaultSchema("KeyBook");
+            modelBuilder.Entity<Organization>().ToTable("Organization");
+            modelBuilder.Entity<User>().HasOne(u => u.Organization).WithMany(o => o.Users).HasForeignKey(u => u.OrganizationId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<UserHistory>().ToTable("UserHistory");
+            modelBuilder.Entity<Device>().HasOne(d => d.Organization).WithMany(o => o.Devices).HasForeignKey(d => d.OrganizationId).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Device>().HasOne(d => d.PersonDevice).WithOne(pd => pd.Device).IsRequired(false).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Device>().ToTable("Device");
             modelBuilder.Entity<DeviceActivityHistory>().HasNoKey().ToView("DeviceActionHistory"); // Will not be a table
             modelBuilder.Entity<DeviceHistory>().ToTable("DeviceHistory");
-            modelBuilder.Entity<Person>().HasOne(p => p.User).WithMany(u => u.Persons).HasForeignKey(p => p.UserId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Person>().HasOne(p => p.Organization).WithMany(o => o.Persons).HasForeignKey(p => p.OrganizationId).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Person>().ToTable("Person");
             modelBuilder.Entity<PersonHistory>().ToTable("PersonHistory");
             modelBuilder.Entity<PersonDevice>().ToTable("PersonDevice");

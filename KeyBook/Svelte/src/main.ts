@@ -7,3 +7,4 @@ import DeviceDetails from './components/DeviceDetails.svelte';
 import PersonList from './components/PersonList.svelte';
 import PersonEdit from './components/PersonEdit.svelte';
 import PersonNew from './components/PersonNew.svelte';
+import ExcelImport from './components/ExcelImport.svelte';
