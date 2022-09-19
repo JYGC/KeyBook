@@ -2,9 +2,10 @@
 
 namespace KeyBook.ViewModels
 {
-    public class PersonListViewModel
+    public class PersonDetailsViewModel
     {
-        public List<Person> Persons { get; set; }
+        public Person? Person { get; set; }
         public Dictionary<int, string> PersonTypes { get; set; }
+        public bool IsNewPerson { get; set; }
     }
 }

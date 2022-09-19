@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Storage;
+using System;
 
 namespace KeyBook.Controllers
 {
@@ -34,15 +35,23 @@ namespace KeyBook.Controllers
             {
                 if (!personsDict.ContainsKey(person.Id)) personsDict[person.Id] = person;
             }
-            return View(new PersonListViewModel { Persons = personsDict.Values.ToList() });
+            return View(new PersonListViewModel
+            {
+                Persons = personsDict.Values.ToList(),
+                PersonTypes = __GetPersonTypes()
+            });
         }
 
         public IActionResult New()
         {
-            return View();
+            return View(new PersonDetailsViewModel
+            {
+                PersonTypes = __GetPersonTypes(),
+                IsNewPerson = true
+            });
         }
 
-        public ActionResult<Dictionary<int, string>> GetPersonTypesAPI()
+        private Dictionary<int, string> __GetPersonTypes()
         {
             return Enum.GetValues(typeof(Person.PersonType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
         }
@@ -86,10 +95,10 @@ namespace KeyBook.Controllers
             }
         }
 
-        public async Task<IActionResult> Edit(Guid id)
+        public async Task<IActionResult> Edit(Guid personId)
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
-            Person? person = __context.Persons.Where(p => p.Id == id && p.OrganizationId == user.OrganizationId).FirstOrDefault();
+            Person? person = __context.Persons.Where(p => p.Id == personId && p.OrganizationId == user.OrganizationId).FirstOrDefault();
 
             if (person == null)
             {
@@ -107,7 +116,11 @@ namespace KeyBook.Controllers
                                         IsDeleted = personDevice.IsDeleted,
                                     }).ToList();
 
-            return View(person);
+            return View(new PersonDetailsViewModel
+            {
+                Person = person,
+                PersonTypes = __GetPersonTypes()
+            });
         }
 
         [BindProperties]
@@ -115,7 +128,15 @@ namespace KeyBook.Controllers
         {
             public string PersonId { get; set; }
             public string Name { get; set; }
-            public bool IsGone { get; set; }
+            public string IsGoneString { get; set; } // Checkbox returns string "on" if checked
+
+            public bool IsGone
+            {
+                get
+                {
+                    return IsGoneString == "on";
+                }
+            }
         }
         [HttpPost]
         public async Task<IActionResult> Save(PersonBindModel personBindModel)
@@ -156,7 +177,7 @@ namespace KeyBook.Controllers
             }
         }
 
-        public async Task<ActionResult<Dictionary<Guid, string?>>> GetPersonNamesAPI()
+        public async Task<Dictionary<Guid, string?>> GetPersonNames()
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
             return __context.Persons.Where(p => p.OrganizationId == user.OrganizationId).ToDictionary(p => p.Id, p => p.Name);

@@ -1,0 +1,33 @@
+﻿@*
+    Person Details
+*@
+@using KeyBook.ViewModels
+@model PersonDetailsViewModel
+<div>
+    <div>
+        <label for="name">Person Name:</label>
+    </div>
+    <div>
+        <input type="text" name="name" id="name" value="@Model.Person?.Name" />
+    </div>
+    @if (!Model.IsNewPerson)
+    {
+        <div>
+            <label for="isgonestring">Person Is Gone:</label>
+        </div>
+        <div>
+            <input type="checkbox" name="isgonestring" id="name" checked="@Model.Person?.IsGone" />
+        </div>
+    }
+    <div>
+        <label for="type">Person Type:</label>
+    </div>
+    <div>
+        <select name="type" id="type" asp-for="@Model.Person.Type" disabled="@(!Model.IsNewPerson)">
+            @foreach (KeyValuePair<int, string> personType in Model.PersonTypes)
+            {
+                <option value="@personType.Key">@personType.Value</option>
+            }
+        </select>
+    </div>
+</div>

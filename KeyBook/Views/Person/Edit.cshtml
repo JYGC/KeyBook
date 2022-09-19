@@ -1,1 +1,43 @@
-﻿<person-edit-svelte personjson='@Html.Raw(Json.Serialize(Model))'></person-edit-svelte>
+﻿@*
+    Edit Person
+*@
+@using KeyBook.ViewModels
+@model PersonDetailsViewModel
+<button on:click="window.history.back()">Back</button>
+<form action="/Person/Save" method="POST">
+    <input type="hidden" name="personid" id="personid" value="@Model.Person.Id" />
+    <partial name="_DetailsPartial.cshtml" model="@Model" />
+    @if (Model.Person?.PersonDevices != null && Model.Person.PersonDevices.Count() > 0)
+    {
+        <div>
+            <label for="name">Devices Held:</label>
+        </div>
+        <div class="persns-devices">
+            <table>
+                <tr>
+                    <th>Device Name</th>
+                    <th>Device Identifier</th>
+                    <th>Type</th>
+                    <th></th>
+                </tr>
+                @foreach (PersonDevice personDevice in Model.Person.PersonDevices)
+                {
+                    <tr>
+                        <td>@personDevice.Device.Name</td>
+                        <td>@personDevice.Device.Identifier</td>
+                        <td>@personDevice.Device.Type</td>
+                        <td>
+                            <a asp-controller="device"
+                               asp-action="Edit"
+                               asp-route-deviceId="@personDevice.DeviceId"
+                               asp-route-fromPersonDetailsPersonId="@Model.Person.Id">
+                                Details
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    }
+    <button>Save person</button>
+</form>

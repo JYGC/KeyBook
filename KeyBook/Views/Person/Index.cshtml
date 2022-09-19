@@ -1,4 +1,37 @@
 ﻿@{
     ViewData["Title"] = "Person";
 }
-<person-list-svelte personsjson='@Html.Raw(Json.Serialize(Model.Persons))'></person-list-svelte>
+<div>
+    <a asp-controller="person" asp-action="New">Add device</a>
+</div>
+<div>
+    <table>
+        <thead>
+            <tr>
+                <th>Person Name</th>
+                <th>IsGone</th>
+                <th>Person Type</th>
+                <th>Current Devices</th>
+                <th></th>
+        </thead>
+        <tbody>
+            @foreach (Person person in Model.Persons)
+            {
+                <tr>
+                    <td>@person.Name</td>
+                    <td>@person.IsGone</td>
+                    <td>@Model.PersonTypes[(int)@person.Type]</td>
+                    <td>
+                        @foreach (PersonDevice personDevice in person.PersonDevices)
+                        {
+                            @personDevice.Device.Name<br/>
+                        }
+                    </td>
+                    <td>
+                        <a asp-controller="person" asp-action="Edit" asp-route-personId="@person.Id">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

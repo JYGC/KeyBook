@@ -8,10 +8,6 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
-  <Target Name="Rollup" BeforeTargets="Build">
-    <Exec Command="npm run build --prefix Svelte" />
-  </Target>
-
   <ItemGroup>
     <None Remove="Svelte\src\api\device.ts" />
     <None Remove="Svelte\src\api\person.ts" />

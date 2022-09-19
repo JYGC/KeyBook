@@ -41,16 +41,21 @@ namespace KeyBook.Controllers
             }
             return View(new DeviceListViewModel
             {
-                Devices = devices
+                Devices = devices,
+                DeviceTypes = __GetDeviceTypes()
             });
         }
 
         public IActionResult New()
         {
-            return View();
+            return View(new DeviceDetailsViewModel
+            {
+                DeviceTypes = __GetDeviceTypes(),
+                IsNewDevice = true
+            });
         }
 
-        public ActionResult<Dictionary<int, string>> GetDeviceTypes()
+        private Dictionary<int, string> __GetDeviceTypes()
         {
             return Enum.GetValues(typeof(Device.DeviceType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
         }
@@ -97,10 +102,10 @@ namespace KeyBook.Controllers
             }
         }
 
-        public async Task<IActionResult> Edit(Guid id, Guid? fromPersonDetailsPersonId)
+        public async Task<IActionResult> Edit(Guid deviceId, Guid? fromPersonDetailsPersonId)
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
-            Device? device = __context.Devices.Find(id);
+            Device? device = __context.Devices.Find(deviceId);
             device.PersonDevice = __context.PersonDevices.FirstOrDefault(pd => pd.DeviceId == device.Id);
 
             if (device == null)
@@ -108,13 +113,15 @@ namespace KeyBook.Controllers
                 return NotFound();
             }
 
-            return View(new DevicePersonDetailsPersonIdViewModel
+            return View(new DeviceDetailsViewModel
             {
                 Device = device,
                 FromPersonDetailsPersonId = fromPersonDetailsPersonId,
                 DeviceActivityHistoryList = __context.DeviceActivityHistory.FromSqlRaw(
                     $"SELECT * FROM \"KeyBook\".sp_GetDeviceActivityHistory('{device.Id}')"
-                ).ToList()
+                ).ToList(),
+                DeviceTypes = __GetDeviceTypes(),
+                PersonNames = __context.Persons.Where(p => p.OrganizationId == user.OrganizationId).ToDictionary(p => p.Id, p => p.Name)
             });
         }
 
@@ -125,7 +132,6 @@ namespace KeyBook.Controllers
             public string Name { get; set; }
             public string Identifier { get; set; }
             public string Status { get; set; }
-            public string Type { get; set; }
             public string PersonId { get; set; }
             public string FromPersonDetailsPersonId { get; set; } = null;
         }
@@ -200,7 +206,7 @@ namespace KeyBook.Controllers
                     ? RedirectToAction("Index", "Device")
                     : RedirectToAction("Edit", "Person", new
                     {
-                        id = devicePersonViewModel.FromPersonDetailsPersonId
+                        personId = devicePersonViewModel.FromPersonDetailsPersonId
                     });
             }
             catch (Exception ex)

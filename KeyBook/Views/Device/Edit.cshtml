@@ -1,1 +1,37 @@
-﻿<device-edit-svelte devicepersonlistjson='@Html.Raw(Json.Serialize(Model))'></device-edit-svelte>
+﻿@* Edit Device *@
+@using KeyBook.ViewModels
+@model DeviceDetailsViewModel
+<button onclick="window.history.back()">Back</button>
+<div>
+    <form action="/Device/Save" method="POST">
+        <input type="hidden" name="deviceid" id="deviceid" value="@Model.Device.Id" />
+        <partial name="_DetailsPartial.cshtml" model="@Model" />
+        <div>
+            <label for="person">Person holding device:</label>
+        </div>
+        <div>
+            <select name="personid" id="person" asp-for="@Model.Device.PersonDevice.PersonId">
+                <option value="">Not Used</option>
+                @foreach (KeyValuePair<Guid, string> personName in @Model.PersonNames)
+                {
+                    <option value="@personName.Key">@personName.Value</option>
+                }
+            </select>
+        </div>
+        <input type="hidden" name="frompersondetailspersonid" id="frompersondetailspersonid" value="@Model.FromPersonDetailsPersonId" />
+        <button>Save device</button>
+    </form>
+    <div>
+        <label for="deviceActivityHistoryList">Device activity history:</label>
+    </div>
+    <table>
+        @foreach (DeviceActivityHistory deviceActivityHistory in @Model.DeviceActivityHistoryList)
+        {
+            <tr>
+                <td>@deviceActivityHistory.RecordDateTime</td>
+                <td>|</td>
+                <td>@deviceActivityHistory.Description</td>
+            </tr>
+        }
+    </table>
+</div>
