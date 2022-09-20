@@ -147,14 +147,13 @@ namespace KeyBook.Controllers
                     d => d.Id == Guid.Parse(devicePersonViewModel.DeviceId) && d.OrganizationId == user.OrganizationId
                 ).FirstOrDefault();
                 if (deviceFromDb == null) return NotFound("Device not found");
-                bool isNameChange;
-                if (isNameChange = (deviceFromDb.Name != devicePersonViewModel.Name)) deviceFromDb.Name = devicePersonViewModel.Name;
-                bool isIdentifierChange;
-                if (isIdentifierChange = (deviceFromDb.Identifier != devicePersonViewModel.Identifier)) deviceFromDb.Identifier = devicePersonViewModel.Identifier;
-                bool isSatusChange;
+
                 Device.DeviceStatus inboundDeviceStatus = (Device.DeviceStatus)Enum.Parse(typeof(Device.DeviceStatus), devicePersonViewModel.Status);
-                if (isSatusChange = (deviceFromDb.Status != inboundDeviceStatus)) deviceFromDb.Status = inboundDeviceStatus;
-                if (isNameChange || isIdentifierChange || isSatusChange)
+                bool detailsOrStatusChanged = (deviceFromDb.Name != devicePersonViewModel.Name || deviceFromDb.Identifier != devicePersonViewModel.Identifier || deviceFromDb.Status != inboundDeviceStatus);
+                deviceFromDb.Name = devicePersonViewModel.Name;
+                deviceFromDb.Identifier = devicePersonViewModel.Identifier;
+                deviceFromDb.Status = inboundDeviceStatus;
+                if (detailsOrStatusChanged)
                 {
                     __context.DeviceHistories.Add(new DeviceHistory
                     {
@@ -218,14 +217,13 @@ namespace KeyBook.Controllers
 
         private void __RemovePersonDeviceAndEditAssociateHistory(Device deviceFromDb)
         {
-            deviceFromDb.PersonDevice.IsNoLongerHas = true;
             __context.PersonDeviceHistories.Add(new PersonDeviceHistory
             {
                 PersonDeviceId = deviceFromDb.PersonDevice.Id,
                 PersonId = deviceFromDb.PersonDevice.PersonId,
                 DeviceId = deviceFromDb.PersonDevice.DeviceId,
                 Description = "person no longer has device",
-                IsNoLongerHas = deviceFromDb.PersonDevice.IsNoLongerHas
+                IsNoLongerHas = true
             });
             __context.PersonDevices.Remove(deviceFromDb.PersonDevice);
             __context.SaveChanges();
