@@ -121,7 +121,7 @@ namespace KeyBook.Controllers
                     $"SELECT * FROM \"KeyBook\".sp_GetDeviceActivityHistory('{device.Id}')"
                 ).ToList(),
                 DeviceTypes = __GetDeviceTypes(),
-                PersonNames = __context.Persons.Where(p => p.OrganizationId == user.OrganizationId).ToDictionary(p => p.Id, p => p.Name)
+                PersonNamesTypes = __context.Persons.Where(p => p.OrganizationId == user.OrganizationId).ToDictionary(p => p.Id, p => string.Format("{0} - {1}", p.Name, p.Type.ToString()))
             });
         }
 

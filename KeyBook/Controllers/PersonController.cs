@@ -29,7 +29,7 @@ namespace KeyBook.Controllers
                                     where person.OrganizationId == user.OrganizationId && !person.IsDeleted
                                     select new { person, personDevice, device };
             List<Person> personsWithDuplicates = personDeviceQuery.ToArray().Select(pdq => pdq.person).ToList();
-            // group device possession by person
+            // get rid of deplicated person due to joining with personDevice
             Dictionary<Guid, Person> personsDict = new Dictionary<Guid, Person>();
             foreach (Person person in personsWithDuplicates)
             {

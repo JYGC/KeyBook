@@ -8,7 +8,7 @@ namespace KeyBook.ViewModels
         public Guid? FromPersonDetailsPersonId { get; set; }
         public List<DeviceActivityHistory>? DeviceActivityHistoryList { get; set; }
         public Dictionary<int, string> DeviceTypes { get; set; }
-        public Dictionary<Guid, string?>? PersonNames { get; set; }
+        public Dictionary<Guid, string?>? PersonNamesTypes { get; set; }
         public bool IsNewDevice { get; set; }
     }
 }
