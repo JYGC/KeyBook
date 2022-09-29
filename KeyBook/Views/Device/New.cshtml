@@ -5,7 +5,7 @@
 @model DeviceDetailsViewModel
 <button onclick="window.history.back()">Back</button>
 <div>
-    <form action="/Device/Add" method="POST">
+    <form action="/Device/New" method="POST">
         <partial name="_DetailsPartial.cshtml" model="@Model" />
         <button>Add device</button>
     </form>

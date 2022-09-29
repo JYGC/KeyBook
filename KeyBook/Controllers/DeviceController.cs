@@ -67,7 +67,7 @@ namespace KeyBook.Controllers
             public int Type { get; set; }
         }
         [HttpPost] 
-        public async Task<IActionResult> Add(NewDeviceBindModel newDeviceBindModel)
+        public async Task<IActionResult> New(NewDeviceBindModel newDeviceBindModel)
         {
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
@@ -136,7 +136,7 @@ namespace KeyBook.Controllers
             public string FromPersonDetailsPersonId { get; set; } = null;
         }
         [HttpPost]
-        public async Task<IActionResult> Save(DevicePersonBindModel devicePersonViewModel) // continue here - not all properties are passing
+        public async Task<IActionResult> Edit(DevicePersonBindModel devicePersonViewModel) // continue here - not all properties are passing
         {
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try

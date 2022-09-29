@@ -4,7 +4,7 @@
 @using KeyBook.ViewModels
 @model PersonDetailsViewModel
 <button onclick="window.history.back()">Back</button>
-<form action="/Person/Save" method="POST">
+<form action="/Person/Edit" method="POST">
     <input type="hidden" name="personid" id="personid" value="@Model.Person.Id" />
     <partial name="_DetailsPartial.cshtml" model="@Model" />
     @if (Model.Person?.PersonDevices != null && Model.Person.PersonDevices.Count() > 0)

@@ -62,7 +62,7 @@ namespace KeyBook.Controllers
             public int Type { get; set; }
         }
         [HttpPost]
-        public async Task<IActionResult> Add(NewPersonBindModel newPersonBindModel)
+        public async Task<IActionResult> New(NewPersonBindModel newPersonBindModel)
         {
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
@@ -139,7 +139,7 @@ namespace KeyBook.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> Save(PersonBindModel personBindModel)
+        public async Task<IActionResult> Edit(PersonBindModel personBindModel)
         {
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
