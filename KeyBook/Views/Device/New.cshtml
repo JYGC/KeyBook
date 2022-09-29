@@ -1,1 +1,12 @@
-﻿<device-new-svelte></device-new-svelte>
+﻿@*
+    New Device
+*@
+@using KeyBook.ViewModels
+@model DeviceDetailsViewModel
+<button onclick="window.history.back()">Back</button>
+<div>
+    <form action="/Device/New" method="POST">
+        <partial name="_DetailsPartial.cshtml" model="@Model" />
+        <button>Add device</button>
+    </form>
+</div>

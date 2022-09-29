@@ -6,7 +6,7 @@
     import PersonDetails from './PersonDetails.svelte';
 </script>
 <main>
-    <button on:click="{() => window.history.back()}">Back</button>
+    <button on:click="window.history.back()">Back</button>
     <PersonDetails bind:name={person.name} bind:type={person.type} bind:isgone={person.isGone} disabletype=true />
     {#if person.personDevices && person.personDevices.length > 0}
         <div>

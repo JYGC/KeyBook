@@ -41,16 +41,21 @@ namespace KeyBook.Controllers
             }
             return View(new DeviceListViewModel
             {
-                Devices = devices
+                Devices = devices,
+                DeviceTypes = __GetDeviceTypes()
             });
         }
 
         public IActionResult New()
         {
-            return View();
+            return View(new DeviceDetailsViewModel
+            {
+                DeviceTypes = __GetDeviceTypes(),
+                IsNewDevice = true
+            });
         }
 
-        public ActionResult<Dictionary<int, string>> GetDeviceTypes()
+        private Dictionary<int, string> __GetDeviceTypes()
         {
             return Enum.GetValues(typeof(Device.DeviceType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
         }
@@ -62,7 +67,7 @@ namespace KeyBook.Controllers
             public int Type { get; set; }
         }
         [HttpPost] 
-        public async Task<IActionResult> Add(NewDeviceBindModel newDeviceBindModel)
+        public async Task<IActionResult> New(NewDeviceBindModel newDeviceBindModel)
         {
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
@@ -97,10 +102,10 @@ namespace KeyBook.Controllers
             }
         }
 
-        public async Task<IActionResult> Edit(Guid id, Guid? fromPersonDetailsPersonId)
+        public async Task<IActionResult> Edit(Guid deviceId, Guid? fromPersonDetailsPersonId)
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
-            Device? device = __context.Devices.Find(id);
+            Device? device = __context.Devices.Find(deviceId);
             device.PersonDevice = __context.PersonDevices.FirstOrDefault(pd => pd.DeviceId == device.Id);
 
             if (device == null)
@@ -108,13 +113,15 @@ namespace KeyBook.Controllers
                 return NotFound();
             }
 
-            return View(new DevicePersonDetailsPersonIdViewModel
+            return View(new DeviceDetailsViewModel
             {
                 Device = device,
                 FromPersonDetailsPersonId = fromPersonDetailsPersonId,
                 DeviceActivityHistoryList = __context.DeviceActivityHistory.FromSqlRaw(
                     $"SELECT * FROM \"KeyBook\".sp_GetDeviceActivityHistory('{device.Id}')"
-                ).ToList()
+                ).ToList(),
+                DeviceTypes = __GetDeviceTypes(),
+                PersonNamesTypes = __context.Persons.Where(p => p.OrganizationId == user.OrganizationId).ToDictionary(p => p.Id, p => string.Format("{0} - {1}", p.Name, p.Type.ToString()))
             });
         }
 
@@ -125,12 +132,11 @@ namespace KeyBook.Controllers
             public string Name { get; set; }
             public string Identifier { get; set; }
             public string Status { get; set; }
-            public string Type { get; set; }
             public string PersonId { get; set; }
             public string FromPersonDetailsPersonId { get; set; } = null;
         }
         [HttpPost]
-        public async Task<IActionResult> Save(DevicePersonBindModel devicePersonViewModel) // continue here - not all properties are passing
+        public async Task<IActionResult> Edit(DevicePersonBindModel devicePersonViewModel) // continue here - not all properties are passing
         {
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
@@ -141,14 +147,13 @@ namespace KeyBook.Controllers
                     d => d.Id == Guid.Parse(devicePersonViewModel.DeviceId) && d.OrganizationId == user.OrganizationId
                 ).FirstOrDefault();
                 if (deviceFromDb == null) return NotFound("Device not found");
-                bool isNameChange;
-                if (isNameChange = (deviceFromDb.Name != devicePersonViewModel.Name)) deviceFromDb.Name = devicePersonViewModel.Name;
-                bool isIdentifierChange;
-                if (isIdentifierChange = (deviceFromDb.Identifier != devicePersonViewModel.Identifier)) deviceFromDb.Identifier = devicePersonViewModel.Identifier;
-                bool isSatusChange;
+
                 Device.DeviceStatus inboundDeviceStatus = (Device.DeviceStatus)Enum.Parse(typeof(Device.DeviceStatus), devicePersonViewModel.Status);
-                if (isSatusChange = (deviceFromDb.Status != inboundDeviceStatus)) deviceFromDb.Status = inboundDeviceStatus;
-                if (isNameChange || isIdentifierChange || isSatusChange)
+                bool detailsOrStatusChanged = (deviceFromDb.Name != devicePersonViewModel.Name || deviceFromDb.Identifier != devicePersonViewModel.Identifier || deviceFromDb.Status != inboundDeviceStatus);
+                deviceFromDb.Name = devicePersonViewModel.Name;
+                deviceFromDb.Identifier = devicePersonViewModel.Identifier;
+                deviceFromDb.Status = inboundDeviceStatus;
+                if (detailsOrStatusChanged)
                 {
                     __context.DeviceHistories.Add(new DeviceHistory
                     {
@@ -200,7 +205,7 @@ namespace KeyBook.Controllers
                     ? RedirectToAction("Index", "Device")
                     : RedirectToAction("Edit", "Person", new
                     {
-                        id = devicePersonViewModel.FromPersonDetailsPersonId
+                        personId = devicePersonViewModel.FromPersonDetailsPersonId
                     });
             }
             catch (Exception ex)
@@ -212,14 +217,13 @@ namespace KeyBook.Controllers
 
         private void __RemovePersonDeviceAndEditAssociateHistory(Device deviceFromDb)
         {
-            deviceFromDb.PersonDevice.IsNoLongerHas = true;
             __context.PersonDeviceHistories.Add(new PersonDeviceHistory
             {
                 PersonDeviceId = deviceFromDb.PersonDevice.Id,
                 PersonId = deviceFromDb.PersonDevice.PersonId,
                 DeviceId = deviceFromDb.PersonDevice.DeviceId,
                 Description = "person no longer has device",
-                IsNoLongerHas = deviceFromDb.PersonDevice.IsNoLongerHas
+                IsNoLongerHas = true
             });
             __context.PersonDevices.Remove(deviceFromDb.PersonDevice);
             __context.SaveChanges();
