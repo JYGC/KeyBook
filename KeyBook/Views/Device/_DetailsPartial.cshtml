@@ -8,6 +8,7 @@
 </div>
 <div>
     <input type="text" name="name" id="name" value="@Model.Device?.Name" />
+    @*@Html.ValidationMessageFor(model => model.Device.Name, "", new { @class = "text-danger" })*@
 </div>
 <div>
     <label for="identifier">Device Identifier:</label>

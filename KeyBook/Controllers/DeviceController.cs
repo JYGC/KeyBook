@@ -133,10 +133,10 @@ namespace KeyBook.Controllers
             public string Identifier { get; set; }
             public string Status { get; set; }
             public string PersonId { get; set; }
-            public string FromPersonDetailsPersonId { get; set; } = null;
+            public string? FromPersonDetailsPersonId { get; set; }
         }
         [HttpPost]
-        public async Task<IActionResult> Edit(DevicePersonBindModel devicePersonViewModel) // continue here - not all properties are passing
+        public async Task<IActionResult> Edit(DevicePersonBindModel devicePersonViewModel)
         {
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try

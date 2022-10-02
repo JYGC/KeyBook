@@ -3,7 +3,7 @@
 @model DeviceDetailsViewModel
 <button onclick="window.history.back()">Back</button>
 <div>
-    <form action="/Device/Edit" method="POST">
+    <form name="editDevice" action="/Device/Edit" method="POST">
         <input type="hidden" name="deviceid" id="deviceid" value="@Model.Device.Id" />
         <partial name="_DetailsPartial.cshtml" model="@Model" />
         <div>
@@ -19,7 +19,7 @@
             </select>
         </div>
         <input type="hidden" name="frompersondetailspersonid" id="frompersondetailspersonid" value="@Model.FromPersonDetailsPersonId" />
-        <button>Save device</button>
+        <input type="submit" value="Save device" />
         <p>@Html.ValidationSummary()</p>
     </form>
     <div>
