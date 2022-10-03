@@ -16,10 +16,10 @@
     @if (!isNewPerson)
     {
         <div>
-            <label for="isgonestring">Person Is Gone:</label>
+            <label for="isgone">Person Is Gone:</label>
         </div>
         <div>
-            <input type="checkbox" name="isgonestring" id="name" checked="@Model?.IsGone" />
+            <input type="checkbox" value="true" name="isgone" id="name" checked="@Model?.IsGone" />
         </div>
     }
     <div>

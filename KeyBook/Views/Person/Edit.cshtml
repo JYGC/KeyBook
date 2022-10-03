@@ -1,11 +1,9 @@
-﻿@*
-    Edit Person
-*@
+﻿@* Edit Person *@
 @using KeyBook.ViewModels
 @model Person
 <button onclick="window.location.href='/Person';">Back</button>
 <form action="/Person/Edit" method="POST">
-    <input type="hidden" name="personid" id="personid" value="@Model.Id" />
+    <input type="hidden" name="id" id="personid" value="@Model.Id" />
     <partial name="_DetailsPartial.cshtml" model="@Model" />
     <div id="personDeviceContainer" style="visibility: hidden">
         <div>

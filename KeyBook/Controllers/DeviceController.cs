@@ -51,26 +51,14 @@ namespace KeyBook.Controllers
             return View();
         }
 
-        public class NewDeviceBindModel
-        {
-            public string Name { get; set; }
-            public string Identifier { get; set; }
-            public int Type { get; set; }
-        }
         [HttpPost] 
-        public async Task<IActionResult> New(NewDeviceBindModel newDeviceBindModel)
+        public async Task<IActionResult> New(Device newDevice)
         {
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
             {
                 User? user = await __userManager.GetUserAsync(HttpContext.User);
-                Device newDevice = new Device
-                {
-                    Name = newDeviceBindModel.Name,
-                    Identifier = newDeviceBindModel.Identifier,
-                    Type = (Device.DeviceType)Enum.ToObject(typeof(Device.DeviceType), newDeviceBindModel.Type),
-                    OrganizationId = user.OrganizationId,
-                };
+                newDevice.OrganizationId = user.OrganizationId;
                 newDevice.DeviceHistories.Add(new DeviceHistory
                 {
                     Name = newDevice.Name,
@@ -104,6 +92,7 @@ namespace KeyBook.Controllers
                 return NotFound();
             }
 
+            TempData["fromPersonDetailsPersonId"] = fromPersonDetailsPersonId;
             return View(new DeviceDetailsViewModel
             {
                 Device = device,
@@ -118,8 +107,7 @@ namespace KeyBook.Controllers
             public string Name { get; set; }
             public string Identifier { get; set; }
             public string Status { get; set; }
-            public string PersonId { get; set; }
-            public string? FromPersonDetailsPersonId { get; set; }
+            public string PersonId { get; set; } // Need to deal with this
         }
         [HttpPost]
         public async Task<IActionResult> Edit(DevicePersonBindModel devicePersonViewModel)
@@ -187,11 +175,11 @@ namespace KeyBook.Controllers
                 __context.Devices.Update(deviceFromDb);
                 __context.SaveChanges();
                 transaction.Commit();
-                return (devicePersonViewModel.FromPersonDetailsPersonId == null)
+                return (TempData["fromPersonDetailsPersonId"] == null)
                     ? RedirectToAction("Index", "Device")
                     : RedirectToAction("Edit", "Person", new
                     {
-                        personId = devicePersonViewModel.FromPersonDetailsPersonId
+                        personId = TempData["fromPersonDetailsPersonId"]
                     });
             }
             catch (Exception ex)

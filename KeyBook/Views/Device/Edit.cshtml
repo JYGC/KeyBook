@@ -2,6 +2,7 @@
 @using KeyBook.ViewModels
 @model DeviceDetailsViewModel
 <button onclick="window.history.back()">Back</button>
+@*<input type="hidden" id="frompersondetailspersonid" value="@TempData["fromPersonDetailsPersonId"]" />*@
 <div>
     <form name="editDevice" action="/Device/Edit" method="POST">
         <input type="hidden" name="deviceid" id="deviceid" value="@Model.Device.Id" />
@@ -15,7 +16,6 @@
                 @* items retrieved from /Device/GetPersonNamesTypesAPI by axios *@
             </select>
         </div>
-        <input type="hidden" name="frompersondetailspersonid" id="frompersondetailspersonid" value="@Model.FromPersonDetailsPersonId" />
         <input type="submit" value="Save device" />
         @*<p>@Html.ValidationSummary()</p>*@
     </form>
