@@ -44,11 +44,7 @@ namespace KeyBook.Controllers
 
         public IActionResult New()
         {
-            return View(new PersonDetailsViewModel
-            {
-                PersonTypes = __GetPersonTypes(),
-                IsNewPerson = true
-            });
+            return View();
         }
 
         private Dictionary<int, string> __GetPersonTypes()
@@ -95,6 +91,24 @@ namespace KeyBook.Controllers
             }
         }
 
+        public async Task<List<PersonDevice>> GetPersonDevicesAPI(Guid personId)
+        {
+            User? user = await __userManager.GetUserAsync(HttpContext.User);
+            return (from device in __context.Devices
+                    join personDevice in __context.PersonDevices on device.Id equals personDevice.DeviceId
+                    where device.OrganizationId == user.OrganizationId && personDevice.PersonId == personId
+                    select new PersonDevice
+                    {
+                        Id = personDevice.Id,
+                        PersonId = personDevice.PersonId,
+                        DeviceId = personDevice.DeviceId,
+                        Device = device,
+                        IsDeleted = personDevice.IsDeleted,
+                    }).ToList();
+
+                
+        }
+
         public async Task<IActionResult> Edit(Guid personId)
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
@@ -104,23 +118,8 @@ namespace KeyBook.Controllers
             {
                 return NotFound();
             }
-            person.PersonDevices = (from device in __context.Devices
-                                    join personDevice in __context.PersonDevices on device.Id equals personDevice.DeviceId
-                                    where device.OrganizationId == user.OrganizationId && personDevice.PersonId == person.Id
-                                    select new PersonDevice
-                                    {
-                                        Id = personDevice.Id,
-                                        PersonId = personDevice.PersonId,
-                                        DeviceId = personDevice.DeviceId,
-                                        Device = device,
-                                        IsDeleted = personDevice.IsDeleted,
-                                    }).ToList();
 
-            return View(new PersonDetailsViewModel
-            {
-                Person = person,
-                PersonTypes = __GetPersonTypes()
-            });
+            return View(person);
         }
 
         [BindProperties]
@@ -177,10 +176,15 @@ namespace KeyBook.Controllers
             }
         }
 
-        public async Task<Dictionary<Guid, string?>> GetPersonNames()
+        public async Task<ActionResult<Dictionary<Guid, string?>>> GetPersonNamesTypesAPI()
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
-            return __context.Persons.Where(p => p.OrganizationId == user.OrganizationId).ToDictionary(p => p.Id, p => p.Name);
+            return __context.Persons.Where(p => p.OrganizationId == user.OrganizationId).ToDictionary(p => p.Id, p => string.Format("{0} - {1}", p.Name, p.Type.ToString()));
+        }
+
+        public ActionResult<Dictionary<int, string>> GetPersonTypesAPI()
+        {
+            return __GetPersonTypes();
         }
     }
 }

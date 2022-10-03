@@ -48,16 +48,7 @@ namespace KeyBook.Controllers
 
         public IActionResult New()
         {
-            return View(new DeviceDetailsViewModel
-            {
-                DeviceTypes = __GetDeviceTypes(),
-                IsNewDevice = true
-            });
-        }
-
-        private Dictionary<int, string> __GetDeviceTypes()
-        {
-            return Enum.GetValues(typeof(Device.DeviceType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
+            return View();
         }
 
         public class NewDeviceBindModel
@@ -116,12 +107,7 @@ namespace KeyBook.Controllers
             return View(new DeviceDetailsViewModel
             {
                 Device = device,
-                FromPersonDetailsPersonId = fromPersonDetailsPersonId,
-                DeviceActivityHistoryList = __context.DeviceActivityHistory.FromSqlRaw(
-                    $"SELECT * FROM \"KeyBook\".sp_GetDeviceActivityHistory('{device.Id}')"
-                ).ToList(),
-                DeviceTypes = __GetDeviceTypes(),
-                PersonNamesTypes = __context.Persons.Where(p => p.OrganizationId == user.OrganizationId).ToDictionary(p => p.Id, p => string.Format("{0} - {1}", p.Name, p.Type.ToString()))
+                FromPersonDetailsPersonId = fromPersonDetailsPersonId
             });
         }
 
@@ -227,6 +213,23 @@ namespace KeyBook.Controllers
             });
             __context.PersonDevices.Remove(deviceFromDb.PersonDevice);
             __context.SaveChanges();
+        }
+
+        public ActionResult<Dictionary<int, string>> GetDeviceTypesAPI()
+        {
+            return __GetDeviceTypes();
+        }
+
+        public ActionResult<List<DeviceActivityHistory>> GetDeviceActivityHistoryListAPI(Guid deviceId)
+        {
+            return __context.DeviceActivityHistory.FromSqlRaw(
+                $"SELECT * FROM \"KeyBook\".sp_GetDeviceActivityHistory('{deviceId}')" // sp_GetDeviceActivityHistory Needs to take in OrganizationId
+            ).ToList();
+        }
+
+        private Dictionary<int, string> __GetDeviceTypes()
+        {
+            return Enum.GetValues(typeof(Device.DeviceType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
         }
     }
 }

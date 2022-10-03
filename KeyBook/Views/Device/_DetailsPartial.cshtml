@@ -2,36 +2,57 @@
     Device Details
 *@
 @using KeyBook.ViewModels
-@model DeviceDetailsViewModel
+@model Device
+@{
+    bool isNewDevice = Model == null || Model.Id == Guid.Empty; // Devices have no Id until committed to DB
+}
 <div>
     <label for="name">Device Name:</label>
 </div>
 <div>
-    <input type="text" name="name" id="name" value="@Model.Device?.Name" />
+    <input type="text" name="name" id="name" value="@Model?.Name" />
     @*@Html.ValidationMessageFor(model => model.Device.Name, "", new { @class = "text-danger" })*@
 </div>
 <div>
     <label for="identifier">Device Identifier:</label>
 </div>
 <div>
-    <input type="text" name="identifier" id="identifier" value="@Model.Device?.Identifier" />
+    <input type="text" name="identifier" id="identifier" value="@Model?.Identifier" />
 </div>
-@if (!@Model.IsNewDevice)
+@if (!isNewDevice)
 {
     <div>
         <label for="status">Device Status:</label>
     </div>
     <div>
-        <input type="text" name="status" id="status" value="@Model.Device?.Status" />
+        <input type="text" name="status" id="status" value="@Model?.Status" />
     </div>
 }
 <div>
     <label for="type">Device Type:</label>
 </div>
 <div>
-    <select name="type" id="type" asp-for="@Model.Device.Type" disabled="@(!Model.IsNewDevice)">
-        @foreach (KeyValuePair<int, string> deviceType in @Model.DeviceTypes) {
-            <option value="@deviceType.Key">@deviceType.Value</option>
-        }
+    <select name="type" id="type" asp-for="@Model.Type" disabled="@(!isNewDevice)">
+        @* items filled by axios *@
     </select>
 </div>
+<script>
+    axios({
+        method: 'get',
+        url: '/Device/GetDeviceTypesAPI'
+    }).then(response => {
+        let typeSelect = document.querySelector('[name="type"]');
+        let selectedType = "@Model?.Type";
+        for (typeId in response.data) {
+            let option = document.createElement("option");
+            option.value = typeId;
+            option.innerText = response.data[typeId];
+            if (response.data[typeId] === selectedType) {
+                option.selected = true;
+            }
+            typeSelect.appendChild(option);
+        }
+    }).catch(error => {
+        console.log(error);
+    });
+</script>

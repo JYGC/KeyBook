@@ -5,34 +5,61 @@
 <div>
     <form name="editDevice" action="/Device/Edit" method="POST">
         <input type="hidden" name="deviceid" id="deviceid" value="@Model.Device.Id" />
-        <partial name="_DetailsPartial.cshtml" model="@Model" />
+        <partial name="_DetailsPartial.cshtml" model="@Model.Device" />
         <div>
             <label for="person">Person holding device:</label>
         </div>
         <div>
             <select name="personid" id="person" asp-for="@Model.Device.PersonDevice.PersonId">
                 <option value="">Not Used</option>
-                @foreach (KeyValuePair<Guid, string> personName in @Model.PersonNamesTypes)
-                {
-                    <option value="@personName.Key">@personName.Value</option>
-                }
+                @* items retrieved from /Device/GetPersonNamesTypesAPI by axios *@
             </select>
         </div>
         <input type="hidden" name="frompersondetailspersonid" id="frompersondetailspersonid" value="@Model.FromPersonDetailsPersonId" />
         <input type="submit" value="Save device" />
-        <p>@Html.ValidationSummary()</p>
+        @*<p>@Html.ValidationSummary()</p>*@
     </form>
     <div>
         <label for="deviceActivityHistoryList">Device activity history:</label>
     </div>
-    <table>
-        @foreach (DeviceActivityHistory deviceActivityHistory in @Model.DeviceActivityHistoryList)
-        {
-            <tr>
-                <td>@deviceActivityHistory.RecordDateTime</td>
-                <td>|</td>
-                <td>@deviceActivityHistory.Description</td>
-            </tr>
-        }
+    <table id="deviceActivityHistory">
+        @* items retrieved from /Device/GetDeviceActivityHistoryListAPI by axios *@
     </table>
 </div>
+<script>
+    axios({
+        method: 'get',
+        url: '/Person/GetPersonNamesTypesAPI'
+    }).then(response => {
+        let personIdSelect = document.querySelector('[name="personid"]');
+        let selectedPersonId = "@Model.Device.PersonDevice?.PersonId";
+        for (let personId in response.data) {
+            let option = document.createElement("option");
+            option.value = personId;
+            option.innerText = response.data[personId];
+            if (personId === selectedPersonId) {
+                option.selected = true;
+            }
+            personIdSelect.appendChild(option);
+        }
+    }).catch(error => {
+        console.log(error);
+    });
+
+    axios({
+        method: 'get',
+        url: '/Device/GetDeviceActivityHistoryListAPI?deviceId=@(Model.Device?.Id)'
+    }).then(response => {
+        console.log(response);
+        let deviceActivityHistoryTable = document.querySelector('#deviceActivityHistory');
+        for (let i = 0; i < response.data.length; i++) {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `<td>${response.data[i].recordDateTime}</td>`;
+            tr.innerHTML += `<td>|</td>`;
+            tr.innerHTML += `<td>${response.data[i].description}</td>`;
+            deviceActivityHistoryTable.appendChild(tr);
+        }
+    }).catch(error => {
+        console.log(error);
+    });
+</script>

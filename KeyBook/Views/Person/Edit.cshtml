@@ -2,42 +2,56 @@
     Edit Person
 *@
 @using KeyBook.ViewModels
-@model PersonDetailsViewModel
-<button onclick="window.history.back()">Back</button>
+@model Person
+<button onclick="window.location.href='/Person';">Back</button>
 <form action="/Person/Edit" method="POST">
-    <input type="hidden" name="personid" id="personid" value="@Model.Person.Id" />
+    <input type="hidden" name="personid" id="personid" value="@Model.Id" />
     <partial name="_DetailsPartial.cshtml" model="@Model" />
-    @if (Model.Person?.PersonDevices != null && Model.Person.PersonDevices.Count() > 0)
-    {
+    <div id="personDeviceContainer" style="visibility: hidden">
         <div>
             <label for="name">Devices Held:</label>
         </div>
         <div class="persns-devices">
-            <table>
+            <table id="devicesWithPersonTable">
                 <tr>
                     <th>Device Name</th>
                     <th>Device Identifier</th>
                     <th>Type</th>
                     <th></th>
                 </tr>
-                @foreach (PersonDevice personDevice in Model.Person.PersonDevices)
-                {
-                    <tr>
-                        <td>@personDevice.Device.Name</td>
-                        <td>@personDevice.Device.Identifier</td>
-                        <td>@personDevice.Device.Type</td>
-                        <td>
-                            <a asp-controller="device"
-                               asp-action="Edit"
-                               asp-route-deviceId="@personDevice.DeviceId"
-                               asp-route-fromPersonDetailsPersonId="@Model.Person.Id">
-                                Details
-                            </a>
-                        </td>
-                    </tr>
-                }
+                @* items filled by axios *@
             </table>
         </div>
-    }
-    <button>Save person</button>
+    </div>
+    <input type="submit" value="Save person" />
 </form>
+<script>
+    (async function () {
+        try {
+            const deviceTypesResponse = await axios({
+                method: 'get',
+                url: '/Device/GetDeviceTypesAPI'
+            });
+            let deviceTypes = deviceTypesResponse.data
+            const personDevicesResponse = await axios({
+                method: 'get',
+                url: '/Person/GetPersonDevicesAPI?personId=@(Model?.Id)'
+            });
+            let personDevices = personDevicesResponse.data;
+            if (personDevices.length === 0) return;
+            let personDeviceContainer = document.querySelector('#personDeviceContainer');
+            personDeviceContainer.style.visibility = 'visible';
+            let devicesWithPersonTable = document.querySelector('#devicesWithPersonTable');
+            for (let i = 0; i < personDevices.length; i++) {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `<td>${personDevices[i].device.name}</td>`;
+                tr.innerHTML += `<td>${personDevices[i].device.identifier}</td>`;
+                tr.innerHTML += `<td>${deviceTypes[personDevices[i].device.type]}</td>`;
+                tr.innerHTML += `<td><a href="/device/edit?deviceId=${personDevices[i].device.id}&fromPersonDetailsPersonId=@(Model?.Id)">Details</a></td>`;
+                devicesWithPersonTable.appendChild(tr);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    })();
+</script>
