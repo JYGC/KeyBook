@@ -60,6 +60,7 @@ namespace KeyBook.Controllers
             {
                 User? user = await __userManager.GetUserAsync(HttpContext.User);
                 newDevice.OrganizationId = user.OrganizationId;
+                if (!ModelState.IsValid) return View(newDevice);
                 newDevice.DeviceHistories.Add(new DeviceHistory
                 {
                     Name = newDevice.Name,
@@ -97,21 +98,22 @@ namespace KeyBook.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Device device)
+        public async Task<IActionResult> Edit(Device deviceFromView)
         {
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
             {
                 User? user = await __userManager.GetUserAsync(HttpContext.User);
+                if (!ModelState.IsValid) return View(deviceFromView);
                 // Update device
                 Device? deviceFromDb = __context.Devices.Where(
-                    d => d.Id == device.Id && d.OrganizationId == user.OrganizationId
+                    d => d.Id == deviceFromView.Id && d.OrganizationId == user.OrganizationId
                 ).FirstOrDefault();
                 if (deviceFromDb == null) return NotFound("Device not found");
-                bool detailsOrStatusChanged = (deviceFromDb.Name != device.Name || deviceFromDb.Identifier != device.Identifier || deviceFromDb.Status != device.Status);
-                deviceFromDb.Name = device.Name;
-                deviceFromDb.Identifier = device.Identifier;
-                deviceFromDb.Status = device.Status;
+                bool detailsOrStatusChanged = (deviceFromDb.Name != deviceFromView.Name || deviceFromDb.Identifier != deviceFromView.Identifier || deviceFromDb.Status != deviceFromView.Status);
+                deviceFromDb.Name = deviceFromView.Name;
+                deviceFromDb.Identifier = deviceFromView.Identifier;
+                deviceFromDb.Status = deviceFromView.Status;
                 if (detailsOrStatusChanged)
                 {
                     __context.DeviceHistories.Add(new DeviceHistory

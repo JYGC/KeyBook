@@ -11,13 +11,14 @@
 </div>
 <div>
     <input type="text" name="name" id="name" value="@Model?.Name" />
-    @*@Html.ValidationMessageFor(model => model.Device.Name, "", new { @class = "text-danger" })*@
+    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
 </div>
 <div>
     <label for="identifier">Device Identifier:</label>
 </div>
 <div>
     <input type="text" name="identifier" id="identifier" value="@Model?.Identifier" />
+    @Html.ValidationMessageFor(model => model.Identifier, "", new { @class = "text-danger" })
 </div>
 @if (!isNewDevice)
 {

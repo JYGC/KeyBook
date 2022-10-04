@@ -12,6 +12,7 @@
     </div>
     <div>
         <input type="text" name="name" id="name" value="@Model?.Name" />
+        @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
     </div>
     @if (!isNewPerson)
     {

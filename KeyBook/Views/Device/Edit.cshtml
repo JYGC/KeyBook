@@ -9,6 +9,7 @@
 @*<input type="hidden" id="frompersondetailspersonid" value="@TempData["fromPersonDetailsPersonId"]" />*@
 <form name="editDevice" action="/Device/Edit" method="POST">
     <input type="hidden" name="id" id="deviceid" value="@Model.Id" />
+    <input type="hidden" name="organizationid" id="organizationid" value="@Model.OrganizationId" />
     <partial name="_DetailsPartial.cshtml" model="@Model" />
     <input id="btn_submitDevice" type="submit" value="Save device" />
     @*<p>@Html.ValidationSummary()</p>*@

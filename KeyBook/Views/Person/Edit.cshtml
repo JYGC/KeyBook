@@ -4,6 +4,7 @@
 <button onclick="window.location.href='/Person';">Back</button>
 <form action="/Person/Edit" method="POST">
     <input type="hidden" name="id" id="personid" value="@Model.Id" />
+    <input type="hidden" name="organizationid" id="organizationid" value="@Model.OrganizationId" />
     <partial name="_DetailsPartial.cshtml" model="@Model" />
     <input type="submit" value="Save person" />
 </form>

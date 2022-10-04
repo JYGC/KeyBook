@@ -53,11 +53,6 @@ namespace KeyBook.Controllers
             return Enum.GetValues(typeof(Person.PersonType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
         }
 
-        public class NewPersonBindModel
-        {
-            public string Name { get; set; }
-            public int Type { get; set; }
-        }
         [HttpPost]
         public async Task<IActionResult> New(Person newPerson)
         {
@@ -66,6 +61,7 @@ namespace KeyBook.Controllers
             {
                 User? user = await __userManager.GetUserAsync(HttpContext.User);
                 newPerson.OrganizationId = user.OrganizationId;
+                if (!ModelState.IsValid) return View(newPerson);
                 newPerson.PersonHistories.Add(new PersonHistory
                 {
                     Name = newPerson.Name,
@@ -100,21 +96,6 @@ namespace KeyBook.Controllers
             return View(person);
         }
 
-        [BindProperties]
-        public class PersonBindModel
-        {
-            public string PersonId { get; set; }
-            public string Name { get; set; }
-            public string IsGoneString { get; set; } // Checkbox returns string "on" if checked
-
-            public bool IsGone
-            {
-                get
-                {
-                    return IsGoneString == "on";
-                }
-            }
-        }
         [HttpPost]
         public async Task<IActionResult> Edit(Person personFromView)
         {
@@ -122,6 +103,7 @@ namespace KeyBook.Controllers
             try
             {
                 User? user = await __userManager.GetUserAsync(HttpContext.User);
+                if (!ModelState.IsValid) return View(personFromView);
                 Person? personFromDb = __context.Persons.Where(
                     p => p.Id == personFromView.Id && p.OrganizationId == user.OrganizationId
                 ).FirstOrDefault();
@@ -138,7 +120,7 @@ namespace KeyBook.Controllers
                         IsGone = personFromDb.IsGone,
                         Type = personFromDb.Type,
                         IsDeleted = personFromDb.IsDeleted,
-                        Description = (personFromDb.IsGone) ? "person left" : "edit person",
+                        Description = (personFromDb.IsGone) ? "Person mark as left" : "Person's details changed",
                         PersonId = personFromDb.Id
                     });
                 }

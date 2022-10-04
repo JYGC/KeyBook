@@ -3,7 +3,7 @@
 *@
 @using KeyBook.ViewModels
 @model Device
-<button onclick="window.history.back()">Back</button>
+<button onclick="window.location.href='/Device';">Back</button>
 <div>
     <form action="/Device/New" method="POST">
         <partial name="_DetailsPartial.cshtml" model="@Model" />
