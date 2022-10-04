@@ -1,24 +1,34 @@
 ﻿@* Edit Device *@
 @using KeyBook.ViewModels
 @model DeviceDetailsViewModel
-<button onclick="window.history.back()">Back</button>
+<button onclick="window.location.href = '@(
+    (TempData["fromPersonDetailsPersonId"] != null) ?
+    string.Format("/Person/Edit?personId={0}", TempData["fromPersonDetailsPersonId"]) :
+    "/Device"
+ )'">Back</button>
 @*<input type="hidden" id="frompersondetailspersonid" value="@TempData["fromPersonDetailsPersonId"]" />*@
 <div>
     <form name="editDevice" action="/Device/Edit" method="POST">
         <input type="hidden" name="deviceid" id="deviceid" value="@Model.Device.Id" />
         <partial name="_DetailsPartial.cshtml" model="@Model.Device" />
-        <div>
-            <label for="person">Person holding device:</label>
-        </div>
-        <div>
-            <select name="personid" id="person" asp-for="@Model.Device.PersonDevice.PersonId">
-                <option value="">Not Used</option>
-                @* items retrieved from /Device/GetPersonNamesTypesAPI by axios *@
-            </select>
-        </div>
-        <input type="submit" value="Save device" />
+        <input id="btn_submitDevice" type="submit" value="Save device" />
         @*<p>@Html.ValidationSummary()</p>*@
     </form>
+    <div>
+        <label for="person">Person currently holding device:</label>
+    </div>
+    <div>
+        <select name="personid" id="person" onchange="holdingPersonSelectChanged()">
+            <option value="">Not Used</option>
+            @* items retrieved from /Device/GetPersonNamesTypesAPI by axios *@
+        </select>
+        <input type="hidden" id="hf_CurrentHoldingPerson" />
+    </div>
+    <div>
+        <button id="btn_SetCurrentHolder" style="visibility: hidden" onclick="saveHoldingPerson()">
+            Set person as current device holder?
+        </button>
+    </div>
     <div>
         <label for="deviceActivityHistoryList">Device activity history:</label>
     </div>
@@ -27,39 +37,80 @@
     </table>
 </div>
 <script>
-    axios({
-        method: 'get',
-        url: '/Person/GetPersonNamesTypesAPI'
-    }).then(response => {
-        let personIdSelect = document.querySelector('[name="personid"]');
-        let selectedPersonId = "@Model.Device.PersonDevice?.PersonId";
-        for (let personId in response.data) {
-            let option = document.createElement("option");
-            option.value = personId;
-            option.innerText = response.data[personId];
-            if (personId === selectedPersonId) {
-                option.selected = true;
-            }
-            personIdSelect.appendChild(option);
-        }
-    }).catch(error => {
-        console.log(error);
-    });
+    const emptyGuid = '00000000-0000-0000-0000-000000000000';
 
-    axios({
-        method: 'get',
-        url: '/Device/GetDeviceActivityHistoryListAPI?deviceId=@(Model.Device?.Id)'
-    }).then(response => {
-        console.log(response);
+    (async function() {
+        try {
+            const holdingPersonId = await getHoldingPersonFromDB();
+            document.querySelector('#hf_CurrentHoldingPerson').value = holdingPersonId;
+            const personNamesTypesResponse = await axios({
+                method: 'get',
+                url: '/Person/GetPersonNamesTypesAPI'
+            });
+            let personNamesTypes = personNamesTypesResponse.data;
+            if (personNamesTypes.length === 0) return;
+            let personIdSelect = document.querySelector('[name="personid"]');
+            for (let personId in personNamesTypes) {
+                let option = document.createElement("option");
+                option.value = personId;
+                option.innerText = personNamesTypes[personId];
+                if (personId === holdingPersonId) {
+                    option.selected = true;
+                }
+                personIdSelect.appendChild(option);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    })();
+    getDeviceActivityHistoryList();
+
+    async function getHoldingPersonFromDB() {
+        const personDeviceResponse = await axios({
+            method: 'get',
+            url: '/Device/GetPersonDeviceAPI?deviceId=@(Model.Device?.Id)'
+        });
+        return personDeviceResponse.data.personId;
+    }
+
+    function holdingPersonSelectChanged() {
+        let selectedPersonId = document.querySelector('[name="personid"]').value;
+        document.querySelector('#btn_SetCurrentHolder').style.visibility = (document.querySelector('#hf_CurrentHoldingPerson').value == selectedPersonId) ? 'hidden' : 'visible';
+    }
+
+    async function saveHoldingPerson() {
+        let selectedPersonId = document.querySelector('[name="personid"]').value;
+        let body = { deviceId: '@(Model.Device?.Id)', personId: selectedPersonId };
+        const savePersonDeviceResponse = await axios({
+            method: 'post',
+            url: '/Device/SavePersonDeviceAPI',
+            data: {
+                deviceId: '@(Model.Device?.Id)',
+                personId: (selectedPersonId === '') ? emptyGuid : selectedPersonId
+            },
+        });
+        const successfullyChangedHoldingPerson = savePersonDeviceResponse.data;
+        if (!successfullyChangedHoldingPerson) throw new Error('failed to update holding person.');
+        const holdingPersonId = await getHoldingPersonFromDB();
+        document.querySelector('#hf_CurrentHoldingPerson').value = (typeof holdingPersonId === 'undefined') ? '' : holdingPersonId;
+        holdingPersonSelectChanged();
+        getDeviceActivityHistoryList();
+    }
+
+    async function getDeviceActivityHistoryList() {
+        const deviceActivityHistoryResponse = await axios({
+            method: 'get',
+            url: '/Device/GetDeviceActivityHistoryListAPI?deviceId=@(Model.Device?.Id)'
+        });
+        let deviceActivityHistory = deviceActivityHistoryResponse.data;
         let deviceActivityHistoryTable = document.querySelector('#deviceActivityHistory');
-        for (let i = 0; i < response.data.length; i++) {
+        deviceActivityHistoryTable.innerHTML = '';
+        for (let i = 0; i < deviceActivityHistory.length; i++) {
             let tr = document.createElement('tr');
-            tr.innerHTML = `<td>${response.data[i].recordDateTime}</td>`;
+            tr.innerHTML = `<td>${deviceActivityHistory[i].recordDateTime}</td>`;
             tr.innerHTML += `<td>|</td>`;
-            tr.innerHTML += `<td>${response.data[i].description}</td>`;
+            tr.innerHTML += `<td>${deviceActivityHistory[i].description}</td>`;
             deviceActivityHistoryTable.appendChild(tr);
         }
-    }).catch(error => {
-        console.log(error);
-    });
+    }
 </script>

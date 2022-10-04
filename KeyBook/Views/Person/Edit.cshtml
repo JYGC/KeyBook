@@ -10,13 +10,15 @@
             <label for="name">Devices Held:</label>
         </div>
         <div class="persns-devices">
-            <table id="devicesWithPersonTable">
+            <table>
                 <tr>
                     <th>Device Name</th>
                     <th>Device Identifier</th>
                     <th>Type</th>
                     <th></th>
                 </tr>
+                <tbody id="devicesWithPersonTable">
+                </tbody>
                 @* items filled by axios *@
             </table>
         </div>
@@ -40,6 +42,7 @@
             let personDeviceContainer = document.querySelector('#personDeviceContainer');
             personDeviceContainer.style.visibility = 'visible';
             let devicesWithPersonTable = document.querySelector('#devicesWithPersonTable');
+            devicesWithPersonTable.innerHTML = '';
             for (let i = 0; i < personDevices.length; i++) {
                 let tr = document.createElement('tr');
                 tr.innerHTML = `<td>${personDevices[i].device.name}</td>`;

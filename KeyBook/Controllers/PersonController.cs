@@ -27,6 +27,7 @@ namespace KeyBook.Controllers
                                     from personDevice in __context.Set<PersonDevice>().Where(personDevice => personDevice.PersonId == person.Id).DefaultIfEmpty()
                                     from device in __context.Set<Device>().Where(device => device.Id == personDevice.DeviceId).DefaultIfEmpty()
                                     where person.OrganizationId == user.OrganizationId && !person.IsDeleted
+                                    orderby person.Name ascending
                                     select new { person, personDevice, device };
             List<Person> personsWithDuplicates = personDeviceQuery.ToArray().Select(pdq => pdq.person).ToList();
             // get rid of deplicated person due to joining with personDevice

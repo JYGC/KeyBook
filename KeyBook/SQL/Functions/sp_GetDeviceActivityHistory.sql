@@ -32,6 +32,6 @@ BEGIN
 	) historyList
 	ORDER BY
 		historyList."DeviceId" DESC,
-		historyList."RecordDateTime" ASC;
+		historyList."RecordDateTime" DESC;
 END
 $func$ LANGUAGE plpgsql;
