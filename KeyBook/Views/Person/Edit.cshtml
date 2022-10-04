@@ -5,26 +5,28 @@
 <form action="/Person/Edit" method="POST">
     <input type="hidden" name="id" id="personid" value="@Model.Id" />
     <partial name="_DetailsPartial.cshtml" model="@Model" />
-    <div id="personDeviceContainer" style="visibility: hidden">
-        <div>
-            <label for="name">Devices Held:</label>
-        </div>
-        <div class="persns-devices">
-            <table>
+    <input type="submit" value="Save person" />
+</form>
+<div id="personDeviceContainer">
+    <div>
+        <label for="name">Devices Held:</label>
+    </div>
+    <div class="persons-devices">
+        <table class="table table-striped">
+            <thead>
                 <tr>
                     <th>Device Name</th>
                     <th>Device Identifier</th>
                     <th>Type</th>
                     <th></th>
                 </tr>
-                <tbody id="devicesWithPersonTable">
-                </tbody>
-                @* items filled by axios *@
-            </table>
-        </div>
+            </thead>
+            <tbody id="devicesWithPersonTable">
+            </tbody>
+            @* items filled by axios *@
+        </table>
     </div>
-    <input type="submit" value="Save person" />
-</form>
+</div>
 <script>
     (async function () {
         try {
@@ -39,8 +41,6 @@
             });
             let personDevices = personDevicesResponse.data;
             if (personDevices.length === 0) return;
-            let personDeviceContainer = document.querySelector('#personDeviceContainer');
-            personDeviceContainer.style.visibility = 'visible';
             let devicesWithPersonTable = document.querySelector('#devicesWithPersonTable');
             devicesWithPersonTable.innerHTML = '';
             for (let i = 0; i < personDevices.length; i++) {

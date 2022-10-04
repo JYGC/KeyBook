@@ -1,19 +1,19 @@
 ﻿@* Edit Device *@
 @using KeyBook.ViewModels
-@model DeviceDetailsViewModel
+@model Device
 <button onclick="window.location.href = '@(
     (TempData["fromPersonDetailsPersonId"] != null) ?
     string.Format("/Person/Edit?personId={0}", TempData["fromPersonDetailsPersonId"]) :
     "/Device"
  )'">Back</button>
 @*<input type="hidden" id="frompersondetailspersonid" value="@TempData["fromPersonDetailsPersonId"]" />*@
+<form name="editDevice" action="/Device/Edit" method="POST">
+    <input type="hidden" name="id" id="deviceid" value="@Model.Id" />
+    <partial name="_DetailsPartial.cshtml" model="@Model" />
+    <input id="btn_submitDevice" type="submit" value="Save device" />
+    @*<p>@Html.ValidationSummary()</p>*@
+</form>
 <div>
-    <form name="editDevice" action="/Device/Edit" method="POST">
-        <input type="hidden" name="deviceid" id="deviceid" value="@Model.Device.Id" />
-        <partial name="_DetailsPartial.cshtml" model="@Model.Device" />
-        <input id="btn_submitDevice" type="submit" value="Save device" />
-        @*<p>@Html.ValidationSummary()</p>*@
-    </form>
     <div>
         <label for="person">Person currently holding device:</label>
     </div>
@@ -29,11 +29,21 @@
             Set person as current device holder?
         </button>
     </div>
+</div>
+<div id="currentlyHoldingDevicesContainer">
     <div>
         <label for="deviceActivityHistoryList">Device activity history:</label>
     </div>
-    <table id="deviceActivityHistory">
-        @* items retrieved from /Device/GetDeviceActivityHistoryListAPI by axios *@
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>DateTime</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody id="deviceActivityHistoryTable">
+            @* items retrieved from /Device/GetDeviceActivityHistoryListAPI by axios *@
+        </tbody>
     </table>
 </div>
 <script>
@@ -68,7 +78,7 @@
     async function getHoldingPersonFromDB() {
         const personDeviceResponse = await axios({
             method: 'get',
-            url: '/Device/GetPersonDeviceAPI?deviceId=@(Model.Device?.Id)'
+            url: '/Device/GetPersonDeviceAPI?deviceId=@(Model?.Id)'
         });
         return personDeviceResponse.data.personId;
     }
@@ -80,12 +90,12 @@
 
     async function saveHoldingPerson() {
         let selectedPersonId = document.querySelector('[name="personid"]').value;
-        let body = { deviceId: '@(Model.Device?.Id)', personId: selectedPersonId };
+        let body = { deviceId: '@(Model?.Id)', personId: selectedPersonId };
         const savePersonDeviceResponse = await axios({
             method: 'post',
             url: '/Device/SavePersonDeviceAPI',
             data: {
-                deviceId: '@(Model.Device?.Id)',
+                deviceId: '@(Model?.Id)',
                 personId: (selectedPersonId === '') ? emptyGuid : selectedPersonId
             },
         });
@@ -100,15 +110,14 @@
     async function getDeviceActivityHistoryList() {
         const deviceActivityHistoryResponse = await axios({
             method: 'get',
-            url: '/Device/GetDeviceActivityHistoryListAPI?deviceId=@(Model.Device?.Id)'
+            url: '/Device/GetDeviceActivityHistoryListAPI?deviceId=@(Model?.Id)'
         });
         let deviceActivityHistory = deviceActivityHistoryResponse.data;
-        let deviceActivityHistoryTable = document.querySelector('#deviceActivityHistory');
+        let deviceActivityHistoryTable = document.querySelector('#deviceActivityHistoryTable');
         deviceActivityHistoryTable.innerHTML = '';
         for (let i = 0; i < deviceActivityHistory.length; i++) {
             let tr = document.createElement('tr');
             tr.innerHTML = `<td>${deviceActivityHistory[i].recordDateTime}</td>`;
-            tr.innerHTML += `<td>|</td>`;
             tr.innerHTML += `<td>${deviceActivityHistory[i].description}</td>`;
             deviceActivityHistoryTable.appendChild(tr);
         }

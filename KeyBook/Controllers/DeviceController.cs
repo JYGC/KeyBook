@@ -30,7 +30,7 @@ namespace KeyBook.Controllers
                                             where device.OrganizationId == user.OrganizationId && (device.Status == Device.DeviceStatus.NotUsed || device.Status == Device.DeviceStatus.WithManager || device.Status == Device.DeviceStatus.Used)
                                             orderby device.Name ascending
                                             select new { device, personDevice, person };
-            List <Device> devices = new List<Device>();
+            List<Device> devices = new List<Device>();
             foreach (var row in devicePersonAssocRowQuery.ToArray())
             {
                 if (row.personDevice != null)
@@ -67,7 +67,7 @@ namespace KeyBook.Controllers
                     Status = newDevice.Status,
                     Type = newDevice.Type,
                     IsDeleted = newDevice.IsDeleted,
-                    Description = "create new device",
+                    Description = "New device registered",
                     Device = newDevice
                 });
                 __context.Devices.Add(newDevice);
@@ -93,23 +93,11 @@ namespace KeyBook.Controllers
             }
 
             TempData["fromPersonDetailsPersonId"] = fromPersonDetailsPersonId;
-            return View(new DeviceDetailsViewModel
-            {
-                Device = device,
-                FromPersonDetailsPersonId = fromPersonDetailsPersonId
-            });
+            return View(device);
         }
 
-        [BindProperties]
-        public class DevicePersonBindModel
-        {
-            public string DeviceId { get; set; }
-            public string Name { get; set; }
-            public string Identifier { get; set; }
-            public string Status { get; set; }
-        }
         [HttpPost]
-        public async Task<IActionResult> Edit(DevicePersonBindModel devicePersonViewModel)
+        public async Task<IActionResult> Edit(Device device)
         {
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
@@ -117,15 +105,13 @@ namespace KeyBook.Controllers
                 User? user = await __userManager.GetUserAsync(HttpContext.User);
                 // Update device
                 Device? deviceFromDb = __context.Devices.Where(
-                    d => d.Id == Guid.Parse(devicePersonViewModel.DeviceId) && d.OrganizationId == user.OrganizationId
+                    d => d.Id == device.Id && d.OrganizationId == user.OrganizationId
                 ).FirstOrDefault();
                 if (deviceFromDb == null) return NotFound("Device not found");
-
-                Device.DeviceStatus inboundDeviceStatus = (Device.DeviceStatus)Enum.Parse(typeof(Device.DeviceStatus), devicePersonViewModel.Status);
-                bool detailsOrStatusChanged = (deviceFromDb.Name != devicePersonViewModel.Name || deviceFromDb.Identifier != devicePersonViewModel.Identifier || deviceFromDb.Status != inboundDeviceStatus);
-                deviceFromDb.Name = devicePersonViewModel.Name;
-                deviceFromDb.Identifier = devicePersonViewModel.Identifier;
-                deviceFromDb.Status = inboundDeviceStatus;
+                bool detailsOrStatusChanged = (deviceFromDb.Name != device.Name || deviceFromDb.Identifier != device.Identifier || deviceFromDb.Status != device.Status);
+                deviceFromDb.Name = device.Name;
+                deviceFromDb.Identifier = device.Identifier;
+                deviceFromDb.Status = device.Status;
                 if (detailsOrStatusChanged)
                 {
                     __context.DeviceHistories.Add(new DeviceHistory
@@ -135,7 +121,7 @@ namespace KeyBook.Controllers
                         Status = deviceFromDb.Status,
                         Type = deviceFromDb.Type,
                         IsDeleted = deviceFromDb.IsDeleted,
-                        Description = "device details and status edited",
+                        Description = "Device details and status edited",
                         Device = deviceFromDb
                     });
                     __context.SaveChanges();
@@ -143,13 +129,13 @@ namespace KeyBook.Controllers
                 __context.Devices.Update(deviceFromDb);
                 __context.SaveChanges();
                 transaction.Commit();
-                var fromPersonDetailsPersonId = TempData["fromPersonDetailsPersonId"];
-                TempData["fromPersonDetailsPersonId"] = null;
-                return (fromPersonDetailsPersonId == null)
+                //var fromPersonDetailsPersonId = TempData["fromPersonDetailsPersonId"];
+                //TempData["fromPersonDetailsPersonId"] = null; // TODO: TempData["fromPersonDetailsPersonId"] NOT CARRYING OVER
+                return (TempData["fromPersonDetailsPersonId"] == null)
                     ? RedirectToAction("Index", "Device")
                     : RedirectToAction("Edit", "Person", new
                     {
-                        personId = fromPersonDetailsPersonId
+                        personId = TempData["fromPersonDetailsPersonId"]
                     });
             }
             catch (Exception ex)

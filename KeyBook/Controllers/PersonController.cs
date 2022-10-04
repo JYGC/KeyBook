@@ -157,7 +157,7 @@ namespace KeyBook.Controllers
         public async Task<ActionResult<Dictionary<Guid, string?>>> GetPersonNamesTypesAPI()
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
-            return __context.Persons.Where(p => p.OrganizationId == user.OrganizationId).ToDictionary(p => p.Id, p => string.Format("{0} - {1}", p.Name, p.Type.ToString()));
+            return __context.Persons.Where(p => p.OrganizationId == user.OrganizationId).OrderBy(p => p.Name).ToDictionary(p => p.Id, p => string.Format("{0} - {1}", p.Name, p.Type.ToString()));
         }
 
         public ActionResult<Dictionary<int, string>> GetPersonTypesAPI()
