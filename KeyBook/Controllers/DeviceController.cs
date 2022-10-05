@@ -87,13 +87,12 @@ namespace KeyBook.Controllers
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
             Device? device = __context.Devices.Find(deviceId);
-
             if (device == null)
             {
                 return NotFound();
             }
-
-            TempData["fromPersonDetailsPersonId"] = fromPersonDetailsPersonId;
+            TempData["fromPersonDetailsPersonId"] = fromPersonDetailsPersonId; // make TempData["fromPersonDetailsPersonId"] null here as it persists if navigating from person edit -> device edit -> device list -> device edit
+            TempData.Keep();
             return View(device);
         }
 
@@ -104,7 +103,11 @@ namespace KeyBook.Controllers
             try
             {
                 User? user = await __userManager.GetUserAsync(HttpContext.User);
-                if (!ModelState.IsValid) return View(deviceFromView);
+                if (!ModelState.IsValid)
+                {
+                    if (TempData["fromPersonDetailsPersonId"] != null) TempData.Keep();
+                    return View(deviceFromView);
+                }
                 // Update device
                 Device? deviceFromDb = __context.Devices.Where(
                     d => d.Id == deviceFromView.Id && d.OrganizationId == user.OrganizationId
@@ -131,8 +134,6 @@ namespace KeyBook.Controllers
                 __context.Devices.Update(deviceFromDb);
                 __context.SaveChanges();
                 transaction.Commit();
-                //var fromPersonDetailsPersonId = TempData["fromPersonDetailsPersonId"];
-                //TempData["fromPersonDetailsPersonId"] = null; // TODO: TempData["fromPersonDetailsPersonId"] NOT CARRYING OVER
                 return (TempData["fromPersonDetailsPersonId"] == null)
                     ? RedirectToAction("Index", "Device")
                     : RedirectToAction("Edit", "Person", new
