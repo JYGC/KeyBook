@@ -87,12 +87,10 @@ namespace KeyBook.Controllers
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
             Person? person = __context.Persons.Where(p => p.Id == personId && p.OrganizationId == user.OrganizationId).FirstOrDefault();
-
             if (person == null)
             {
                 return NotFound();
             }
-
             return View(person);
         }
 
@@ -161,8 +159,6 @@ namespace KeyBook.Controllers
                         Device = device,
                         IsDeleted = personDevice.IsDeleted,
                     }).ToList();
-
-
         }
     }
 }

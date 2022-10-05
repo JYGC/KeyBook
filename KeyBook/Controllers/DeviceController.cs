@@ -86,7 +86,7 @@ namespace KeyBook.Controllers
         public async Task<IActionResult> Edit(Guid deviceId, Guid? fromPersonDetailsPersonId)
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
-            Device? device = __context.Devices.Find(deviceId);
+            Device? device = __context.Devices.Where(d => d.Id == deviceId && d.OrganizationId == user.OrganizationId).FirstOrDefault();
             if (device == null)
             {
                 return NotFound();
@@ -151,11 +151,8 @@ namespace KeyBook.Controllers
         public async Task<PersonDevice?> GetPersonDeviceAPI(Guid deviceId)
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
-            if (__context.Devices.Any(d => d.Id == deviceId && d.OrganizationId == user.OrganizationId))
-            {
-                return __context.PersonDevices.FirstOrDefault(pd => pd.DeviceId == deviceId);
-            }
-            return null;
+            if (!__context.Devices.Any(d => d.Id == deviceId && d.OrganizationId == user.OrganizationId)) return null;
+            return __context.PersonDevices.FirstOrDefault(pd => pd.DeviceId == deviceId);
         }
 
         public class TestViewModel
@@ -230,11 +227,10 @@ namespace KeyBook.Controllers
             return __GetDeviceTypes();
         }
 
-        public ActionResult<List<DeviceActivityHistory>> GetDeviceActivityHistoryListAPI(Guid deviceId)
+        public async Task<List<DeviceActivityHistory>> GetDeviceActivityHistoryListAPI(Guid deviceId)
         {
-            return __context.DeviceActivityHistory.FromSqlRaw(
-                $"SELECT * FROM \"KeyBook\".sp_GetDeviceActivityHistory('{deviceId}')" // sp_GetDeviceActivityHistory Needs to take in OrganizationId
-            ).ToList();
+            User? user = await __userManager.GetUserAsync(HttpContext.User);
+            return __context.DeviceActivityHistory.FromSqlRaw($"SELECT * FROM \"KeyBook\".sp_GetDeviceActivityHistory('{deviceId}', '{user.OrganizationId}')").ToList();
         }
 
         private Dictionary<int, string> __GetDeviceTypes()

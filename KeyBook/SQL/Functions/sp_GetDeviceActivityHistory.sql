@@ -1,7 +1,8 @@
 CREATE OR REPLACE FUNCTION
 	"KeyBook".sp_GetDeviceActivityHistory
 	(
-		DeviceId uuid
+		DeviceId uuid,
+		OrganizationId uuid
 	)
 RETURNS TABLE (
 	RecordDateTime timestamp with time zone,
@@ -17,18 +18,26 @@ BEGIN
 		SELECT
 			dh."DeviceId", dh."RecordDateTime", dh."Description"
 		FROM
-			"KeyBook"."DeviceHistory" dh
+			"KeyBook"."Device" d
+		INNER JOIN
+			"KeyBook"."DeviceHistory" dh ON d."Id" = dh."DeviceId"
 		WHERE
-			dh."DeviceId" = DeviceId
+			d."Id" = DeviceId
+		AND
+			d."OrganizationId" = OrganizationId
 
 		UNION
 
 		SELECT
 			pdh."DeviceId", pdh."RecordDateTime", pdh."Description"
 		FROM
-			"KeyBook"."PersonDeviceHistory" pdh
+			"KeyBook"."Device" d
+		INNER JOIN
+			"KeyBook"."PersonDeviceHistory" pdh ON d."Id" = pdh."DeviceId"
 		WHERE
-			pdh."DeviceId" = DeviceId
+			d."Id" = DeviceId
+		AND
+			d."OrganizationId" = OrganizationId
 	) historyList
 	ORDER BY
 		historyList."DeviceId" DESC,
