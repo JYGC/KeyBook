@@ -25,7 +25,7 @@ namespace KeyBook.Models
         }
 
         [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; }
         [Required]
         public string? Name { get; set; }
         [Required]
@@ -38,7 +38,7 @@ namespace KeyBook.Models
         public bool IsDeleted { get; set; } = false;
         [Required]
         public Guid OrganizationId { get; set; }
-        public virtual Organization Organization { get; set; }
+        public virtual Organization? Organization { get; set; }
         public PersonDevice? PersonDevice { get; set; }
         public virtual ICollection<DeviceHistory> DeviceHistories { get; set; } = new List<DeviceHistory>();
     }

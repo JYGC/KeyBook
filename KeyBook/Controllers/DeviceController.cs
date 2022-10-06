@@ -28,8 +28,9 @@ namespace KeyBook.Controllers
                                             from personDevice in __context.PersonDevices.Where(personDevice => device.Id == personDevice.DeviceId).DefaultIfEmpty()
                                             from person in __context.Persons.Where(person => personDevice.PersonId == person.Id).DefaultIfEmpty()
                                             where device.OrganizationId == user.OrganizationId && (device.Status == Device.DeviceStatus.NotUsed || device.Status == Device.DeviceStatus.WithManager || device.Status == Device.DeviceStatus.Used)
+                                            orderby device.Name ascending
                                             select new { device, personDevice, person };
-            List <Device> devices = new List<Device>();
+            List<Device> devices = new List<Device>();
             foreach (var row in devicePersonAssocRowQuery.ToArray())
             {
                 if (row.personDevice != null)
@@ -48,38 +49,18 @@ namespace KeyBook.Controllers
 
         public IActionResult New()
         {
-            return View(new DeviceDetailsViewModel
-            {
-                DeviceTypes = __GetDeviceTypes(),
-                IsNewDevice = true
-            });
+            return View();
         }
 
-        private Dictionary<int, string> __GetDeviceTypes()
-        {
-            return Enum.GetValues(typeof(Device.DeviceType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
-        }
-
-        public class NewDeviceBindModel
-        {
-            public string Name { get; set; }
-            public string Identifier { get; set; }
-            public int Type { get; set; }
-        }
         [HttpPost] 
-        public async Task<IActionResult> New(NewDeviceBindModel newDeviceBindModel)
+        public async Task<IActionResult> New(Device newDevice)
         {
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
             {
                 User? user = await __userManager.GetUserAsync(HttpContext.User);
-                Device newDevice = new Device
-                {
-                    Name = newDeviceBindModel.Name,
-                    Identifier = newDeviceBindModel.Identifier,
-                    Type = (Device.DeviceType)Enum.ToObject(typeof(Device.DeviceType), newDeviceBindModel.Type),
-                    OrganizationId = user.OrganizationId,
-                };
+                newDevice.OrganizationId = user.OrganizationId;
+                if (!ModelState.IsValid) return View(newDevice);
                 newDevice.DeviceHistories.Add(new DeviceHistory
                 {
                     Name = newDevice.Name,
@@ -87,7 +68,7 @@ namespace KeyBook.Controllers
                     Status = newDevice.Status,
                     Type = newDevice.Type,
                     IsDeleted = newDevice.IsDeleted,
-                    Description = "create new device",
+                    Description = "New device registered",
                     Device = newDevice
                 });
                 __context.Devices.Add(newDevice);
@@ -105,54 +86,37 @@ namespace KeyBook.Controllers
         public async Task<IActionResult> Edit(Guid deviceId, Guid? fromPersonDetailsPersonId)
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
-            Device? device = __context.Devices.Find(deviceId);
-            device.PersonDevice = __context.PersonDevices.FirstOrDefault(pd => pd.DeviceId == device.Id);
-
+            Device? device = __context.Devices.Where(d => d.Id == deviceId && d.OrganizationId == user.OrganizationId).FirstOrDefault();
             if (device == null)
             {
                 return NotFound();
             }
-
-            return View(new DeviceDetailsViewModel
-            {
-                Device = device,
-                FromPersonDetailsPersonId = fromPersonDetailsPersonId,
-                DeviceActivityHistoryList = __context.DeviceActivityHistory.FromSqlRaw(
-                    $"SELECT * FROM \"KeyBook\".sp_GetDeviceActivityHistory('{device.Id}')"
-                ).ToList(),
-                DeviceTypes = __GetDeviceTypes(),
-                PersonNamesTypes = __context.Persons.Where(p => p.OrganizationId == user.OrganizationId).ToDictionary(p => p.Id, p => string.Format("{0} - {1}", p.Name, p.Type.ToString()))
-            });
+            TempData["fromPersonDetailsPersonId"] = fromPersonDetailsPersonId; // make TempData["fromPersonDetailsPersonId"] null here as it persists if navigating from person edit -> device edit -> device list -> device edit
+            TempData.Keep();
+            return View(device);
         }
 
-        [BindProperties]
-        public class DevicePersonBindModel
-        {
-            public string DeviceId { get; set; }
-            public string Name { get; set; }
-            public string Identifier { get; set; }
-            public string Status { get; set; }
-            public string PersonId { get; set; }
-            public string FromPersonDetailsPersonId { get; set; } = null;
-        }
         [HttpPost]
-        public async Task<IActionResult> Edit(DevicePersonBindModel devicePersonViewModel) // continue here - not all properties are passing
+        public async Task<IActionResult> Edit(Device deviceFromView)
         {
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
             {
                 User? user = await __userManager.GetUserAsync(HttpContext.User);
+                if (!ModelState.IsValid)
+                {
+                    if (TempData["fromPersonDetailsPersonId"] != null) TempData.Keep();
+                    return View(deviceFromView);
+                }
                 // Update device
                 Device? deviceFromDb = __context.Devices.Where(
-                    d => d.Id == Guid.Parse(devicePersonViewModel.DeviceId) && d.OrganizationId == user.OrganizationId
+                    d => d.Id == deviceFromView.Id && d.OrganizationId == user.OrganizationId
                 ).FirstOrDefault();
                 if (deviceFromDb == null) return NotFound("Device not found");
-
-                Device.DeviceStatus inboundDeviceStatus = (Device.DeviceStatus)Enum.Parse(typeof(Device.DeviceStatus), devicePersonViewModel.Status);
-                bool detailsOrStatusChanged = (deviceFromDb.Name != devicePersonViewModel.Name || deviceFromDb.Identifier != devicePersonViewModel.Identifier || deviceFromDb.Status != inboundDeviceStatus);
-                deviceFromDb.Name = devicePersonViewModel.Name;
-                deviceFromDb.Identifier = devicePersonViewModel.Identifier;
-                deviceFromDb.Status = inboundDeviceStatus;
+                bool detailsOrStatusChanged = (deviceFromDb.Name != deviceFromView.Name || deviceFromDb.Identifier != deviceFromView.Identifier || deviceFromDb.Status != deviceFromView.Status);
+                deviceFromDb.Name = deviceFromView.Name;
+                deviceFromDb.Identifier = deviceFromView.Identifier;
+                deviceFromDb.Status = deviceFromView.Status;
                 if (detailsOrStatusChanged)
                 {
                     __context.DeviceHistories.Add(new DeviceHistory
@@ -162,50 +126,19 @@ namespace KeyBook.Controllers
                         Status = deviceFromDb.Status,
                         Type = deviceFromDb.Type,
                         IsDeleted = deviceFromDb.IsDeleted,
-                        Description = "device details and status edited",
+                        Description = "Device details and status edited",
                         Device = deviceFromDb
                     });
                     __context.SaveChanges();
-                }
-                // Update PersonDevices
-                PersonDevice? personDevice = __context.PersonDevices.FirstOrDefault(pd => deviceFromDb.Id == pd.DeviceId);
-                Guid inboundPersonId;
-                Guid.TryParse(devicePersonViewModel.PersonId, out inboundPersonId);
-                if (inboundPersonId == Guid.Empty && personDevice != null)
-                {
-                    __RemovePersonDeviceAndEditAssociateHistory(deviceFromDb);
-                    personDevice = null;
-                }
-                else if (inboundPersonId != Guid.Empty && (personDevice == null || personDevice.PersonId != inboundPersonId))
-                {
-                    if (personDevice != null) __RemovePersonDeviceAndEditAssociateHistory(deviceFromDb);
-                    Person? personFromDb = __context.Persons.Where(
-                        p => p.Id == inboundPersonId && p.OrganizationId == user.OrganizationId
-                    ).FirstOrDefault();
-                    personDevice = new PersonDevice
-                    {
-                        Person = personFromDb,
-                        Device = deviceFromDb
-                    };
-                    __context.PersonDevices.Add(personDevice);
-                    __context.SaveChanges();
-                    __context.PersonDeviceHistories.Add(new PersonDeviceHistory
-                    {
-                        PersonDeviceId = personDevice.Id,
-                        PersonId = personDevice.Person.Id,
-                        DeviceId = personDevice.Device.Id,
-                        Description = String.Format("{0} assigned to {1} {2}", deviceFromDb.Name, personFromDb.Type, personFromDb.Name)
-                    });
-                    __context.Persons.Update(personFromDb);
                 }
                 __context.Devices.Update(deviceFromDb);
                 __context.SaveChanges();
                 transaction.Commit();
-                return (devicePersonViewModel.FromPersonDetailsPersonId == null)
+                return (TempData["fromPersonDetailsPersonId"] == null)
                     ? RedirectToAction("Index", "Device")
                     : RedirectToAction("Edit", "Person", new
                     {
-                        personId = devicePersonViewModel.FromPersonDetailsPersonId
+                        personId = TempData["fromPersonDetailsPersonId"]
                     });
             }
             catch (Exception ex)
@@ -215,18 +148,89 @@ namespace KeyBook.Controllers
             }
         }
 
-        private void __RemovePersonDeviceAndEditAssociateHistory(Device deviceFromDb)
+        public async Task<PersonDevice?> GetPersonDeviceAPI(Guid deviceId)
         {
+            User? user = await __userManager.GetUserAsync(HttpContext.User);
+            if (!__context.Devices.Any(d => d.Id == deviceId && d.OrganizationId == user.OrganizationId)) return null;
+            return __context.PersonDevices.FirstOrDefault(pd => pd.DeviceId == deviceId);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<bool>> SavePersonDeviceAPI([FromBody]SavePersonDeviceRequestModel body)
+        {
+            Guid deviceId = body.DeviceId;
+            Guid personId = body.PersonId;
+            using IDbContextTransaction transaction = __context.Database.BeginTransaction();
+            try
+            {
+                User? user = await __userManager.GetUserAsync(HttpContext.User);
+                Device? device = __context.Devices.Where(d => d.Id == deviceId && d.OrganizationId == user.OrganizationId).FirstOrDefault();
+                Person? person = __context.Persons.Where(p => p.Id == personId && p.OrganizationId == user.OrganizationId).FirstOrDefault();
+                if (device == null || (personId != Guid.Empty && person == null)) return false;
+                PersonDevice? personDevice = __context.PersonDevices.FirstOrDefault(pd => pd.DeviceId == deviceId);
+                if (personId == Guid.Empty && personDevice != null) // device previous assigned now unassign device to any
+                {
+                    __RemovePersonDeviceAndEditAssociateHistory(device);
+                    personDevice = null;
+                }
+                if (personId != Guid.Empty && (personDevice == null || personDevice.PersonId != personId)) // assign device to new holding user
+                {
+                    if (personDevice != null) __RemovePersonDeviceAndEditAssociateHistory(device); // if device previous assigned
+                    personDevice = new PersonDevice
+                    {
+                        Device = device,
+                        Person = person
+                    };
+                    __context.PersonDevices.Add(personDevice);
+                    __context.PersonDeviceHistories.Add(new PersonDeviceHistory
+                    {
+                        PersonDeviceId = personDevice.Id,
+                        PersonId = personDevice.Person.Id,
+                        DeviceId = personDevice.Device.Id,
+                        Description = String.Format("{0} assigned to {1}, {2}", device.Name, person.Type, person.Name)
+                    });
+                    __context.Persons.Update(person);
+                }
+                __context.SaveChanges();
+                transaction.Commit();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                return false;
+            }
+        }
+
+        private void __RemovePersonDeviceAndEditAssociateHistory(Device device)
+        {
+            Person? person = __context.Persons.Where(p => p.Id == device.PersonDevice.PersonId).FirstOrDefault();
             __context.PersonDeviceHistories.Add(new PersonDeviceHistory
             {
-                PersonDeviceId = deviceFromDb.PersonDevice.Id,
-                PersonId = deviceFromDb.PersonDevice.PersonId,
-                DeviceId = deviceFromDb.PersonDevice.DeviceId,
-                Description = "person no longer has device",
+                PersonDeviceId = device.PersonDevice.Id,
+                PersonId = device.PersonDevice.PersonId,
+                DeviceId = device.PersonDevice.DeviceId,
+                Description = string.Format("{0}, {1}, no longer has {2}", person.Type, person.Name, device.Name),
                 IsNoLongerHas = true
             });
-            __context.PersonDevices.Remove(deviceFromDb.PersonDevice);
+            __context.PersonDevices.Remove(device.PersonDevice);
             __context.SaveChanges();
+        }
+
+        public ActionResult<Dictionary<int, string>> GetDeviceTypesAPI()
+        {
+            return __GetDeviceTypes();
+        }
+
+        public async Task<List<DeviceActivityHistory>> GetDeviceActivityHistoryListAPI(Guid deviceId)
+        {
+            User? user = await __userManager.GetUserAsync(HttpContext.User);
+            return __context.DeviceActivityHistory.FromSqlRaw($"SELECT * FROM \"KeyBook\".sp_GetDeviceActivityHistory('{deviceId}', '{user.OrganizationId}')").ToList();
+        }
+
+        private Dictionary<int, string> __GetDeviceTypes()
+        {
+            return Enum.GetValues(typeof(Device.DeviceType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
         }
     }
 }

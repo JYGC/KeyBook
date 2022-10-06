@@ -27,6 +27,7 @@ namespace KeyBook.Controllers
                                     from personDevice in __context.Set<PersonDevice>().Where(personDevice => personDevice.PersonId == person.Id).DefaultIfEmpty()
                                     from device in __context.Set<Device>().Where(device => device.Id == personDevice.DeviceId).DefaultIfEmpty()
                                     where person.OrganizationId == user.OrganizationId && !person.IsDeleted
+                                    orderby person.Name ascending
                                     select new { person, personDevice, device };
             List<Person> personsWithDuplicates = personDeviceQuery.ToArray().Select(pdq => pdq.person).ToList();
             // get rid of deplicated person due to joining with personDevice
@@ -44,11 +45,7 @@ namespace KeyBook.Controllers
 
         public IActionResult New()
         {
-            return View(new PersonDetailsViewModel
-            {
-                PersonTypes = __GetPersonTypes(),
-                IsNewPerson = true
-            });
+            return View();
         }
 
         private Dictionary<int, string> __GetPersonTypes()
@@ -56,24 +53,15 @@ namespace KeyBook.Controllers
             return Enum.GetValues(typeof(Person.PersonType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
         }
 
-        public class NewPersonBindModel
-        {
-            public string Name { get; set; }
-            public int Type { get; set; }
-        }
         [HttpPost]
-        public async Task<IActionResult> New(NewPersonBindModel newPersonBindModel)
+        public async Task<IActionResult> New(Person newPerson)
         {
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
             {
                 User? user = await __userManager.GetUserAsync(HttpContext.User);
-                Person newPerson = new Person
-                {
-                    Name = newPersonBindModel.Name,
-                    Type = (Person.PersonType)Enum.ToObject(typeof(Person.PersonType), newPersonBindModel.Type),
-                    OrganizationId = user.OrganizationId,
-                };
+                newPerson.OrganizationId = user.OrganizationId;
+                if (!ModelState.IsValid) return View(newPerson);
                 newPerson.PersonHistories.Add(new PersonHistory
                 {
                     Name = newPerson.Name,
@@ -99,60 +87,29 @@ namespace KeyBook.Controllers
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
             Person? person = __context.Persons.Where(p => p.Id == personId && p.OrganizationId == user.OrganizationId).FirstOrDefault();
-
             if (person == null)
             {
                 return NotFound();
             }
-            person.PersonDevices = (from device in __context.Devices
-                                    join personDevice in __context.PersonDevices on device.Id equals personDevice.DeviceId
-                                    where device.OrganizationId == user.OrganizationId && personDevice.PersonId == person.Id
-                                    select new PersonDevice
-                                    {
-                                        Id = personDevice.Id,
-                                        PersonId = personDevice.PersonId,
-                                        DeviceId = personDevice.DeviceId,
-                                        Device = device,
-                                        IsDeleted = personDevice.IsDeleted,
-                                    }).ToList();
-
-            return View(new PersonDetailsViewModel
-            {
-                Person = person,
-                PersonTypes = __GetPersonTypes()
-            });
+            return View(person);
         }
 
-        [BindProperties]
-        public class PersonBindModel
-        {
-            public string PersonId { get; set; }
-            public string Name { get; set; }
-            public string IsGoneString { get; set; } // Checkbox returns string "on" if checked
-
-            public bool IsGone
-            {
-                get
-                {
-                    return IsGoneString == "on";
-                }
-            }
-        }
         [HttpPost]
-        public async Task<IActionResult> Edit(PersonBindModel personBindModel)
+        public async Task<IActionResult> Edit(Person personFromView)
         {
             using IDbContextTransaction transaction = __context.Database.BeginTransaction();
             try
             {
                 User? user = await __userManager.GetUserAsync(HttpContext.User);
+                if (!ModelState.IsValid) return View(personFromView);
                 Person? personFromDb = __context.Persons.Where(
-                    p => p.Id == Guid.Parse(personBindModel.PersonId) && p.OrganizationId == user.OrganizationId
+                    p => p.Id == personFromView.Id && p.OrganizationId == user.OrganizationId
                 ).FirstOrDefault();
                 if (personFromDb == null) return NotFound("Person not found");
                 bool isNameChange;
-                if (isNameChange = (personFromDb.Name != personBindModel.Name)) personFromDb.Name = personBindModel.Name;
+                if (isNameChange = (personFromDb.Name != personFromView.Name)) personFromDb.Name = personFromView.Name;
                 bool isIsGoneChange;
-                if (isIsGoneChange = (personFromDb.IsGone != personBindModel.IsGone)) personFromDb.IsGone = personBindModel.IsGone;
+                if (isIsGoneChange = (personFromDb.IsGone != personFromView.IsGone)) personFromDb.IsGone = personFromView.IsGone;
                 if (isNameChange || isIsGoneChange)
                 {
                     __context.PersonHistories.Add(new PersonHistory
@@ -161,7 +118,7 @@ namespace KeyBook.Controllers
                         IsGone = personFromDb.IsGone,
                         Type = personFromDb.Type,
                         IsDeleted = personFromDb.IsDeleted,
-                        Description = (personFromDb.IsGone) ? "person left" : "edit person",
+                        Description = (personFromDb.IsGone) ? "Person mark as left" : "Person's details changed",
                         PersonId = personFromDb.Id
                     });
                 }
@@ -177,10 +134,31 @@ namespace KeyBook.Controllers
             }
         }
 
-        public async Task<Dictionary<Guid, string?>> GetPersonNames()
+        public async Task<ActionResult<Dictionary<Guid, string?>>> GetPersonNamesTypesAPI()
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
-            return __context.Persons.Where(p => p.OrganizationId == user.OrganizationId).ToDictionary(p => p.Id, p => p.Name);
+            return __context.Persons.Where(p => p.OrganizationId == user.OrganizationId).OrderBy(p => p.Name).ToDictionary(p => p.Id, p => string.Format("{0} - {1}", p.Name, p.Type.ToString()));
+        }
+
+        public ActionResult<Dictionary<int, string>> GetPersonTypesAPI()
+        {
+            return __GetPersonTypes();
+        }
+
+        public async Task<List<PersonDevice>> GetPersonDevicesAPI(Guid personId)
+        {
+            User? user = await __userManager.GetUserAsync(HttpContext.User);
+            return (from device in __context.Devices
+                    join personDevice in __context.PersonDevices on device.Id equals personDevice.DeviceId
+                    where device.OrganizationId == user.OrganizationId && personDevice.PersonId == personId
+                    select new PersonDevice
+                    {
+                        Id = personDevice.Id,
+                        PersonId = personDevice.PersonId,
+                        DeviceId = personDevice.DeviceId,
+                        Device = device,
+                        IsDeleted = personDevice.IsDeleted,
+                    }).ToList();
         }
     }
 }

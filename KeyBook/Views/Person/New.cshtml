@@ -2,9 +2,9 @@
     New Person
 *@
 @using KeyBook.ViewModels
-@model PersonDetailsViewModel
-<button onclick="window.history.back()">Back</button>
+@model Person
+<button onclick="window.location.href='/Person';">Back</button>
 <form action="/Person/New" method="POST">
     <partial name="_DetailsPartial.cshtml" model="@Model" />
-    <button>Add person</button>
+    <input type="submit" value="Add person" />
 </form>
