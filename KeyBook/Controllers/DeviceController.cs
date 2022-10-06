@@ -155,13 +155,8 @@ namespace KeyBook.Controllers
             return __context.PersonDevices.FirstOrDefault(pd => pd.DeviceId == deviceId);
         }
 
-        public class TestViewModel
-        {
-            public Guid DeviceId { get; set; }
-            public Guid PersonId { get; set; }
-        }
         [HttpPost]
-        public async Task<ActionResult<bool>> SavePersonDeviceAPI([FromBody]TestViewModel body)
+        public async Task<ActionResult<bool>> SavePersonDeviceAPI([FromBody]SavePersonDeviceRequestModel body)
         {
             Guid deviceId = body.DeviceId;
             Guid personId = body.PersonId;

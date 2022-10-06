@@ -19,14 +19,14 @@
         <label for="person">Person currently holding device:</label>
     </div>
     <div>
-        <select name="personid" id="person" onchange="holdingPersonSelectChanged()">
+        <select name="personid" id="person" onchange="btnSetCurrentHolder_HideOnHolderSelectEqualHiddenField()">
             <option value="">Not Used</option>
             @* items retrieved from /Device/GetPersonNamesTypesAPI by axios *@
         </select>
-        <input type="hidden" id="hf_CurrentHoldingPerson" />
+        <input type="hidden" id="hfCurrentHoldingPerson" />
     </div>
     <div>
-        <button id="btn_SetCurrentHolder" style="visibility: hidden" onclick="saveHoldingPerson()">
+        <button id="btnSetCurrentHolder" style="visibility: hidden" onclick="saveHoldingPerson()">
             Set person as current device holder?
         </button>
     </div>
@@ -42,7 +42,7 @@
                 <th>Description</th>
             </tr>
         </thead>
-        <tbody id="deviceActivityHistoryTable">
+        <tbody id="deviceActivityHistoryTableBody">
             @* items retrieved from /Device/GetDeviceActivityHistoryListAPI by axios *@
         </tbody>
     </table>
@@ -50,10 +50,14 @@
 <script>
     const emptyGuid = '00000000-0000-0000-0000-000000000000';
 
-    (async function() {
+    getPersonNamesTypes();
+    getDeviceActivityHistoryList();
+
+    async function getPersonNamesTypes() {
         try {
             const holdingPersonId = await getHoldingPersonFromDB();
-            document.querySelector('#hf_CurrentHoldingPerson').value = holdingPersonId;
+            document.querySelector('#hfCurrentHoldingPerson').value = holdingPersonId;
+            
             const personNamesTypesResponse = await axios({
                 method: 'get',
                 url: '/Person/GetPersonNamesTypesAPI'
@@ -73,54 +77,51 @@
         } catch (error) {
             console.log(error);
         }
-    })();
-    getDeviceActivityHistoryList();
-
-    async function getHoldingPersonFromDB() {
-        const personDeviceResponse = await axios({
-            method: 'get',
-            url: '/Device/GetPersonDeviceAPI?deviceId=@(Model?.Id)'
-        });
-        return personDeviceResponse.data.personId;
     }
 
-    function holdingPersonSelectChanged() {
+    async function getHoldingPersonFromDB() {
+        return (await axios({
+            method: 'get',
+            url: '/Device/GetPersonDeviceAPI?deviceId=@(Model?.Id)'
+        })).data.personId;
+    }
+
+    function btnSetCurrentHolder_HideOnHolderSelectEqualHiddenField() {
         let selectedPersonId = document.querySelector('[name="personid"]').value;
-        document.querySelector('#btn_SetCurrentHolder').style.visibility = (document.querySelector('#hf_CurrentHoldingPerson').value == selectedPersonId) ? 'hidden' : 'visible';
+        document.querySelector('#btnSetCurrentHolder').style.visibility = (document.querySelector('#hfCurrentHoldingPerson').value == selectedPersonId) ? 'hidden' : 'visible';
     }
 
     async function saveHoldingPerson() {
         let selectedPersonId = document.querySelector('[name="personid"]').value;
         let body = { deviceId: '@(Model?.Id)', personId: selectedPersonId };
-        const savePersonDeviceResponse = await axios({
+        const successfullyChangedHoldingPerson = (await axios({
             method: 'post',
             url: '/Device/SavePersonDeviceAPI',
             data: {
                 deviceId: '@(Model?.Id)',
                 personId: (selectedPersonId === '') ? emptyGuid : selectedPersonId
             },
-        });
-        const successfullyChangedHoldingPerson = savePersonDeviceResponse.data;
+        })).data;
         if (!successfullyChangedHoldingPerson) throw new Error('failed to update holding person.');
+
         const holdingPersonId = await getHoldingPersonFromDB();
-        document.querySelector('#hf_CurrentHoldingPerson').value = (typeof holdingPersonId === 'undefined') ? '' : holdingPersonId;
-        holdingPersonSelectChanged();
+        document.querySelector('#hfCurrentHoldingPerson').value = (typeof holdingPersonId === 'undefined') ? '' : holdingPersonId; // set as '' to match no option in select
+        btnSetCurrentHolder_HideOnHolderSelectEqualHiddenField();
         getDeviceActivityHistoryList();
     }
 
     async function getDeviceActivityHistoryList() {
-        const deviceActivityHistoryResponse = await axios({
+        let deviceActivityHistory = (await axios({
             method: 'get',
             url: '/Device/GetDeviceActivityHistoryListAPI?deviceId=@(Model?.Id)'
-        });
-        let deviceActivityHistory = deviceActivityHistoryResponse.data;
-        let deviceActivityHistoryTable = document.querySelector('#deviceActivityHistoryTable');
-        deviceActivityHistoryTable.innerHTML = '';
+        })).data;
+        let deviceActivityHistoryTableBody = document.querySelector('#deviceActivityHistoryTableBody');
+        deviceActivityHistoryTableBody.innerHTML = '';
         for (let i = 0; i < deviceActivityHistory.length; i++) {
             let tr = document.createElement('tr');
             tr.innerHTML = `<td>${deviceActivityHistory[i].recordDateTime}</td>`;
             tr.innerHTML += `<td>${deviceActivityHistory[i].description}</td>`;
-            deviceActivityHistoryTable.appendChild(tr);
+            deviceActivityHistoryTableBody.appendChild(tr);
         }
     }
 </script>

@@ -31,16 +31,14 @@
 <script>
     (async function () {
         try {
-            const deviceTypesResponse = await axios({
+            let deviceTypes = (await axios({
                 method: 'get',
                 url: '/Device/GetDeviceTypesAPI'
-            });
-            let deviceTypes = deviceTypesResponse.data
-            const personDevicesResponse = await axios({
+            })).data
+            let personDevices = (await axios({
                 method: 'get',
                 url: '/Person/GetPersonDevicesAPI?personId=@(Model?.Id)'
-            });
-            let personDevices = personDevicesResponse.data;
+            })).data;
             if (personDevices.length === 0) return;
             let devicesWithPersonTable = document.querySelector('#devicesWithPersonTable');
             devicesWithPersonTable.innerHTML = '';
