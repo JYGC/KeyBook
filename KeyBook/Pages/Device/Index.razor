@@ -1,0 +1,17 @@
+﻿@page "/device2"
+
+<AuthorizeView>
+    <Authorized>
+        <h3>DeviceList</h3>
+        <div>
+            <p>@message</p>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <meta http-equiv="Refresh" content="0; url='Identity/Account/Login'" />
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private const string message = "Blazor component";
+}

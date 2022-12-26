@@ -15,6 +15,8 @@ builder.Services.AddControllersWithViews().AddJsonOptions(options =>
     //options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -66,6 +68,8 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapBlazorHub();
 app.MapRazorPages();
+app.MapFallbackToPage("/_Host");
 
 app.Run();
