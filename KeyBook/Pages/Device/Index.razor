@@ -1,10 +1,55 @@
 ﻿@page "/device2"
 
+@using KeyBook.Models
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc
+
+@inject KeyBookDbContext __context
+@inject IHttpContextAccessor httpContextAccessor
+@inject UserManager<User> __userManager
+
 <AuthorizeView>
     <Authorized>
-        <h3>DeviceList</h3>
         <div>
-            <p>@message</p>
+            <a href="/device/new">Add device</a>
+        </div>
+        <div>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Device Name</th>
+                        <th>Device Identifier</th>
+                        <!--<th>Status</th>-->
+                        <th>Type</th>
+                        <th>Current holder</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (devices != null && devices.Count() > 0)
+                    {
+                        @foreach (Device device in devices)
+                        {
+                            <tr>
+                                <td>@device.Name</td>
+                                <td>@device.Identifier</td>
+                                <!--<td>{device.Status}</td>-->
+                                <td>@deviceTypes[(int)@device.Type]</td>
+                                <td>
+                                    @if (device.PersonDevice != null && device.PersonDevice.Person != null)
+                                    {
+                                        @device.PersonDevice.Person.Name
+                                    }
+                                </td>
+                                <td>
+                                    <a href="/device/edit?deviceId=@device.Id">Details</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
         </div>
     </Authorized>
     <NotAuthorized>
@@ -13,5 +58,29 @@
 </AuthorizeView>
 
 @code {
-    private const string message = "Blazor component";
+    private List<Device>? devices = null;
+    private Dictionary<int, string> deviceTypes = Enum.GetValues(typeof(Device.DeviceType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        if (httpContextAccessor.HttpContext == null) return;
+        User? user = await __userManager.GetUserAsync(httpContextAccessor.HttpContext.User);
+        var devicePersonAssocRowQuery = from device in __context.Devices
+                                        from personDevice in __context.PersonDevices.Where(personDevice => device.Id == personDevice.DeviceId).DefaultIfEmpty()
+                                        from person in __context.Persons.Where(person => personDevice.PersonId == person.Id).DefaultIfEmpty()
+                                        where device.OrganizationId == user.OrganizationId && (device.Status == Device.DeviceStatus.NotUsed || device.Status == Device.DeviceStatus.WithManager || device.Status == Device.DeviceStatus.Used)
+                                        orderby device.Name ascending
+                                        select new { device, personDevice, person };
+        devices = new List<Device>();
+        foreach (var row in devicePersonAssocRowQuery.ToArray())
+        {
+            if (row.personDevice != null)
+            {
+                row.device.PersonDevice = row.personDevice;
+                row.device.PersonDevice.Person = row.person;
+            }
+            devices.Add(row.device);
+        }
+    }
 }

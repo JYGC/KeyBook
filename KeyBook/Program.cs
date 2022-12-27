@@ -33,6 +33,8 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddDefaultUI()
     .AddDefaultTokenProviders()
     .AddRoles<IdentityRole>();
+// Injection for HttpContext
+builder.Services.AddHttpContextAccessor();
 
 WebApplication? app = builder.Build();
 // Seed default data went database is empty
