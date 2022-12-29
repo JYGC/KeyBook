@@ -1,8 +1,11 @@
 ﻿@page "/Blazor"
 @namespace KeyBook.Pages
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
     Layout = "_Layout";
+
+    var token = antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
 }
 
-<component type="typeof(App)" render-mode="ServerPrerendered" />
+<component type="typeof(App)" render-mode="ServerPrerendered" param-AntiforgeryToken="token" />

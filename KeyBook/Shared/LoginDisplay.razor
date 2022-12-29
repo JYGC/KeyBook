@@ -1,8 +1,13 @@
-﻿<AuthorizeView>
+﻿@using KeyBook.Providers
+
+@inject TokenProvider tokenProvider
+
+<AuthorizeView>
     <Authorized>
         <a href="Identity/Account/Manage">Hello, @context.User.Identity?.Name!</a>
         <form method="post" action="Identity/Account/Logout">
-            @* CONT. Need to send antiforgery token to Logout here *@
+            <input name="__RequestVerificationToken" type="hidden" value="@tokenProvider.AntiforgeryToken">
+            <input name="returnUrl" type="hidden" value="/">
             <button type="submit" class="nav-link btn btn-link">Log out</button>
         </form>
     </Authorized>

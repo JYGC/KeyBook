@@ -1,5 +1,6 @@
 using KeyBook.Models;
 using KeyBook.Permission;
+using KeyBook.Providers;
 using KeyBook.Seeds;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -35,6 +36,8 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddRoles<IdentityRole>();
 // Injection for HttpContext
 builder.Services.AddHttpContextAccessor();
+// Add AntiforgeryToken Provider
+builder.Services.AddScoped<TokenProvider>();
 
 WebApplication? app = builder.Build();
 // Seed default data went database is empty

@@ -1,4 +1,8 @@
-﻿<CascadingAuthenticationState>
+﻿@using KeyBook.Providers
+
+@inject TokenProvider tokenProvider
+
+<CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
@@ -11,3 +15,15 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
+
+@code
+{
+    [Parameter]
+    public string? AntiforgeryToken { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        tokenProvider.AntiforgeryToken = AntiforgeryToken;
+        return base.OnInitializedAsync();
+    }
+}
