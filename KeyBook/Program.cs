@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using System.Text.Json.Serialization;
+using KeyBook.Database;
 
 WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
 

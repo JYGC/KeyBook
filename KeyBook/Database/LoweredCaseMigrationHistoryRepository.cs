@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Migrations.Internal;
 
-namespace KeyBook.Models
+namespace KeyBook.Database
 {
     public class LoweredCaseMigrationHistoryRepository : NpgsqlHistoryRepository
     {

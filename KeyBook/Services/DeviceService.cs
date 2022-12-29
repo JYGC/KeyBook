@@ -1,6 +1,6 @@
-﻿using KeyBook.Models;
+﻿using KeyBook.Database;
+using KeyBook.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace KeyBook.Services
 {

@@ -1,4 +1,5 @@
-﻿using KeyBook.Models;
+﻿using KeyBook.Database;
+using KeyBook.Models;
 using KeyBook.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
