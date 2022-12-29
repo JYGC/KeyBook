@@ -1,6 +1,6 @@
 ﻿@using KeyBook.Providers
 
-@inject TokenProvider tokenProvider
+@inject TokenProvider Tokens
 
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
@@ -23,7 +23,7 @@
 
     protected override Task OnInitializedAsync()
     {
-        tokenProvider.AntiforgeryToken = AntiforgeryToken;
+        Tokens.AntiforgeryToken = AntiforgeryToken;
         return base.OnInitializedAsync();
     }
 }

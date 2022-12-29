@@ -1,3 +1,4 @@
+using KeyBook.Services;
 using KeyBook.Models;
 using KeyBook.Permission;
 using KeyBook.Providers;
@@ -18,28 +19,39 @@ builder.Services.AddControllersWithViews().AddJsonOptions(options =>
 });
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 //builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>(); // Possible future permissions implementation?
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
 // Database
 builder.Services.AddDbContext<KeyBookDbContext>(options => options.UseNpgsql(
     builder.Configuration.GetConnectionString("DefaultConnection"),
     x => x.MigrationsHistoryTable("__efmigrationshistory", "public")
 ).ReplaceService<IHistoryRepository, LoweredCaseMigrationHistoryRepository>());
+
 // Authentication and roles
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<KeyBookDbContext>()
     .AddDefaultUI()
     .AddDefaultTokenProviders()
     .AddRoles<IdentityRole>();
+
+// Data services
+builder.Services.AddScoped<DeviceService>();
+
 // Injection for HttpContext
 builder.Services.AddHttpContextAccessor();
+
 // Add AntiforgeryToken Provider
 builder.Services.AddScoped<TokenProvider>();
 
+
+// Initialize App
 WebApplication? app = builder.Build();
+
 // Seed default data went database is empty
 using (IServiceScope scope = app.Services.CreateScope())
 {

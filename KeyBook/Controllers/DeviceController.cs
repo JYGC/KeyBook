@@ -21,31 +21,31 @@ namespace KeyBook.Controllers
             __userManager = userManager;
         }
 
-        public async Task<IActionResult> Index()
-        {
-            User? user = await __userManager.GetUserAsync(HttpContext.User);
-            var devicePersonAssocRowQuery = from device in __context.Devices
-                                            from personDevice in __context.PersonDevices.Where(personDevice => device.Id == personDevice.DeviceId).DefaultIfEmpty()
-                                            from person in __context.Persons.Where(person => personDevice.PersonId == person.Id).DefaultIfEmpty()
-                                            where device.OrganizationId == user.OrganizationId && (device.Status == Device.DeviceStatus.NotUsed || device.Status == Device.DeviceStatus.WithManager || device.Status == Device.DeviceStatus.Used)
-                                            orderby device.Name ascending
-                                            select new { device, personDevice, person };
-            List<Device> devices = new List<Device>();
-            foreach (var row in devicePersonAssocRowQuery.ToArray())
-            {
-                if (row.personDevice != null)
-                {
-                    row.device.PersonDevice = row.personDevice;
-                    row.device.PersonDevice.Person = row.person;
-                }
-                devices.Add(row.device);
-            }
-            return View(new DeviceListViewModel
-            {
-                Devices = devices,
-                DeviceTypes = __GetDeviceTypes()
-            });
-        }
+        //public async Task<IActionResult> Index()
+        //{
+        //    User? user = await __userManager.GetUserAsync(HttpContext.User);
+        //    var devicePersonAssocRowQuery = from device in __context.Devices
+        //                                    from personDevice in __context.PersonDevices.Where(personDevice => device.Id == personDevice.DeviceId).DefaultIfEmpty()
+        //                                    from person in __context.Persons.Where(person => personDevice.PersonId == person.Id).DefaultIfEmpty()
+        //                                    where device.OrganizationId == user.OrganizationId && (device.Status == Device.DeviceStatus.NotUsed || device.Status == Device.DeviceStatus.WithManager || device.Status == Device.DeviceStatus.Used)
+        //                                    orderby device.Name ascending
+        //                                    select new { device, personDevice, person };
+        //    List<Device> devices = new List<Device>();
+        //    foreach (var row in devicePersonAssocRowQuery.ToArray())
+        //    {
+        //        if (row.personDevice != null)
+        //        {
+        //            row.device.PersonDevice = row.personDevice;
+        //            row.device.PersonDevice.Person = row.person;
+        //        }
+        //        devices.Add(row.device);
+        //    }
+        //    return View(new DeviceListViewModel
+        //    {
+        //        Devices = devices,
+        //        DeviceTypes = __GetDeviceTypes()
+        //    });
+        //}
 
         public IActionResult New()
         {

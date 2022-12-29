@@ -1,13 +1,15 @@
-﻿@page "/device2"
+﻿@page "/device"
 
+@using KeyBook.Services
 @using KeyBook.Models
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.Mvc
 
-@inject KeyBookDbContext __context
-@inject IHttpContextAccessor httpContextAccessor
-@inject UserManager<User> __userManager
+@inject KeyBookDbContext DbContext
+@inject IHttpContextAccessor HttpContextAccessor
+@inject UserManager<User> UserManager
+@inject DeviceService DeviceService
 
 <AuthorizeView>
     <Authorized>
@@ -58,29 +60,13 @@
 </AuthorizeView>
 
 @code {
-    private List<Device>? devices = null;
-    private Dictionary<int, string> deviceTypes = Enum.GetValues(typeof(Device.DeviceType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
+    private List<Device>? devices;
+    private Dictionary<int, string>? deviceTypes;
 
     protected override async Task OnInitializedAsync()
     {
+        deviceTypes = DeviceService.GetDeviceTypes();
+        devices = await DeviceService.GetDevicesForUser();
         await base.OnInitializedAsync();
-        if (httpContextAccessor.HttpContext == null) return;
-        User? user = await __userManager.GetUserAsync(httpContextAccessor.HttpContext.User);
-        var devicePersonAssocRowQuery = from device in __context.Devices
-                                        from personDevice in __context.PersonDevices.Where(personDevice => device.Id == personDevice.DeviceId).DefaultIfEmpty()
-                                        from person in __context.Persons.Where(person => personDevice.PersonId == person.Id).DefaultIfEmpty()
-                                        where device.OrganizationId == user.OrganizationId && (device.Status == Device.DeviceStatus.NotUsed || device.Status == Device.DeviceStatus.WithManager || device.Status == Device.DeviceStatus.Used)
-                                        orderby device.Name ascending
-                                        select new { device, personDevice, person };
-        devices = new List<Device>();
-        foreach (var row in devicePersonAssocRowQuery.ToArray())
-        {
-            if (row.personDevice != null)
-            {
-                row.device.PersonDevice = row.personDevice;
-                row.device.PersonDevice.Person = row.person;
-            }
-            devices.Add(row.device);
-        }
     }
 }

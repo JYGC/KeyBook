@@ -5,8 +5,8 @@ namespace KeyBook.Controllers
 {
     public class HomeController : Controller
     {
-        [Route("")]
-        [Route("Home")]
+        [Route("Old")]
+        [Route("OldHome")]
         public IActionResult Index()
         {
             if (User.IsInRole(Roles.SuperAdmin.ToString())) return RedirectToAction("Index", "User");
