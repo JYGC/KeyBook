@@ -42,6 +42,10 @@ builder.Services.AddIdentity<User, IdentityRole>()
 
 // Data services
 builder.Services.AddScoped<DeviceService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<RoleService>();
+builder.Services.AddScoped<PermissionService>();
+builder.Services.AddScoped<UserRoleService>();
 
 // Injection for HttpContext
 builder.Services.AddHttpContextAccessor();

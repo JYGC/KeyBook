@@ -30,7 +30,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (devices != null && devices.Count() > 0)
+                    @if (deviceTypes != null && devices != null && devices.Count() > 0)
                     {
                         @foreach (Device device in devices)
                         {
@@ -66,8 +66,9 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
+
         deviceTypes = DeviceService.GetDeviceTypes();
         devices = await DeviceService.GetDevicesForUser();
-        await base.OnInitializedAsync();
     }
 }

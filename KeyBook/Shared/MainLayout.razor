@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Http
 @using System.Security.Claims
+@using KeyBook.Constants
 
 @inject IHttpContextAccessor HttpContextAccessor
 @inject NavigationManager NavManager
@@ -37,16 +38,19 @@
                                     <a class="nav-link text-dark" href="/Roles">Roles</a>
                                 </li>
                             </AuthorizeView>
-                            <AuthorizeView Roles="Owner">
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" href="/Device">Manage Devices</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" href="/Person">Manage Persons</a>
-                                </li>
-                                @*                                <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="DataImport" asp-action="Index">Import Devices and Persons</a>
-                                </li>*@
+                            <AuthorizeView Roles="Owner"> @* TODO: How to make only owners see this? *@
+                                @if(!user.IsInRole(Roles.SuperAdmin.ToString()))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" href="/Device">Manage Devices</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" href="/Person">Manage Persons</a>
+                                    </li>
+                                    @*                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="DataImport" asp-action="Index">Import Devices and Persons</a>
+                                    </li>*@
+                                }
                             </AuthorizeView>
                         </ul>
                         @if (user.Identity != null && user.Identity.IsAuthenticated && publicRoutes.Contains(currentRoute))

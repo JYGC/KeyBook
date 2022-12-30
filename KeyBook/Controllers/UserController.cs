@@ -15,6 +15,7 @@ namespace KeyBook.Controllers
             __userManager = userManager;
         }
 
+        [Route("userOld")]
         public async Task<IActionResult> Index()
         {
             User currentUser = await __userManager.GetUserAsync(HttpContext.User);

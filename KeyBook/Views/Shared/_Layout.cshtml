@@ -33,20 +33,20 @@
                             @if (User.IsInRole("SuperAdmin"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Index">Users</a>
+                                    <a class="nav-link text-dark" href="/User">Users</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Roles" asp-action="Index">Roles</a>
+                                    <a class="nav-link text-dark" href="/Roles">Roles</a>
                                 </li>
                             }
 
                             @if (User.IsInRole("Owner") && !User.IsInRole("SuperAdmin"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Device" asp-action="Index">Manage Devices</a>
+                                    <a class="nav-link text-dark" href="/Device">Manage Devices</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Person" asp-action="Index">Manage Persons</a>
+                                    <a class="nav-link text-dark" href="/Person">Manage Persons</a>
                                 </li>
                                         @*                                <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="DataImport" asp-action="Index">Import Devices and Persons</a>
