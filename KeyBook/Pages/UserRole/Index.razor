@@ -1,0 +1,68 @@
+﻿@page "/userroles/{userid}"
+
+@using KeyBook.Services
+@using KeyBook.ViewModels
+
+@inject UserRoleService UserRoleService
+
+<h3>Manage Roles for @UserId</h3>
+<br />
+<div class="card">
+    <div id="viewAll" class="card-body table-responsive">
+@*        <form asp-controller="userroles" method="post" asp-action="update" asp-route-id="@UserId" class="d-inline">
+        </form>*@
+        <input asp-for="@UserId" type="hidden" />
+        <table class="table table-striped" id="userRolesTable">
+            <thead>
+                <tr>
+                    <th>
+                        Role
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (userRoles != null && userRoles.Count() > 0)
+                {
+                    @for (int i = 0; i < userRoles.Count(); i++)
+                    {
+                        <tr>
+                            <td>
+                                <input value="@userRoles[i].RoleName" type="hidden" />
+                                @userRoles[i].RoleName
+                            </td>
+                            <td>
+                                <div class="form-check m-1">
+                                    <input type="checkbox" @bind="@userRoles[i].Selected" class="form-check-input" />
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+        <div class="col-sm-12" style=" padding: 20px 20px 0px 0px">
+            <button type="submit" id="save" class="btn bg-primary">
+                <i class="fa fa-check"></i>
+                Save
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<UserRolesViewModel>? userRoles;
+
+    [Parameter]
+    public string? UserId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (UserId == null) return;
+        userRoles = await UserRoleService.GetUserRolesByUserId(UserId);
+
+        await base.OnInitializedAsync();
+    }
+}

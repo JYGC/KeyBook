@@ -21,7 +21,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">KeyBook</a>
+                <a class="navbar-brand" href="/">KeyBook</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -33,20 +33,20 @@
                             @if (User.IsInRole("SuperAdmin"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Index">Users</a>
+                                    <a class="nav-link text-dark" href="/User">Users</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Roles" asp-action="Index">Roles</a>
+                                    <a class="nav-link text-dark" href="/Roles">Roles</a>
                                 </li>
                             }
 
                             @if (User.IsInRole("Owner") && !User.IsInRole("SuperAdmin"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Device" asp-action="Index">Manage Devices</a>
+                                    <a class="nav-link text-dark" href="/Device">Manage Devices</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Person" asp-action="Index">Manage Persons</a>
+                                    <a class="nav-link text-dark" href="/Person">Manage Persons</a>
                                 </li>
                                         @*                                <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="DataImport" asp-action="Index">Import Devices and Persons</a>
@@ -74,7 +74,7 @@
     </div>
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2022 - KeyBook - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2022 - KeyBook - <a href="/Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

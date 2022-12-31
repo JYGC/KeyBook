@@ -1,0 +1,74 @@
+﻿@page "/device"
+
+@using KeyBook.Services
+@using KeyBook.Models
+@using KeyBook.Database
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc
+
+@inject KeyBookDbContext DbContext
+@inject IHttpContextAccessor HttpContextAccessor
+@inject UserManager<User> UserManager
+@inject DeviceService DeviceService
+
+<AuthorizeView>
+    <Authorized>
+        <div>
+            <a href="/device/new">Add device</a>
+        </div>
+        <div>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Device Name</th>
+                        <th>Device Identifier</th>
+                        <!--<th>Status</th>-->
+                        <th>Type</th>
+                        <th>Current holder</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (deviceTypes != null && devices != null && devices.Count() > 0)
+                    {
+                        @foreach (Device device in devices)
+                        {
+                            <tr>
+                                <td>@device.Name</td>
+                                <td>@device.Identifier</td>
+                                <!--<td>{device.Status}</td>-->
+                                <td>@deviceTypes[(int)@device.Type]</td>
+                                <td>
+                                    @if (device.PersonDevice != null && device.PersonDevice.Person != null)
+                                    {
+                                        @device.PersonDevice.Person.Name
+                                    }
+                                </td>
+                                <td>
+                                    <a href="/device/edit?deviceId=@device.Id">Details</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <meta http-equiv="Refresh" content="0; url='Identity/Account/Login'" />
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private List<Device>? devices;
+    private Dictionary<int, string>? deviceTypes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        deviceTypes = DeviceService.GetDeviceTypes();
+        devices = await DeviceService.GetDevicesForUser();
+    }
+}

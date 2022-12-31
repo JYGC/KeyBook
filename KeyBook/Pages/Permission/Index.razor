@@ -1,0 +1,83 @@
+﻿@page "/permission/{roleid}"
+
+@using KeyBook.Services
+@using KeyBook.ViewModels
+
+@inject PermissionService PermissionService
+
+<h1>Permissions</h1>
+<br />
+<div class="card">
+    <div id="viewAll" class="card-body table-responsive">
+        <table class="table table-striped" id="permissionTable">
+            <thead>
+                <tr>
+                    <th>
+                        Type
+                    </th>
+                    <th>
+                        Permission
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (roleClaims != null && roleClaims.Count() > 0)
+                {
+                    @for (int i = 0; i < roleClaims.Count(); i++)
+                    {
+                        <tr>
+                            <td>
+                                <input value="@roleClaims[i].Type" type="hidden" />
+                            @roleClaims[i].Type
+                            </td>
+                            <td>
+                                <input value="@roleClaims[i].Value" type="hidden" />
+                            @roleClaims[i].Value
+                            </td>
+                            <td>
+                                <div class="form-check m-1">
+                                    <input type="checkbox" @bind="@roleClaims[i].Selected" class="form-check-input" />
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+        <div class="col-sm-12" style="padding: 20px 20px 0px 0px">
+            <button type="submit" id="save" @onclick="SaveRolePermissions" class="btn btn-success">
+                <i class="fa fa-check"></i>
+                Save
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<RoleClaimsViewModel>? roleClaims;
+
+    [Parameter]
+    public string? RoleId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (RoleId == null) return;
+        roleClaims = await PermissionService.GetAllPermissionsByRoleId(RoleId);
+
+        await base.OnInitializedAsync();
+    }
+
+    // TODO: Need to test this
+    private async Task SaveRolePermissions()
+    {
+        if (RoleId == null || roleClaims == null) return;
+        await PermissionService.UpdatePermissionForRoleId(new PermissionViewModel
+        {
+            RoleId = RoleId,
+            RoleClaims = roleClaims
+        });
+    }
+}

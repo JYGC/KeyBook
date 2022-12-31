@@ -1,11 +1,14 @@
+using KeyBook.Services;
 using KeyBook.Models;
 using KeyBook.Permission;
+using KeyBook.Providers;
 using KeyBook.Seeds;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using System.Text.Json.Serialization;
+using KeyBook.Database;
 
 WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
 
@@ -15,16 +18,21 @@ builder.Services.AddControllersWithViews().AddJsonOptions(options =>
     //options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 //builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>(); // Possible future permissions implementation?
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
 // Database
 builder.Services.AddDbContext<KeyBookDbContext>(options => options.UseNpgsql(
     builder.Configuration.GetConnectionString("DefaultConnection"),
     x => x.MigrationsHistoryTable("__efmigrationshistory", "public")
 ).ReplaceService<IHistoryRepository, LoweredCaseMigrationHistoryRepository>());
+
 // Authentication and roles
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<KeyBookDbContext>()
@@ -32,7 +40,23 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddDefaultTokenProviders()
     .AddRoles<IdentityRole>();
 
+// Data services
+builder.Services.AddScoped<DeviceService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<RoleService>();
+builder.Services.AddScoped<PermissionService>();
+builder.Services.AddScoped<UserRoleService>();
+
+// Injection for HttpContext
+builder.Services.AddHttpContextAccessor();
+
+// Add AntiforgeryToken Provider
+builder.Services.AddScoped<TokenProvider>();
+
+
+// Initialize App
 WebApplication? app = builder.Build();
+
 // Seed default data went database is empty
 using (IServiceScope scope = app.Services.CreateScope())
 {
@@ -66,6 +90,8 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapBlazorHub();
 app.MapRazorPages();
+app.MapFallbackToPage("/_Host");
 
 app.Run();
