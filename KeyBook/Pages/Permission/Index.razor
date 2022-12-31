@@ -3,6 +3,7 @@
 @using KeyBook.Services
 @using KeyBook.ViewModels
 
+@inject NavigationManager NavManager
 @inject PermissionService PermissionService
 
 <h1>Permissions</h1>
@@ -26,20 +27,20 @@
             <tbody>
                 @if (roleClaims != null && roleClaims.Count() > 0)
                 {
-                    @for (int i = 0; i < roleClaims.Count(); i++)
+                    @foreach (var roleClaim in roleClaims)
                     {
                         <tr>
                             <td>
-                                <input value="@roleClaims[i].Type" type="hidden" />
-                            @roleClaims[i].Type
+                                <input value="@roleClaim.Type" type="hidden" />
+                            @roleClaim.Type
                             </td>
                             <td>
-                                <input value="@roleClaims[i].Value" type="hidden" />
-                            @roleClaims[i].Value
+                                <input value="@roleClaim.Value" type="hidden" />
+                            @roleClaim.Value
                             </td>
                             <td>
                                 <div class="form-check m-1">
-                                    <input type="checkbox" @bind="@roleClaims[i].Selected" class="form-check-input" />
+                                    <input type="checkbox" @bind="roleClaim.Selected" class="form-check-input" />
                                 </div>
                             </td>
                         </tr>
@@ -79,5 +80,6 @@
             RoleId = RoleId,
             RoleClaims = roleClaims
         });
+        NavManager.NavigateTo("/roles");
     }
 }

@@ -3,48 +3,47 @@
 @using KeyBook.Services
 @using KeyBook.ViewModels
 
+@inject NavigationManager NavManager
 @inject UserRoleService UserRoleService
 
 <h3>Manage Roles for @UserId</h3>
 <br />
 <div class="card">
     <div id="viewAll" class="card-body table-responsive">
-@*        <form asp-controller="userroles" method="post" asp-action="update" asp-route-id="@UserId" class="d-inline">
-        </form>*@
         <input asp-for="@UserId" type="hidden" />
-        <table class="table table-striped" id="userRolesTable">
-            <thead>
-                <tr>
-                    <th>
-                        Role
-                    </th>
-                    <th>
-                        Status
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (userRoles != null && userRoles.Count() > 0)
-                {
-                    @for (int i = 0; i < userRoles.Count(); i++)
+        @if (userRoles != null && userRoles.Count() > 0)
+        {
+            <table class="table table-striped" id="userRolesTable">
+                <thead>
+                    <tr>
+                        <th>
+                            Role
+                        </th>
+                        <th>
+                            Status
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var userRole in userRoles)
                     {
                         <tr>
                             <td>
-                                <input value="@userRoles[i].RoleName" type="hidden" />
-                                @userRoles[i].RoleName
+                                <input value="@userRole.RoleName" type="hidden" />
+                                @userRole.RoleName
                             </td>
                             <td>
                                 <div class="form-check m-1">
-                                    <input type="checkbox" @bind="@userRoles[i].Selected" class="form-check-input" />
+                                    <input type="checkbox" @bind="userRole.Selected" class="form-check-input" />
                                 </div>
                             </td>
                         </tr>
                     }
-                }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        }
         <div class="col-sm-12" style=" padding: 20px 20px 0px 0px">
-            <button type="submit" id="save" class="btn bg-primary">
+            <button id="save" class="btn bg-primary" @onclick="UpdateUserRolesForUser">
                 <i class="fa fa-check"></i>
                 Save
             </button>
@@ -64,5 +63,20 @@
         userRoles = await UserRoleService.GetUserRolesByUserId(UserId);
 
         await base.OnInitializedAsync();
+    }
+
+    private async void UpdateUserRolesForUser()
+    {
+        bool success;
+        string? errorMessage;
+
+        if (UserId == null || userRoles == null) return;
+        (success, errorMessage) = await UserRoleService.UpdateUserRolesForUser(UserId, new ManageUserRolesViewModel
+        {
+            UserId = UserId,
+            UserRoles = userRoles
+        });
+        if (success) NavManager.NavigateTo("/user");
+        Console.WriteLine(errorMessage);
     }
 }
