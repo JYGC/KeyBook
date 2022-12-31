@@ -1,7 +1,7 @@
 using KeyBook.Services;
 using KeyBook.Models;
 using KeyBook.Permission;
-using KeyBook.Providers;
+using KeyBook.Security;
 using KeyBook.Seeds;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

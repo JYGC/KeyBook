@@ -1,4 +1,4 @@
-﻿namespace KeyBook.Providers
+﻿namespace KeyBook.Security
 {
     public class TokenProvider
     {

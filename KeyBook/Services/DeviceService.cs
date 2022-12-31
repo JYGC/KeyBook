@@ -1,4 +1,5 @@
 ﻿using KeyBook.Database;
+using KeyBook.DataHandling;
 using KeyBook.Models;
 using Microsoft.AspNetCore.Identity;
 
@@ -17,7 +18,7 @@ namespace KeyBook.Services
             __httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<List<Device>?> GetDevicesForUser()
+        public async Task<List<Device>?> GetDevicesForUser(bool showDefunctedDevices)
         {
             if (__httpContextAccessor.HttpContext == null) return null;
             User? user = await __userManager.GetUserAsync(__httpContextAccessor.HttpContext.User);
@@ -25,7 +26,7 @@ namespace KeyBook.Services
             var devicePersonAssocRowQuery = from device in __context.Devices
                                             from personDevice in __context.PersonDevices.Where(personDevice => device.Id == personDevice.DeviceId).DefaultIfEmpty()
                                             from person in __context.Persons.Where(person => personDevice.PersonId == person.Id).DefaultIfEmpty()
-                                            where device.OrganizationId == user.OrganizationId && (device.Status == Device.DeviceStatus.NotUsed || device.Status == Device.DeviceStatus.WithManager || device.Status == Device.DeviceStatus.Used)
+                                            where device.OrganizationId == user.OrganizationId && ((device.DefunctReason == Device.DeviceDefunctReason.None) || showDefunctedDevices)
                                             orderby device.Name ascending
                                             select new { device, personDevice, person };
             List<Device> devices = new List<Device>();
@@ -44,7 +45,12 @@ namespace KeyBook.Services
 
         public Dictionary<int, string> GetDeviceTypes()
         {
-            return Enum.GetValues(typeof(Device.DeviceType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
+            return Enum.GetValues(typeof(Device.DeviceType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.GetDescription());
+        }
+
+        public Dictionary<int, string> GetDeviceDefunctReason()
+        {
+            return Enum.GetValues(typeof(Device.DeviceDefunctReason)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
         }
     }
 }

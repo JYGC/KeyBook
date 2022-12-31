@@ -1,4 +1,5 @@
 ﻿using KeyBook.Database;
+using KeyBook.DataHandling;
 using KeyBook.Models;
 using KeyBook.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -66,7 +67,7 @@ namespace KeyBook.Controllers
                 {
                     Name = newDevice.Name,
                     Identifier = newDevice.Identifier,
-                    Status = newDevice.Status,
+                    DefunctReason = newDevice.DefunctReason,
                     Type = newDevice.Type,
                     IsDeleted = newDevice.IsDeleted,
                     Description = "New device registered",
@@ -114,17 +115,17 @@ namespace KeyBook.Controllers
                     d => d.Id == deviceFromView.Id && d.OrganizationId == user.OrganizationId
                 ).FirstOrDefault();
                 if (deviceFromDb == null) return NotFound("Device not found");
-                bool detailsOrStatusChanged = (deviceFromDb.Name != deviceFromView.Name || deviceFromDb.Identifier != deviceFromView.Identifier || deviceFromDb.Status != deviceFromView.Status);
+                bool detailsOrStatusChanged = (deviceFromDb.Name != deviceFromView.Name || deviceFromDb.Identifier != deviceFromView.Identifier || deviceFromDb.DefunctReason != deviceFromView.DefunctReason);
                 deviceFromDb.Name = deviceFromView.Name;
                 deviceFromDb.Identifier = deviceFromView.Identifier;
-                deviceFromDb.Status = deviceFromView.Status;
+                deviceFromDb.DefunctReason = deviceFromView.DefunctReason;
                 if (detailsOrStatusChanged)
                 {
                     __context.DeviceHistories.Add(new DeviceHistory
                     {
                         Name = deviceFromDb.Name,
                         Identifier = deviceFromDb.Identifier,
-                        Status = deviceFromDb.Status,
+                        DefunctReason = deviceFromDb.DefunctReason,
                         Type = deviceFromDb.Type,
                         IsDeleted = deviceFromDb.IsDeleted,
                         Description = "Device details and status edited",
@@ -223,15 +224,22 @@ namespace KeyBook.Controllers
             return __GetDeviceTypes();
         }
 
+        public ActionResult<Dictionary<int, string>> GetDeviceDefunctReasonAPI()
+        {
+            return Enum.GetValues(typeof(Device.DeviceDefunctReason)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
+        }
+
         public async Task<List<DeviceActivityHistory>> GetDeviceActivityHistoryListAPI(Guid deviceId)
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
-            return __context.DeviceActivityHistory.FromSqlRaw($"SELECT * FROM \"KeyBook\".sp_GetDeviceActivityHistory('{deviceId}', '{user.OrganizationId}')").ToList();
+            List <DeviceActivityHistory> activityHistoryList = __context.DeviceActivityHistory.FromSqlRaw(
+                $"SELECT * FROM \"KeyBook\".sp_GetDeviceActivityHistory('{deviceId}', '{user.OrganizationId}')").ToList();
+            return activityHistoryList;
         }
 
         private Dictionary<int, string> __GetDeviceTypes()
         {
-            return Enum.GetValues(typeof(Device.DeviceType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
+            return Enum.GetValues(typeof(Device.DeviceType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.GetDescription());
         }
     }
 }

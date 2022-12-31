@@ -68,7 +68,7 @@ namespace KeyBook.Seeds
                     {
                         Name = seededDevices[i].Name,
                         Identifier = seededDevices[i].Identifier,
-                        Status = seededDevices[i].Status,
+                        DefunctReason = seededDevices[i].DefunctReason,
                         Type = seededDevices[i].Type,
                         IsDeleted = seededDevices[i].IsDeleted,
                         Description = "seeding device table",
