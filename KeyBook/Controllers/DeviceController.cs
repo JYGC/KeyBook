@@ -1,4 +1,5 @@
 ﻿using KeyBook.Database;
+using KeyBook.DataHandling;
 using KeyBook.Models;
 using KeyBook.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -6,7 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using System.Collections.Generic;
 
 namespace KeyBook.Controllers
 {
@@ -239,7 +239,7 @@ namespace KeyBook.Controllers
 
         private Dictionary<int, string> __GetDeviceTypes()
         {
-            return Enum.GetValues(typeof(Device.DeviceType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
+            return Enum.GetValues(typeof(Device.DeviceType)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.GetDescription());
         }
     }
 }

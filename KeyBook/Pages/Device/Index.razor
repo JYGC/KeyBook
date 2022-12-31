@@ -18,26 +18,38 @@
             <a href="/device/new">Add device</a>
         </div>
         <div>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Device Name</th>
-                        <th>Device Identifier</th>
-                        <!--<th>Status</th>-->
-                        <th>Type</th>
-                        <th>Current holder</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (deviceTypes != null && devices != null && devices.Count() > 0)
-                    {
+            <input name="showDefunctedDevices" type="checkbox" checked="@showDefunctedDevices"
+                   @onchange="ShowDefunctedDevicesChange" />
+            <label for="showDefunctedDevices">Show defuncted devices</label>
+        </div>
+        <div>
+            @if (deviceTypes != null && devices != null && devices.Count() > 0)
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Device Name</th>
+                            <th>Device Identifier</th>
+                            @if (showDefunctedDevices)
+                            {
+                                <th>Defuncted Reason</th>
+                            }
+                            <th>Type</th>
+                            <th>Current holder</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         @foreach (Device device in devices)
                         {
                             <tr>
                                 <td>@device.Name</td>
                                 <td>@device.Identifier</td>
-                                <!--<td>{device.Status}</td>-->
+                                @if (showDefunctedDevices)
+                                {
+                                    <td>@((device.DefunctReason == Device.DeviceDefunctReason.None) ?
+                                           "" : device.DefunctReason)</td>
+                                }
                                 <td>@deviceTypes[(int)@device.Type]</td>
                                 <td>
                                     @if (device.PersonDevice != null && device.PersonDevice.Person != null)
@@ -50,9 +62,13 @@
                                 </td>
                             </tr>
                         }
-                    }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <label>No devices</label>
+            }
         </div>
     </Authorized>
     <NotAuthorized>
@@ -61,14 +77,24 @@
 </AuthorizeView>
 
 @code {
+    private bool showDefunctedDevices;
     private List<Device>? devices;
     private Dictionary<int, string>? deviceTypes;
+    private Dictionary<int, string>? deviceDefunctStatus;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
         deviceTypes = DeviceService.GetDeviceTypes();
-        devices = await DeviceService.GetDevicesForUser();
+        deviceDefunctStatus = DeviceService.GetDeviceDefunctReason();
+        devices = await DeviceService.GetDevicesForUser(showDefunctedDevices);
+    }
+
+    public async Task ShowDefunctedDevicesChange(ChangeEventArgs e)
+    {
+        showDefunctedDevices = (e.Value == null) ? false : (bool)e.Value;
+        devices = await DeviceService.GetDevicesForUser(showDefunctedDevices);
+        StateHasChanged();
     }
 }

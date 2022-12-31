@@ -40,25 +40,6 @@
     </select>
 </div>
 <script>
-    //axios({
-    //    method: 'get',
-    //    url: '/Device/GetDeviceTypesAPI'
-    //}).then(response => {
-    //    let typeSelect = document.querySelector('select[name="type"]');
-    //    let selectedType = "@Model?.Type";
-    //    for (typeId in response.data) {
-    //        let option = document.createElement("option");
-    //        option.value = typeId;
-    //        option.innerText = response.data[typeId];
-    //        if (response.data[typeId] === selectedType) {
-    //            option.selected = true;
-    //        }
-    //        typeSelect.appendChild(option);
-    //    }
-    //}).catch(error => {
-    //    console.log(error);
-    //});
-
     fillDropdown('select[name="type"]', '/Device/GetDeviceTypesAPI',
                  "@Model?.Type");
     fillDropdown('select[name="defunctreason"]',
