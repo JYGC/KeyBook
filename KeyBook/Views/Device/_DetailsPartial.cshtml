@@ -23,10 +23,12 @@
 @if (!isNewDevice)
 {
     <div>
-        <label for="status">Device Status:</label>
+        <label for="defunctreason">Device Defunct Reason:</label>
     </div>
     <div>
-        <input type="text" name="status" id="status" value="@Model?.Status" />
+        <select name="defunctreason" id="defunctreason" asp-for="@Model.DefunctReason">
+            @* items filled by axios *@
+        </select>
     </div>
 }
 <div>
@@ -38,22 +40,49 @@
     </select>
 </div>
 <script>
-    axios({
-        method: 'get',
-        url: '/Device/GetDeviceTypesAPI'
-    }).then(response => {
-        let typeSelect = document.querySelector('[name="type"]');
-        let selectedType = "@Model?.Type";
-        for (typeId in response.data) {
-            let option = document.createElement("option");
-            option.value = typeId;
-            option.innerText = response.data[typeId];
-            if (response.data[typeId] === selectedType) {
-                option.selected = true;
+    //axios({
+    //    method: 'get',
+    //    url: '/Device/GetDeviceTypesAPI'
+    //}).then(response => {
+    //    let typeSelect = document.querySelector('select[name="type"]');
+    //    let selectedType = "@Model?.Type";
+    //    for (typeId in response.data) {
+    //        let option = document.createElement("option");
+    //        option.value = typeId;
+    //        option.innerText = response.data[typeId];
+    //        if (response.data[typeId] === selectedType) {
+    //            option.selected = true;
+    //        }
+    //        typeSelect.appendChild(option);
+    //    }
+    //}).catch(error => {
+    //    console.log(error);
+    //});
+
+    fillDropdown('select[name="type"]', '/Device/GetDeviceTypesAPI',
+                 "@Model?.Type");
+    fillDropdown('select[name="defunctreason"]',
+                 '/Device/GetDeviceDefunctReasonAPI',
+                 "@Model?.DefunctReason");
+
+    async function fillDropdown(dropdownSelector, url, selectedValue) {
+        try {
+            let response = await axios({
+                method: 'get',
+                url: url
+            });
+            let dropdown = document.querySelector(dropdownSelector);
+            for (optionId in response.data) {
+                let option = document.createElement("option");
+                option.value = optionId;
+                option.innerText = response.data[optionId];
+                if (response.data[optionId] === selectedValue) {
+                    option.selected = true;
+                }
+                dropdown.appendChild(option);
             }
-            typeSelect.appendChild(option);
+        } catch (error) {
+            console.log(error);
         }
-    }).catch(error => {
-        console.log(error);
-    });
+    }
 </script>

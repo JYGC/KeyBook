@@ -13,11 +13,9 @@ namespace KeyBook.Models
             MailboxKey
         }
 
-        public enum DeviceStatus
+        public enum DeviceDefunctReason
         {
-            NotUsed,
-            WithManager,
-            Used,
+            None,
             Lost,
             Damaged,
             Retired,
@@ -31,7 +29,7 @@ namespace KeyBook.Models
         [Required]
         public string? Identifier { get; set; }
         [Required]
-        public DeviceStatus Status { get; set; } = DeviceStatus.NotUsed;
+        public DeviceDefunctReason DefunctReason { get; set; } = DeviceDefunctReason.None;
         [Required]
         public DeviceType Type { get; set; }
         [Required]

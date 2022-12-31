@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.Collections.Generic;
 
 namespace KeyBook.Controllers
 {
@@ -27,7 +28,7 @@ namespace KeyBook.Controllers
             var devicePersonAssocRowQuery = from device in __context.Devices
                                             from personDevice in __context.PersonDevices.Where(personDevice => device.Id == personDevice.DeviceId).DefaultIfEmpty()
                                             from person in __context.Persons.Where(person => personDevice.PersonId == person.Id).DefaultIfEmpty()
-                                            where device.OrganizationId == user.OrganizationId && (device.Status == Device.DeviceStatus.NotUsed || device.Status == Device.DeviceStatus.WithManager || device.Status == Device.DeviceStatus.Used)
+                                            where device.OrganizationId == user.OrganizationId && (device.DefunctReason == Device.DeviceDefunctReason.None)
                                             orderby device.Name ascending
                                             select new { device, personDevice, person };
             List<Device> devices = new List<Device>();
@@ -65,7 +66,7 @@ namespace KeyBook.Controllers
                 {
                     Name = newDevice.Name,
                     Identifier = newDevice.Identifier,
-                    Status = newDevice.Status,
+                    DefunctReason = newDevice.DefunctReason,
                     Type = newDevice.Type,
                     IsDeleted = newDevice.IsDeleted,
                     Description = "New device registered",
@@ -113,17 +114,17 @@ namespace KeyBook.Controllers
                     d => d.Id == deviceFromView.Id && d.OrganizationId == user.OrganizationId
                 ).FirstOrDefault();
                 if (deviceFromDb == null) return NotFound("Device not found");
-                bool detailsOrStatusChanged = (deviceFromDb.Name != deviceFromView.Name || deviceFromDb.Identifier != deviceFromView.Identifier || deviceFromDb.Status != deviceFromView.Status);
+                bool detailsOrStatusChanged = (deviceFromDb.Name != deviceFromView.Name || deviceFromDb.Identifier != deviceFromView.Identifier || deviceFromDb.DefunctReason != deviceFromView.DefunctReason);
                 deviceFromDb.Name = deviceFromView.Name;
                 deviceFromDb.Identifier = deviceFromView.Identifier;
-                deviceFromDb.Status = deviceFromView.Status;
+                deviceFromDb.DefunctReason = deviceFromView.DefunctReason;
                 if (detailsOrStatusChanged)
                 {
                     __context.DeviceHistories.Add(new DeviceHistory
                     {
                         Name = deviceFromDb.Name,
                         Identifier = deviceFromDb.Identifier,
-                        Status = deviceFromDb.Status,
+                        DefunctReason = deviceFromDb.DefunctReason,
                         Type = deviceFromDb.Type,
                         IsDeleted = deviceFromDb.IsDeleted,
                         Description = "Device details and status edited",
@@ -222,10 +223,17 @@ namespace KeyBook.Controllers
             return __GetDeviceTypes();
         }
 
+        public ActionResult<Dictionary<int, string>> GetDeviceDefunctReasonAPI()
+        {
+            return Enum.GetValues(typeof(Device.DeviceDefunctReason)).Cast<Enum>().ToDictionary(t => (int)(object)t, t => t.ToString());
+        }
+
         public async Task<List<DeviceActivityHistory>> GetDeviceActivityHistoryListAPI(Guid deviceId)
         {
             User? user = await __userManager.GetUserAsync(HttpContext.User);
-            return __context.DeviceActivityHistory.FromSqlRaw($"SELECT * FROM \"KeyBook\".sp_GetDeviceActivityHistory('{deviceId}', '{user.OrganizationId}')").ToList();
+            List <DeviceActivityHistory> activityHistoryList = __context.DeviceActivityHistory.FromSqlRaw(
+                $"SELECT * FROM \"KeyBook\".sp_GetDeviceActivityHistory('{deviceId}', '{user.OrganizationId}')").ToList();
+            return activityHistoryList;
         }
 
         private Dictionary<int, string> __GetDeviceTypes()
