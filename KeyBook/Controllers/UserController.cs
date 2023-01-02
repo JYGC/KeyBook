@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KeyBook.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin")]
     public class UserController : Controller
     {
         private readonly UserManager<User> __userManager;
@@ -15,6 +15,7 @@ namespace KeyBook.Controllers
             __userManager = userManager;
         }
 
+        [Route("userOld")]
         public async Task<IActionResult> Index()
         {
             User currentUser = await __userManager.GetUserAsync(HttpContext.User);

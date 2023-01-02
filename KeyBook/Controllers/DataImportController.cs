@@ -1,4 +1,5 @@
 ﻿using ExcelDataReader;
+using KeyBook.Database;
 using KeyBook.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -106,7 +107,7 @@ namespace KeyBook.Controllers
                     {
                         Name = existingDevice.Name,
                         Identifier = existingDevice.Identifier,
-                        Status = existingDevice.Status,
+                        DefunctReason = existingDevice.DefunctReason,
                         Type = existingDevice.Type,
                         IsDeleted = existingDevice.IsDeleted,
                         Description = "sync with excel",
@@ -119,7 +120,7 @@ namespace KeyBook.Controllers
                     {
                         Name = newDevice.Name,
                         Identifier = newDevice.Identifier,
-                        Status = newDevice.Status,
+                        DefunctReason = newDevice.DefunctReason,
                         Type = newDevice.Type,
                         IsDeleted = newDevice.IsDeleted,
                         Description = "create new device from excel",

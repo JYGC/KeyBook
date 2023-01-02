@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace KeyBook.Models
 {
@@ -9,15 +10,15 @@ namespace KeyBook.Models
             Fob,
             Key,
             Remote,
+            [Description("Room key")]
             RoomKey,
+            [Description("Mailbox key")]
             MailboxKey
         }
 
-        public enum DeviceStatus
+        public enum DeviceDefunctReason
         {
-            NotUsed,
-            WithManager,
-            Used,
+            None,
             Lost,
             Damaged,
             Retired,
@@ -31,7 +32,7 @@ namespace KeyBook.Models
         [Required]
         public string? Identifier { get; set; }
         [Required]
-        public DeviceStatus Status { get; set; } = DeviceStatus.NotUsed;
+        public DeviceDefunctReason DefunctReason { get; set; } = DeviceDefunctReason.None;
         [Required]
         public DeviceType Type { get; set; }
         [Required]

@@ -1,6 +1,6 @@
-﻿using KeyBook.Models;
+﻿using KeyBook.Database;
+using KeyBook.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace KeyBook.Seeds
@@ -68,7 +68,7 @@ namespace KeyBook.Seeds
                     {
                         Name = seededDevices[i].Name,
                         Identifier = seededDevices[i].Identifier,
-                        Status = seededDevices[i].Status,
+                        DefunctReason = seededDevices[i].DefunctReason,
                         Type = seededDevices[i].Type,
                         IsDeleted = seededDevices[i].IsDeleted,
                         Description = "seeding device table",

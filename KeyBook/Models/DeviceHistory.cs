@@ -11,7 +11,7 @@ namespace KeyBook.Models
         [Required]
         public string? Identifier { get; set; }
         [Required]
-        public Device.DeviceStatus Status { get; set; }
+        public Device.DeviceDefunctReason DefunctReason { get; set; }
         [Required]
         public Device.DeviceType Type { get; set; }
         [Required]

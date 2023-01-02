@@ -1,0 +1,92 @@
+﻿@page "/device"
+
+@using KeyBook.DataHandling
+@using KeyBook.Services
+@using KeyBook.Models
+
+@inject DeviceService DeviceService
+
+<AuthorizeView>
+    <Authorized>
+        <div>
+            <a href="/device/new">Add device</a>
+        </div>
+        <div>
+            <input name="showDefunctedDevices" type="checkbox" checked="@showDefunctedDevices"
+                   @onchange="ChangeShowDefunctedDevices" />
+            <label for="showDefunctedDevices">Show defuncted devices</label>
+        </div>
+        <div>
+            @if (devices != null && devices.Count() > 0)
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Device Name</th>
+                            <th>Device Identifier</th>
+                            <th>Type</th>
+                            @if (showDefunctedDevices)
+                            {
+                                <th>Defuncted Reason</th>
+                            }
+                            <th>Current holder</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (Device device in devices)
+                        {
+                            <tr>
+                                <td>@device.Name</td>
+                                <td>@device.Identifier</td>
+                                <td>@device.Type.GetDescription()</td>
+                                @if (showDefunctedDevices)
+                                {
+                                    <td>
+                                        @((device.DefunctReason == Device.DeviceDefunctReason.None) ?
+                                            "" : device.DefunctReason)
+                                    </td>
+                                }
+                                <td>
+                                    @if (device.PersonDevice != null && device.PersonDevice.Person != null)
+                                    {
+                                        @device.PersonDevice.Person.Name
+                                    }
+                                </td>
+                                <td>
+                                    <a href="/device/edit/@device.Id">View</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <label>No devices</label>
+            }
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <meta http-equiv="Refresh" content="0; url='Identity/Account/Login'" />
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private bool showDefunctedDevices;
+    private List<Device>? devices;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        devices = await DeviceService.GetDevicesForUser(showDefunctedDevices);
+    }
+
+    public async Task ChangeShowDefunctedDevices(ChangeEventArgs e)
+    {
+        showDefunctedDevices = (e.Value == null) ? false : (bool)e.Value;
+        devices = await DeviceService.GetDevicesForUser(showDefunctedDevices);
+        StateHasChanged();
+    }
+}

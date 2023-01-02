@@ -15,6 +15,7 @@ namespace KeyBook.Controllers
             __roleManager = roleManager;
         }
 
+        [Route("RolesOld")]
         public async Task<IActionResult> Index()
         {
             List<IdentityRole> roles = await __roleManager.Roles.ToListAsync();

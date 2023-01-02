@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using KeyBook.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace KeyBook.Models
+namespace KeyBook.Database
 {
     public class KeyBookDbContext : IdentityDbContext<User>
     {

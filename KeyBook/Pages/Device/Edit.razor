@@ -1,0 +1,104 @@
+﻿@page "/device/edit/{deviceid:guid}/{fromPersonDetailsPersonId:guid?}"
+
+@using KeyBook.Services
+@using KeyBook.Models
+
+@inject DeviceService DeviceService
+@inject PersonService PersonService
+@inject NavigationManager NavManager
+
+<a href=@__backUrl>Back</a>
+@if (__device == null)
+{
+    <label>Device cannot be found</label>
+}
+else
+{
+    <EditForm Model=@__device OnValidSubmit="@__SaveDevice">
+        <DataAnnotationsValidator />
+        <Details @bind-Device=__device />
+        <div class="form-group">
+            <label for="person">Person currently holding device:</label>
+            <InputSelect id="person" @bind-Value=@__selectedPersonId TValue="Guid">
+                <option value=@Guid.Empty>Not Used</option>
+            @foreach (var __personNameType in __personNamesTypes)
+            {
+                        <option value="@__personNameType.Key">@__personNameType.Value</option>
+            }
+            </InputSelect>
+        </div>
+        <button type="submit">Save device</button>
+    </EditForm>
+    <div id="currentlyHoldingDevicesContainer">
+        <div>
+            <label for="deviceActivityHistoryList">Device activity history:</label>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>DateTime</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody id="deviceActivityHistoryTableBody">
+            @foreach (var deviceActivityHistory in __deviceActivityHistoryList)
+            {
+                        <tr>
+                            <td>@deviceActivityHistory.RecordDateTime</td>
+                            <td>@deviceActivityHistory.Description</td>
+                        </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Guid? DeviceId { get; set; }
+    private Device? __device;
+
+    [Parameter]
+    public Guid? FromPersonDetailsPersonId { get; set; }
+
+    private Dictionary<Guid, string> __personNamesTypes = new();
+    private Guid __selectedPersonId = Guid.Empty;
+
+    private List<DeviceActivityHistory> __deviceActivityHistoryList = new();
+
+    private string __backUrl = "/device";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        __backUrl = (FromPersonDetailsPersonId == null || FromPersonDetailsPersonId == Guid.Empty) ?
+            __backUrl :
+            string.Format("/person/edit/{0}", FromPersonDetailsPersonId);
+
+        if (DeviceId == null) return;
+
+        __personNamesTypes = await PersonService.GetPersonNamesTypesForUser();
+
+        __device = await DeviceService.GetDeviceById(DeviceId.Value);
+
+        if (__device != null && __device.PersonDevice != null) __selectedPersonId = __device.PersonDevice.PersonId;
+
+        __deviceActivityHistoryList = await DeviceService.GetDeviceActivityHistoryList(DeviceId.Value);
+    }
+
+    private async Task __SaveDevice()
+    {
+        if (__device == null) return;
+
+        bool saveDeviceSuccess;
+        string? saveDeviceErrorMessage;
+        bool savePersonDeviceSuccess;
+        string? savePersonDeviceErrorMessage;
+
+        (saveDeviceSuccess, saveDeviceErrorMessage) = await DeviceService.SaveDevice(__device);
+        (savePersonDeviceSuccess, savePersonDeviceErrorMessage) = await DeviceService.SavePersonDevice(DeviceId.Value, __selectedPersonId);
+
+        if (saveDeviceSuccess && savePersonDeviceSuccess) NavManager.NavigateTo(__backUrl);
+    }
+}
