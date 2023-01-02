@@ -1,0 +1,83 @@
+﻿@page "/person"
+
+@using KeyBook.Services
+@using KeyBook.Models
+
+@inject PersonService PersonService
+
+<AuthorizeView>
+    <Authorized>
+        <div>
+            <a href="/person/new">Add person</a>
+        </div>
+        <div>
+            <input name="showPersonsHowLeft" type="checkbox" checked="@showPersonsHowLeft"
+                   @onchange="ChangeShowPersonsHowLeft" />
+            <label for="showPersonsHowLeft">Show persons who left</label>
+        </div>
+        <div>
+            @if (persons != null && persons.Count() > 0)
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Person Name</th>
+                            <th>IsGone</th>
+                            <th>Person Type</th>
+                            <th>Current Devices</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (Person person in persons)
+                        {
+                            <tr>
+                                <td>@person.Name</td>
+                                <td>@person.IsGone</td>
+                                <td>@person.Type</td>
+                                <td>
+                                    @foreach (PersonDevice personDevice in person.PersonDevices)
+                                    {
+                                        @if (personDevice.Device != null)
+                                        {
+                                            @personDevice.Device.Name<br/>
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    <a href="/person/edit/@person.Id">View</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <label>No persons</label>
+            }
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <meta http-equiv="Refresh" content="0; url='Identity/Account/Login'" />
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private bool showPersonsHowLeft;
+    List<Person>? persons;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        persons = await PersonService.GetPersonForUser(showPersonsHowLeft);
+    }
+
+    public async Task ChangeShowPersonsHowLeft(ChangeEventArgs e)
+    {
+        showPersonsHowLeft = (e.Value == null) ? false : (bool)e.Value;
+        persons = await PersonService.GetPersonForUser(showPersonsHowLeft);
+        StateHasChanged();
+    }
+}

@@ -42,6 +42,7 @@ builder.Services.AddIdentity<User, IdentityRole>()
 
 // Data services
 builder.Services.AddScoped<DeviceService>();
+builder.Services.AddScoped<PersonService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<PermissionService>();

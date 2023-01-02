@@ -1,0 +1,100 @@
+﻿@page "/person/edit/{personid:guid}"
+
+@using KeyBook.Services
+@using KeyBook.Models
+
+@inject DeviceService DeviceService
+@inject PersonService PersonService
+@inject NavigationManager NavManager
+
+<a href=@__backUrl>Back</a>
+@if (__person == null)
+{
+    <label>Person cannot be found</label>
+}
+else
+{
+    <EditForm Model=@__person OnValidSubmit="@__SavePerson">
+        <DataAnnotationsValidator />
+        <Details @bind-Person=__person />
+        <button type="submit">Save person</button>
+    </EditForm>
+    if (__personDevices != null && __personDevices.Count() > 0)
+    {
+        <div id="personDeviceContainer">
+            <div>
+                <label for="name">Devices Held:</label>
+            </div>
+            <div class="persons-devices">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Device Name</th>
+                            <th>Device Identifier</th>
+                            <th>Type</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="devicesWithPersonTable">
+                        @foreach (var personDevice in __personDevices)
+                        {
+                            <tr>
+                                @if (personDevice.Device == null)
+                                {
+                                    <td>Person</td>
+                                    <td>cannot</td>
+                                    <td>be</td>
+                                    <td>found</td>
+                                }
+                                else
+                                {
+                                    <td>@personDevice.Device.Name</td>
+                                    <td>@personDevice.Device.Identifier</td>
+                                    <td>@__deviceTypes[personDevice.Device.Type]</td>
+                                    <td><a href="/device/edit/@personDevice.Device.Id/@PersonId">Details</a></td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    [Parameter]
+    public Guid? PersonId { get; set; }
+    private Person? __person;
+
+    private const string __backUrl = "/person";
+
+    private List<PersonDevice>? __personDevices;
+
+    private Dictionary<Enum, string> __deviceTypes = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        if (PersonId == null) return;
+
+        __deviceTypes = DeviceService.GetDeviceTypes();
+
+        __personDevices = await PersonService.GetPersonDevices(PersonId.Value);
+
+        __person = await PersonService.GetPersonById(PersonId.Value);
+    }
+
+    private async Task __SavePerson()
+    {
+        if (__person == null) return;
+
+        bool success;
+        string? errorMessage;
+
+        (success, errorMessage) = await PersonService.SavePerson(__person);
+
+        if (success) NavManager.NavigateTo(__backUrl);
+    }
+}

@@ -1,15 +1,9 @@
 ﻿@page "/device"
 
+@using KeyBook.DataHandling
 @using KeyBook.Services
 @using KeyBook.Models
-@using KeyBook.Database
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Identity
-@using Microsoft.AspNetCore.Mvc
 
-@inject KeyBookDbContext DbContext
-@inject IHttpContextAccessor HttpContextAccessor
-@inject UserManager<User> UserManager
 @inject DeviceService DeviceService
 
 <AuthorizeView>
@@ -19,11 +13,11 @@
         </div>
         <div>
             <input name="showDefunctedDevices" type="checkbox" checked="@showDefunctedDevices"
-                   @onchange="ShowDefunctedDevicesChange" />
+                   @onchange="ChangeShowDefunctedDevices" />
             <label for="showDefunctedDevices">Show defuncted devices</label>
         </div>
         <div>
-            @if (deviceTypes != null && devices != null && devices.Count() > 0)
+            @if (devices != null && devices.Count() > 0)
             {
                 <table class="table table-striped">
                     <thead>
@@ -50,7 +44,7 @@
                                     <td>@((device.DefunctReason == Device.DeviceDefunctReason.None) ?
                                            "" : device.DefunctReason)</td>
                                 }
-                                <td>@deviceTypes[(int)@device.Type]</td>
+                                <td>@device.Type.GetDescription()</td>
                                 <td>
                                     @if (device.PersonDevice != null && device.PersonDevice.Person != null)
                                     {
@@ -58,7 +52,8 @@
                                     }
                                 </td>
                                 <td>
-                                    <a href="/device/edit?deviceId=@device.Id">Details</a>
+                                    @*<a href="/device/edit?deviceId=@device.Id">Details</a>*@
+                                    <a href="/device/edit/@device.Id">View</a>
                                 </td>
                             </tr>
                         }
@@ -79,19 +74,15 @@
 @code {
     private bool showDefunctedDevices;
     private List<Device>? devices;
-    private Dictionary<int, string>? deviceTypes;
-    private Dictionary<int, string>? deviceDefunctStatus;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        deviceTypes = DeviceService.GetDeviceTypes();
-        deviceDefunctStatus = DeviceService.GetDeviceDefunctReason();
         devices = await DeviceService.GetDevicesForUser(showDefunctedDevices);
     }
 
-    public async Task ShowDefunctedDevicesChange(ChangeEventArgs e)
+    public async Task ChangeShowDefunctedDevices(ChangeEventArgs e)
     {
         showDefunctedDevices = (e.Value == null) ? false : (bool)e.Value;
         devices = await DeviceService.GetDevicesForUser(showDefunctedDevices);

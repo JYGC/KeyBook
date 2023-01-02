@@ -49,41 +49,41 @@ namespace KeyBook.Controllers
         //    });
         //}
 
-        public IActionResult New()
-        {
-            return View();
-        }
+        //public IActionResult New()
+        //{
+        //    return View();
+        //}
 
-        [HttpPost] 
-        public async Task<IActionResult> New(Device newDevice)
-        {
-            using IDbContextTransaction transaction = __context.Database.BeginTransaction();
-            try
-            {
-                User? user = await __userManager.GetUserAsync(HttpContext.User);
-                newDevice.OrganizationId = user.OrganizationId;
-                if (!ModelState.IsValid) return View(newDevice);
-                newDevice.DeviceHistories.Add(new DeviceHistory
-                {
-                    Name = newDevice.Name,
-                    Identifier = newDevice.Identifier,
-                    DefunctReason = newDevice.DefunctReason,
-                    Type = newDevice.Type,
-                    IsDeleted = newDevice.IsDeleted,
-                    Description = "New device registered",
-                    Device = newDevice
-                });
-                __context.Devices.Add(newDevice);
-                __context.SaveChanges();
-                transaction.Commit();
-                return RedirectToAction("Index", "Device");
-            }
-            catch (Exception ex)
-            {
-                transaction.Rollback();
-                return NotFound(ex);
-            }
-        }
+        //[HttpPost] 
+        //public async Task<IActionResult> New(Device newDevice)
+        //{
+        //    using IDbContextTransaction transaction = __context.Database.BeginTransaction();
+        //    try
+        //    {
+        //        User? user = await __userManager.GetUserAsync(HttpContext.User);
+        //        newDevice.OrganizationId = user.OrganizationId;
+        //        if (!ModelState.IsValid) return View(newDevice);
+        //        newDevice.DeviceHistories.Add(new DeviceHistory
+        //        {
+        //            Name = newDevice.Name,
+        //            Identifier = newDevice.Identifier,
+        //            DefunctReason = newDevice.DefunctReason,
+        //            Type = newDevice.Type,
+        //            IsDeleted = newDevice.IsDeleted,
+        //            Description = "New device registered",
+        //            Device = newDevice
+        //        });
+        //        __context.Devices.Add(newDevice);
+        //        __context.SaveChanges();
+        //        transaction.Commit();
+        //        return RedirectToAction("Index", "Device");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        transaction.Rollback();
+        //        return NotFound(ex);
+        //    }
+        //}
 
         public async Task<IActionResult> Edit(Guid deviceId, Guid? fromPersonDetailsPersonId)
         {
