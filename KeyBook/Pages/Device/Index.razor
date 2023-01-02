@@ -24,11 +24,11 @@
                         <tr>
                             <th>Device Name</th>
                             <th>Device Identifier</th>
+                            <th>Type</th>
                             @if (showDefunctedDevices)
                             {
                                 <th>Defuncted Reason</th>
                             }
-                            <th>Type</th>
                             <th>Current holder</th>
                             <th></th>
                         </tr>
@@ -39,12 +39,14 @@
                             <tr>
                                 <td>@device.Name</td>
                                 <td>@device.Identifier</td>
+                                <td>@device.Type.GetDescription()</td>
                                 @if (showDefunctedDevices)
                                 {
-                                    <td>@((device.DefunctReason == Device.DeviceDefunctReason.None) ?
-                                           "" : device.DefunctReason)</td>
+                                    <td>
+                                        @((device.DefunctReason == Device.DeviceDefunctReason.None) ?
+                                            "" : device.DefunctReason)
+                                    </td>
                                 }
-                                <td>@device.Type.GetDescription()</td>
                                 <td>
                                     @if (device.PersonDevice != null && device.PersonDevice.Person != null)
                                     {
@@ -52,7 +54,6 @@
                                     }
                                 </td>
                                 <td>
-                                    @*<a href="/device/edit?deviceId=@device.Id">Details</a>*@
                                     <a href="/device/edit/@device.Id">View</a>
                                 </td>
                             </tr>

@@ -32,6 +32,7 @@ else
                             <th>Device Name</th>
                             <th>Device Identifier</th>
                             <th>Type</th>
+                            <th>Is Defunct</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -45,12 +46,17 @@ else
                                     <td>cannot</td>
                                     <td>be</td>
                                     <td>found</td>
+                                    <td></td>
                                 }
                                 else
                                 {
                                     <td>@personDevice.Device.Name</td>
                                     <td>@personDevice.Device.Identifier</td>
                                     <td>@__deviceTypes[personDevice.Device.Type]</td>
+                                    <td>
+                                        @((personDevice.Device.DefunctReason == Device.DeviceDefunctReason.None) ?
+                                            "No" : $"Yes - {personDevice.Device.DefunctReason}")
+                                    </td>
                                     <td><a href="/device/edit/@personDevice.Device.Id/@PersonId">Details</a></td>
                                 }
                             </tr>
