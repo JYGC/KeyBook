@@ -52,7 +52,7 @@ namespace KeyBook.Services
             }
         }
 
-        public async Task<List<Device>?> GetDevicesForUser(bool showDefunctedDevices)
+        public async Task<List<Device>?> GetDevicesForUser(bool showDefunctedDevices, bool switchToDeletedDevices)
         {
             if (__httpContextAccessor.HttpContext == null) return null;
             User? user = await __userManager.GetUserAsync(__httpContextAccessor.HttpContext.User);
@@ -61,6 +61,7 @@ namespace KeyBook.Services
                                             from personDevice in __context.PersonDevices.Where(personDevice => device.Id == personDevice.DeviceId).DefaultIfEmpty()
                                             from person in __context.Persons.Where(person => personDevice.PersonId == person.Id).DefaultIfEmpty()
                                             where device.OrganizationId == user.OrganizationId && ((device.DefunctReason == Device.DeviceDefunctReason.None) || showDefunctedDevices)
+                                                                                               && ((!switchToDeletedDevices && !device.IsDeleted) || (switchToDeletedDevices && device.IsDeleted))
                                             orderby device.Name ascending
                                             select new { device, personDevice, person };
             List<Device> devices = new List<Device>();
@@ -121,8 +122,7 @@ namespace KeyBook.Services
                 deviceFromDb.Name = deviceFromView.Name;
                 deviceFromDb.Identifier = deviceFromView.Identifier;
                 deviceFromDb.DefunctReason = deviceFromView.DefunctReason;
-                //if (detailsOrStatusChanged)
-                //{
+
                 __context.DeviceHistories.Add(new DeviceHistory
                 {
                     Name = deviceFromDb.Name,
@@ -134,7 +134,6 @@ namespace KeyBook.Services
                     DeviceId = deviceFromDb.Id
                 });
                 __context.SaveChanges();
-                //}
 
                 __context.Devices.Update(deviceFromView);
                 __context.SaveChanges();
@@ -207,6 +206,36 @@ namespace KeyBook.Services
             });
             __context.PersonDevices.Remove(device.PersonDevice);
             __context.SaveChanges();
+        }
+
+        public async Task<(bool, string?)> ToggleDeleteDevice(Guid deviceId)
+        {
+            try
+            {
+                if (__httpContextAccessor.HttpContext == null) throw new Exception("No HTTP Context");
+                User? user = await __userManager.GetUserAsync(__httpContextAccessor.HttpContext.User);
+                Device? deviceFromDb = __context.Devices.Where(d => d.Id == deviceId && d.OrganizationId == user.OrganizationId).First();
+                deviceFromDb.IsDeleted = !deviceFromDb.IsDeleted;
+                __context.Devices.Update(deviceFromDb);
+
+                __context.DeviceHistories.Add(new DeviceHistory
+                {
+                    Name = deviceFromDb.Name,
+                    Identifier = deviceFromDb.Identifier,
+                    DefunctReason = deviceFromDb.DefunctReason,
+                    Type = deviceFromDb.Type,
+                    IsDeleted = deviceFromDb.IsDeleted,
+                    Description = deviceFromDb.IsDeleted ? "Device deleted" : "Device undeleted",
+                    DeviceId = deviceFromDb.Id
+                });
+
+                __context.SaveChanges();
+                return (true, null);
+            }
+            catch(Exception ex)
+            {
+                return (false, ex.Message);
+            }
         }
     }
 }

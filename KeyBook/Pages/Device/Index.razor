@@ -11,10 +11,18 @@
         <div>
             <a href="/device/new">Add device</a>
         </div>
+        @if (!__switchToDeletedDevices)
+        {
+            <div>
+                <input name="showDefunctedDevices" type="checkbox" checked="@__showDefunctedDevices"
+                       @onchange="__ChangeShowDefunctedDevices" />
+                <label for="showDefunctedDevices">Show defuncted devices</label>
+            </div>
+        }
         <div>
-            <input name="showDefunctedDevices" type="checkbox" checked="@showDefunctedDevices"
-                   @onchange="ChangeShowDefunctedDevices" />
-            <label for="showDefunctedDevices">Show defuncted devices</label>
+            <input name="switchToDeletedDevices" type="checkbox" checked="@__switchToDeletedDevices"
+                   @onchange="__ChangeSwitchToDeletedDevices" />
+            <label for="showDeleteDevices">Switch to deleted devices</label>
         </div>
         <div>
             @if (devices != null && devices.Count() > 0)
@@ -25,7 +33,7 @@
                             <th>Device Name</th>
                             <th>Device Identifier</th>
                             <th>Type</th>
-                            @if (showDefunctedDevices)
+                            @if (__showDefunctedDevices)
                             {
                                 <th>Defuncted Reason</th>
                             }
@@ -40,7 +48,7 @@
                                 <td>@device.Name</td>
                                 <td>@device.Identifier</td>
                                 <td>@device.Type.GetDescription()</td>
-                                @if (showDefunctedDevices)
+                                @if (__showDefunctedDevices)
                                 {
                                     <td>
                                         @((device.DefunctReason == Device.DeviceDefunctReason.None) ?
@@ -73,20 +81,30 @@
 </AuthorizeView>
 
 @code {
-    private bool showDefunctedDevices;
     private List<Device>? devices;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        devices = await DeviceService.GetDevicesForUser(showDefunctedDevices);
+        devices = await DeviceService.GetDevicesForUser(__showDefunctedDevices, __switchToDeletedDevices);
     }
 
-    public async Task ChangeShowDefunctedDevices(ChangeEventArgs e)
+    private bool __showDefunctedDevices;
+    private async Task __ChangeShowDefunctedDevices(ChangeEventArgs e)
     {
-        showDefunctedDevices = (e.Value == null) ? false : (bool)e.Value;
-        devices = await DeviceService.GetDevicesForUser(showDefunctedDevices);
+        __showDefunctedDevices = (e.Value == null) ? false : (bool)e.Value;
+        devices = await DeviceService.GetDevicesForUser(__showDefunctedDevices, __switchToDeletedDevices);
         StateHasChanged();
     }
+
+    private bool __switchToDeletedDevices;
+    private async Task __ChangeSwitchToDeletedDevices(ChangeEventArgs e)
+    {
+        __switchToDeletedDevices = (e.Value == null) ? false : (bool)e.Value;
+        devices = await DeviceService.GetDevicesForUser(__showDefunctedDevices, __switchToDeletedDevices);
+        StateHasChanged();
+    }
+
+
 }
