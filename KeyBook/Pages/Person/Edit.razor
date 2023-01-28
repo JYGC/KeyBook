@@ -17,6 +17,13 @@ else
     <EditForm Model=@__person OnValidSubmit="@__SavePerson">
         <DataAnnotationsValidator />
         <Details @bind-Person=__person />
+        @if (__person.PersonDevices.Count == 0)
+        {
+            <div class="form-group">
+                <label for="isgone">Person Is Gone:</label>
+                <InputCheckbox id="isgone" @bind-Value=@__person.IsGone />
+            </div>
+        }
         <button type="submit">Save person</button>
     </EditForm>
     if (__personDevices != null && __personDevices.Count() > 0)
@@ -66,6 +73,19 @@ else
             </div>
         </div>
     }
+    else
+    {
+        @if (!__person.IsDeleted)
+        {
+            <input name="enableDeletingPerson" type="checkbox" checked="@__enableDeletingPerson" @onchange="__ChangeEnableDeletingPerson" />
+            <label for="enableDeletingPerson">Enable deleting this person</label>
+        }
+        @if (__person.IsDeleted || __enableDeletingPerson)
+        {
+            <br />
+            <button @onclick="__ToggleDeletePerson">@(__person.IsDeleted ? "Undelete person" : "Delete person")</button>
+        }
+    }
 }
 
 @code {
@@ -94,7 +114,7 @@ else
 
     private async Task __SavePerson()
     {
-        if (__person == null) return;
+        if (__person == null || PersonId == null) return;
 
         bool success;
         string? errorMessage;
@@ -102,5 +122,22 @@ else
         (success, errorMessage) = await PersonService.SavePerson(__person);
 
         if (success) NavManager.NavigateTo(__backUrl);
+    }
+
+    private bool __enableDeletingPerson;
+    private void __ChangeEnableDeletingPerson(ChangeEventArgs e)
+    {
+        __enableDeletingPerson = (e.Value == null) ? false : (bool)e.Value;
+    }
+
+    private async Task __ToggleDeletePerson()
+    {
+        if (PersonId == null) return;
+
+        bool deletePersonSuccess;
+        string? deleteDeviceErrorMessage;
+        (deletePersonSuccess, deleteDeviceErrorMessage) = await PersonService.ToggleDeletePerson(PersonId.Value);
+
+        if (deletePersonSuccess) NavManager.NavigateTo(__backUrl);
     }
 }

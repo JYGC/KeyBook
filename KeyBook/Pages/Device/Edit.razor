@@ -21,14 +21,27 @@ else
             <label for="person">Person currently holding device:</label>
             <InputSelect id="person" @bind-Value=@__selectedPersonId TValue="Guid">
                 <option value=@Guid.Empty>Not Used</option>
-            @foreach (var __personNameType in __personNamesTypes)
-            {
-                        <option value="@__personNameType.Key">@__personNameType.Value</option>
-            }
+                @foreach (var __personNameType in __personNamesTypes)
+                {
+                    <option value="@__personNameType.Key">@__personNameType.Value</option>
+                }
             </InputSelect>
         </div>
         <button type="submit">Save device</button>
     </EditForm>
+    @if (__device.PersonDevice == null)
+    {
+        @if (!__device.IsDeleted)
+        {
+            <input name="enableDeletingDevice" type="checkbox" checked="@__enableDeletingDevice" @onchange="__ChangeEnableDeletingDevice" />
+            <label for="enableDeletingDevice">Enable deleting this device</label>
+        }
+        @if (__device.IsDeleted || __enableDeletingDevice)
+        {
+            <br />
+            <button @onclick="__ToggleDeleteDevice">@(__device.IsDeleted ? "Undelete device" : "Delete device")</button>
+        }
+    }
     <div id="currentlyHoldingDevicesContainer">
         <div>
             <label for="deviceActivityHistoryList">Device activity history:</label>
@@ -41,13 +54,13 @@ else
                 </tr>
             </thead>
             <tbody id="deviceActivityHistoryTableBody">
-            @foreach (var deviceActivityHistory in __deviceActivityHistoryList)
-            {
-                        <tr>
-                            <td>@deviceActivityHistory.RecordDateTime</td>
-                            <td>@deviceActivityHistory.Description</td>
-                        </tr>
-            }
+                @foreach (var deviceActivityHistory in __deviceActivityHistoryList)
+                {
+                    <tr>
+                        <td>@deviceActivityHistory.RecordDateTime</td>
+                        <td>@deviceActivityHistory.Description</td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>
@@ -89,7 +102,7 @@ else
 
     private async Task __SaveDevice()
     {
-        if (__device == null) return;
+        if (__device == null || DeviceId == null) return;
 
         bool saveDeviceSuccess;
         string? saveDeviceErrorMessage;
@@ -100,5 +113,22 @@ else
         (savePersonDeviceSuccess, savePersonDeviceErrorMessage) = await DeviceService.SavePersonDevice(DeviceId.Value, __selectedPersonId);
 
         if (saveDeviceSuccess && savePersonDeviceSuccess) NavManager.NavigateTo(__backUrl);
+    }
+
+    private bool __enableDeletingDevice;
+    private void __ChangeEnableDeletingDevice(ChangeEventArgs e)
+    {
+        __enableDeletingDevice = (e.Value == null) ? false : (bool)e.Value;
+    }
+
+    private async Task __ToggleDeleteDevice()
+    {
+        if (DeviceId == null) return;
+
+        bool deleteDeviceSuccess;
+        string? deleteDeviceErrorMessage;
+        (deleteDeviceSuccess, deleteDeviceErrorMessage) = await DeviceService.ToggleDeleteDevice(DeviceId.Value);
+
+        if (deleteDeviceSuccess) NavManager.NavigateTo(__backUrl);
     }
 }

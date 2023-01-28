@@ -3,6 +3,7 @@ using KeyBook.Models;
 using KeyBook.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace KeyBook.Services
@@ -49,7 +50,7 @@ namespace KeyBook.Services
             }
         }
 
-        public async Task<List<Person>?> GetPersonForUser(bool showPersonsHowLeft)
+        public async Task<List<Person>?> GetPersonForUser(bool showPersonsHowLeft, bool switchToDeletedPersons)
         {
             if (__httpContextAccessor.HttpContext == null) return null;
             User? user = await __userManager.GetUserAsync(__httpContextAccessor.HttpContext.User);
@@ -57,7 +58,8 @@ namespace KeyBook.Services
             var personDeviceQuery = from person in __context.Set<Person>()
                                     from personDevice in __context.Set<PersonDevice>().Where(personDevice => personDevice.PersonId == person.Id).DefaultIfEmpty()
                                     from device in __context.Set<Device>().Where(device => device.Id == personDevice.DeviceId).DefaultIfEmpty()
-                                    where person.OrganizationId == user.OrganizationId && (!person.IsGone || showPersonsHowLeft) && !person.IsDeleted
+                                    where person.OrganizationId == user.OrganizationId && (!person.IsGone || showPersonsHowLeft) && 
+                                                                                          ((!switchToDeletedPersons && !person.IsDeleted) || (switchToDeletedPersons && person.IsDeleted))
                                     orderby person.Name ascending
                                     select new { person, personDevice, device };
             List<Person> personsWithDuplicates = personDeviceQuery.ToArray().Select(pdq => pdq.person).ToList();
@@ -74,7 +76,7 @@ namespace KeyBook.Services
         {
             if (__httpContextAccessor.HttpContext == null) throw new Exception("No HttpContext");
             User? user = await __userManager.GetUserAsync(__httpContextAccessor.HttpContext.User);
-            return __context.Persons.Where(p => p.OrganizationId == user.OrganizationId && !p.IsGone).OrderBy(p => p.Name).ToDictionary(p => p.Id, p => string.Format("{0} - {1}", p.Name, p.Type.ToString()));
+            return __context.Persons.Where(p => p.OrganizationId == user.OrganizationId && !p.IsGone && !p.IsDeleted).OrderBy(p => p.Name).ToDictionary(p => p.Id, p => string.Format("{0} - {1}", p.Name, p.Type.ToString()));
         }
 
         public Dictionary<Enum, string> GetPersonTypes()
@@ -142,6 +144,35 @@ namespace KeyBook.Services
             catch (Exception ex)
             {
                 transaction.Rollback();
+                return (false, ex.Message);
+            }
+        }
+
+        public async Task<(bool, string?)> ToggleDeletePerson(Guid personId)
+        {
+            try
+            {
+                if (__httpContextAccessor.HttpContext == null) throw new Exception("No HTTP Context");
+                User? user = await __userManager.GetUserAsync(__httpContextAccessor.HttpContext.User);
+                Person? personFromDb = __context.Persons.Where(d => d.Id == personId && d.OrganizationId == user.OrganizationId).First();
+                personFromDb.IsDeleted = !personFromDb.IsDeleted;
+                __context.Persons.Update(personFromDb);
+
+                __context.PersonHistories.Add(new PersonHistory
+                {
+                    Name = personFromDb.Name,
+                    IsGone = personFromDb.IsGone,
+                    Type = personFromDb.Type,
+                    IsDeleted = personFromDb.IsDeleted,
+                    Description = (personFromDb.IsDeleted) ? "Person deleted" : "Person undeleted",
+                    PersonId = personFromDb.Id
+                });
+
+                __context.SaveChanges();
+                return (true, null);
+            }
+            catch (Exception ex)
+            {
                 return (false, ex.Message);
             }
         }

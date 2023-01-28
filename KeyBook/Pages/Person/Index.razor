@@ -10,26 +10,34 @@
         <div>
             <a href="/person/new">Add person</a>
         </div>
+        @if (!__switchToDeletedPersons)
+        {
+            <div>
+                <input name="showPersonsHowLeft" type="checkbox" checked="@__showPersonsWhoLeft"
+                       @onchange="__ChangeShowPersonsHowLeft" />
+                <label for="showPersonsHowLeft">Show persons who left</label>
+            </div>
+        }
         <div>
-            <input name="showPersonsHowLeft" type="checkbox" checked="@showPersonsHowLeft"
-                   @onchange="ChangeShowPersonsHowLeft" />
-            <label for="showPersonsHowLeft">Show persons who left</label>
+            <input name="switchToDeletedPersons" type="checkbox" checked="@__switchToDeletedPersons"
+                @onchange="__ChangeSwitchToDeletedPersons" />
+            <label for="switchToDeletedPersons">Switch to deleted persons</label>
         </div>
         <div>
-            @if (persons != null && persons.Count() > 0)
+            @if (__persons != null && __persons.Count() > 0)
             {
                 <table class="table table-striped">
                     <thead>
                         <tr>
                             <th>Person Name</th>
-                            <th>IsGone</th>
+                            <th>Is gone</th>
                             <th>Person Type</th>
                             <th>Current Devices</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (Person person in persons)
+                        @foreach (Person person in __persons)
                         {
                             <tr>
                                 <td>@person.Name</td>
@@ -64,20 +72,28 @@
 </AuthorizeView>
 
 @code {
-    private bool showPersonsHowLeft;
-    List<Person>? persons;
+    List<Person>? __persons;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        persons = await PersonService.GetPersonForUser(showPersonsHowLeft);
+        __persons = await PersonService.GetPersonForUser(__showPersonsWhoLeft, __switchToDeletedPersons);
     }
 
-    public async Task ChangeShowPersonsHowLeft(ChangeEventArgs e)
+    private bool __showPersonsWhoLeft;
+    public async Task __ChangeShowPersonsHowLeft(ChangeEventArgs e)
     {
-        showPersonsHowLeft = (e.Value == null) ? false : (bool)e.Value;
-        persons = await PersonService.GetPersonForUser(showPersonsHowLeft);
+        __showPersonsWhoLeft = (e.Value == null) ? false : (bool)e.Value;
+        __persons = await PersonService.GetPersonForUser(__showPersonsWhoLeft, __switchToDeletedPersons);
+        StateHasChanged();
+    }
+
+    private bool __switchToDeletedPersons;
+    private async Task __ChangeSwitchToDeletedPersons(ChangeEventArgs e)
+    {
+        __switchToDeletedPersons = (e.Value == null) ? false : (bool)e.Value;
+        __persons = await PersonService.GetPersonForUser(__showPersonsWhoLeft, __switchToDeletedPersons);
         StateHasChanged();
     }
 }
