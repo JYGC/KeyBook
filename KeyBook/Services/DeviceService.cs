@@ -60,8 +60,8 @@ namespace KeyBook.Services
             var devicePersonAssocRowQuery = from device in __context.Devices
                                             from personDevice in __context.PersonDevices.Where(personDevice => device.Id == personDevice.DeviceId).DefaultIfEmpty()
                                             from person in __context.Persons.Where(person => personDevice.PersonId == person.Id).DefaultIfEmpty()
-                                            where device.OrganizationId == user.OrganizationId && ((device.DefunctReason == Device.DeviceDefunctReason.None) || showDefunctedDevices)
-                                                                                               && ((!switchToDeletedDevices && !device.IsDeleted) || (switchToDeletedDevices && device.IsDeleted))
+                                            where device.OrganizationId == user.OrganizationId && ((device.DefunctReason == Device.DeviceDefunctReason.None) || showDefunctedDevices) &&
+                                                                                                  ((!switchToDeletedDevices && !device.IsDeleted) || (switchToDeletedDevices && device.IsDeleted))
                                             orderby device.Name ascending
                                             select new { device, personDevice, person };
             List<Device> devices = new List<Device>();

@@ -125,10 +125,10 @@ else
     {
         if (DeviceId == null) return;
 
-        bool deleteDeviceDelete;
+        bool deleteDeviceSuccess;
         string? deleteDeviceErrorMessage;
-        (deleteDeviceDelete, deleteDeviceErrorMessage) = await DeviceService.ToggleDeleteDevice(DeviceId.Value);
+        (deleteDeviceSuccess, deleteDeviceErrorMessage) = await DeviceService.ToggleDeleteDevice(DeviceId.Value);
 
-        if (deleteDeviceDelete) NavManager.NavigateTo(__backUrl);
+        if (deleteDeviceSuccess) NavManager.NavigateTo(__backUrl);
     }
 }

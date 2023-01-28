@@ -8,13 +8,6 @@
     <InputText id="name" @bind-Value=@__person.Name class="form-control" />
     <ValidationMessage For="() => __person.Name" />
 </div>
-@if (!__isNewPerson)
-{
-    <div class="form-group">
-        <label for="isgone">Person Is Gone:</label>
-        <InputCheckbox id="isgone" @bind-Value=@__person.IsGone />
-    </div>
-}
 <div class="form-group">
     <label for="type">Person Type:</label>
     <InputSelect id="type" @bind-Value=@__person.Type TValue="Person.PersonType" disabled=@(!__isNewPerson)>
