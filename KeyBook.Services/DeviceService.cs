@@ -1,9 +1,8 @@
 ﻿using KeyBook.Database;
 using KeyBook.DataHandling;
 using KeyBook.Models;
-using KeyBook.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 

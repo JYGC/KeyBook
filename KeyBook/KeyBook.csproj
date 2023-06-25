@@ -31,4 +31,11 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\KeyBook.Database\KeyBook.Database.csproj" />
+    <ProjectReference Include="..\KeyBook.Models\KeyBook.Models.csproj" />
+    <ProjectReference Include="..\KeyBook.Security\KeyBook.Security.csproj" />
+    <ProjectReference Include="..\KeyBook.Services\KeyBook.Services.csproj" />
+  </ItemGroup>
+
 </Project>

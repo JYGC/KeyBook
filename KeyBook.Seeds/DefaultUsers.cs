@@ -80,7 +80,7 @@ namespace KeyBook.Seeds
         public static async Task AddPermissionClaim(this RoleManager<IdentityRole> roleManager, IdentityRole role, string module)
         {
             IList<Claim>? allClaims = await roleManager.GetClaimsAsync(role);
-            List<string>? allPermissions = Permissions.GeneratePermissionsForModule(module);
+            List<string>? allPermissions = Constants.Permissions.GeneratePermissionsForModule(module);
             foreach (string permission in allPermissions)
             {
                 if (!allClaims.Any(a => a.Type == "Permission" && a.Value == permission))
