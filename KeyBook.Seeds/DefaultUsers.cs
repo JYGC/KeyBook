@@ -3,7 +3,7 @@ using KeyBook.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
-namespace KeyBook.Seeds
+namespace KeyBook.Database.Seeds
 {
     public static class DefaultUsers
     {

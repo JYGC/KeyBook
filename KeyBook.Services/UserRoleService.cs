@@ -1,6 +1,6 @@
 ﻿using KeyBook.Constants;
 using KeyBook.Models;
-using KeyBook.Seeds;
+using KeyBook.Database.Seeds;
 using KeyBook.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;

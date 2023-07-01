@@ -17,7 +17,7 @@
     <ProjectReference Include="..\KeyBook.DataHandling\KeyBook.DataHandling.csproj" />
     <ProjectReference Include="..\KeyBook.Models\KeyBook.Models.csproj" />
     <ProjectReference Include="..\KeyBook.Permission\KeyBook.Permission.csproj" />
-    <ProjectReference Include="..\KeyBook.Seeds\KeyBook.Seeds.csproj" />
+    <ProjectReference Include="..\KeyBook.Seeds\KeyBook.Database.Seeds.csproj" />
     <ProjectReference Include="..\KeyBook.ViewModels\KeyBook.ViewModels.csproj" />
   </ItemGroup>
 
