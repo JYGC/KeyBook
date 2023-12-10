@@ -1,9 +1,9 @@
-﻿using KeyBook.Database;
-using KeyBook.Models;
+﻿using KeyBook.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace KeyBook.Seeds
+namespace KeyBook.Database.Seeds
 {
     public static class DefaultData
     {

@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KeyBook.Constants\KeyBook.Constants.csproj" />
+    <ProjectReference Include="..\KeyBook.Database\KeyBook.Database.csproj" />
+    <ProjectReference Include="..\KeyBook.DataHandling\KeyBook.DataHandling.csproj" />
+    <ProjectReference Include="..\KeyBook.Models\KeyBook.Models.csproj" />
+    <ProjectReference Include="..\KeyBook.Permission\KeyBook.Permission.csproj" />
+    <ProjectReference Include="..\KeyBook.Seeds\KeyBook.Database.Seeds.csproj" />
+    <ProjectReference Include="..\KeyBook.ViewModels\KeyBook.ViewModels.csproj" />
+  </ItemGroup>
+
+</Project>

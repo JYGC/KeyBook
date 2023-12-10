@@ -3,7 +3,7 @@ using System.Security.Claims;
 
 namespace KeyBook.Permission
 {
-    internal class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
+    public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
     {
         public PermissionAuthorizationHandler() { }
 

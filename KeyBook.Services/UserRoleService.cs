@@ -1,6 +1,8 @@
 ﻿using KeyBook.Constants;
 using KeyBook.Models;
+using KeyBook.Database.Seeds;
 using KeyBook.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 
 namespace KeyBook.Services
@@ -46,7 +48,7 @@ namespace KeyBook.Services
                 if (__httpContextAccessor.HttpContext == null) throw new Exception("Cannot find HTTP context");
                 User currentUser = await __userManager.GetUserAsync(__httpContextAccessor.HttpContext.User);
                 await __signInManager.RefreshSignInAsync(currentUser);
-                await Seeds.DefaultUsers.SeedSuperAdminAsync(__userManager, __roleManager); // fallback code in case one admin tries to change the roles of another - Find better implementation?
+                await DefaultUsers.SeedSuperAdminAsync(__userManager, __roleManager); // fallback code in case one admin tries to change the roles of another - Find better implementation?
                 return (true, null);
             }
             catch (Exception ex)

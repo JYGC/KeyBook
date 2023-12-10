@@ -1,4 +1,4 @@
-namespace KeyBook.Models
+namespace KeyBook.ViewModels
 {
     public class ErrorViewModel
     {
