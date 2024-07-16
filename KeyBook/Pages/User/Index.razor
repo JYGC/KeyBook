@@ -1,0 +1,79 @@
+﻿@page "/user"
+
+@using KeyBook.Models
+@using KeyBook.Services
+
+@inject UserService UserService
+
+<h1>User List</h1>
+<br />
+<AuthorizeView Roles="SuperAdmin">
+    <Authorized>
+        <table class="table table-striped" id="userTable">
+            <thead>
+                <tr>
+                    <th>
+                        User
+                    </th>
+                    <th>
+                        Email
+                    </th>
+                    <th style="width:15%">
+                        Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(users != null && users.Count() > 0)
+                {
+                    @foreach (User user in users)
+                    {
+                        <tr>
+                            <td>
+                                <div class="row">
+                                    <div class="col-sm">
+                                        <a>
+                                            @user.UserName
+                                        </a>
+                                        <br />
+                                        <small>
+                                            @user.Id
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <a>
+                                    @user.Email
+                                </a>
+                            </td>
+                            <td>
+                                <a href="/userroles/@user.Id">Manage Roles</a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </Authorized>
+    <NotAuthorized>
+        <meta http-equiv="Refresh" content="0; url='Identity/Account/Login'" />
+    </NotAuthorized>
+</AuthorizeView>
+
+@code
+{
+    private IEnumerable<User>? users;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        users = await UserService.GetUsersExceptCurrentUser();
+    }
+
+    private void OnSelected(string selection)
+    {
+        Console.WriteLine(selection);
+    }
+}
