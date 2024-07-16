@@ -2,7 +2,7 @@
 using KeyBook.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace KeyBook.Seeds
+namespace KeyBook.Database.Seeds
 {
     public class DefaultRoles
     {

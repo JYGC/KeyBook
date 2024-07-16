@@ -1,4 +1,6 @@
-﻿namespace KeyBook.DAL
+﻿using Microsoft.Extensions.Configuration;
+
+namespace KeyBook.DAL
 {
     public class ConfigSettings
     {
