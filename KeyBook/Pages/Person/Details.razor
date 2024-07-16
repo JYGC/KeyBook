@@ -1,0 +1,49 @@
+﻿@using KeyBook.Services
+@using KeyBook.Models
+
+@inject PersonService PersonService
+
+<div class="form-group">
+    <label for="name">Person Name:</label>
+    <InputText id="name" @bind-Value=@__person.Name class="form-control" />
+    <ValidationMessage For="() => __person.Name" />
+</div>
+<div class="form-group">
+    <label for="type">Person Type:</label>
+    <InputSelect id="type" @bind-Value=@__person.Type TValue="Person.PersonType" disabled=@(!__isNewPerson)>
+        @foreach (var personType in __personTypes)
+        {
+            <option value="@personType.Key">@personType.Value</option>
+        }
+    </InputSelect>
+</div>
+
+@code {
+    [Parameter]
+    public Person Person
+    {
+        get => __person;
+        set
+        {
+            if (__person == value) return;
+            __person = value;
+            PersonChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<Person> PersonChanged { get; set; }
+
+    private bool __isNewPerson;
+    private Dictionary<Enum, string> __personTypes = new();
+
+    private Person __person = new Person(); // Cannot be null to handle new persons
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        __personTypes = PersonService.GetPersonTypes();
+        __isNewPerson = Person.Id == Guid.Empty; // Devices have no Id until committed to DB
+    }
+}
