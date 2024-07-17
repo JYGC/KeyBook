@@ -27,19 +27,17 @@ func (p PropertyRepository) GetPropertiesManagedByUser(
 	error,
 ) {
 	var result []dtos.PropertyIdAddressDto
-	queryErr := p.app.Dao().DB().Select(
+	query := p.app.Dao().DB().Select(
 		"id",
 		"address",
 	).From(
 		"properties",
-	).InnerJoin(
-		"managements",
-		dbx.NewExp("properties.id = managements.property"),
 	).Where(
-		dbx.NewExp("managements.user = {:user}", dbx.Params{"user": userId}),
+		dbx.Like("json_array(properties.owners)", userId),
 	).AndWhere(
 		dbx.NewExp("properties.address = {:address}", dbx.Params{"address": propertyAddress}),
-	).All(&result)
+	)
+	queryErr := query.All(&result)
 	return result, queryErr
 }
 
@@ -61,25 +59,11 @@ func (p PropertyRepository) AddNewProperty(userId string, propertyAddress string
 		return dtos.PropertyIdAddressDto{}, findManagementsCollectionErr
 	}
 
-	managementsCollection, findManagementsCollectionErr := p.app.Dao().FindCollectionByNameOrId("managements")
-	if findManagementsCollectionErr != nil {
-		return dtos.PropertyIdAddressDto{}, findManagementsCollectionErr
-	}
-
-	// p.app.Dao().RunInTransaction(func(txDao *daos.Dao) error {
-	// })
-
 	newProperty := models.NewRecord(propertiesCollection)
 	newProperty.Set("address", propertyAddress)
+	newProperty.Set("owners", []string{userId})
 	if savePropertyErr := p.app.Dao().SaveRecord(newProperty); savePropertyErr != nil {
 		return dtos.PropertyIdAddressDto{}, savePropertyErr
-	}
-
-	newManagement := models.NewRecord(managementsCollection)
-	newManagement.Set("user", userId)
-	newManagement.Set("property", newProperty.Get("id"))
-	if saveManagementErr := p.app.Dao().SaveRecord(newManagement); saveManagementErr != nil {
-		return dtos.PropertyIdAddressDto{}, saveManagementErr
 	}
 
 	return dtos.PropertyIdAddressDto{

@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"fmt"
 	"keybook/backend/internal/helpers"
 
 	"github.com/pocketbase/dbx"
@@ -29,7 +28,6 @@ func (p PersonRepository) GetPersonForUser(loggedInUser *models.Record) (*models
 func (p PersonRepository) CreatePersonForUser(userId string) (string, error) {
 	user, findUserErr := p.app.Dao().FindRecordById("users", userId)
 	if findUserErr != nil {
-		fmt.Printf("findUserErr: %v\n", findUserErr)
 		return "", findUserErr
 	}
 
@@ -41,7 +39,6 @@ func (p PersonRepository) CreatePersonForUser(userId string) (string, error) {
 	newPerson.Set("name", user.Get("name"))
 	newPerson.Set("user", user.Get("id"))
 	if addPersonError := p.app.Dao().SaveRecord(newPerson); addPersonError != nil {
-		fmt.Printf("addPersonError: %v\n", addPersonError)
 		return "", addPersonError
 	}
 

@@ -2,7 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"fmt"
 	"keybook/backend/internal/dtos"
 	"keybook/backend/internal/repositories"
 	"strings"
@@ -33,7 +32,6 @@ func (d DataImportServices) ProcessImportData(loggedInUserId string, importDateJ
 		}
 	}
 
-	fmt.Printf("loggedInUser: %v\n", loggedInUserId)
 	d.propertyServices.AddPropertyIfNotExists(loggedInUserId, importDataDto.PropertyAddress, time.Now())
 
 	return nil

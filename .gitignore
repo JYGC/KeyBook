@@ -1,0 +1,8 @@
+.vscode
+/debug
+/build
+/pb_data
+/pb_public
+/internal/frontend/build
+/build
+/clover_data

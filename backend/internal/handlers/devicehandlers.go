@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"keybook/backend/internal/services"
 
 	"github.com/labstack/echo/v5"
@@ -22,7 +21,6 @@ func (d DeviceHandlers) ImportCsv(context echo.Context) error {
 	csvContent := apis.RequestInfo(context).Data
 	csvContentJson, csvContentJsonErr := json.Marshal(csvContent)
 	if csvContentJsonErr != nil {
-		fmt.Printf("err: %v\n", csvContentJsonErr)
 		return csvContentJsonErr
 	}
 
