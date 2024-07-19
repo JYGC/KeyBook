@@ -28,14 +28,14 @@ func (p PropertyRepository) GetPropertiesManagedByUser(
 ) {
 	var result []dtos.PropertyIdAddressDto
 	query := p.app.Dao().DB().Select(
-		"id",
-		"address",
+		"p.id",
+		"p.address",
 	).From(
-		"properties",
+		"properties p, json_each(owners) o",
 	).Where(
-		dbx.Like("json_array(properties.owners)", userId),
+		dbx.NewExp("o.value = {:userId}", dbx.Params{"userId": userId}),
 	).AndWhere(
-		dbx.NewExp("properties.address = {:address}", dbx.Params{"address": propertyAddress}),
+		dbx.NewExp("p.address = {:address}", dbx.Params{"address": propertyAddress}),
 	)
 	queryErr := query.All(&result)
 	return result, queryErr
