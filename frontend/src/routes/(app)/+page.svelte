@@ -7,4 +7,4 @@
 <p>
   {JSON.stringify(resultList)}
 </p>
-<a href="/devices/csvimport">import csv</a>
+<a href="/importdata/csv1">import csv</a>

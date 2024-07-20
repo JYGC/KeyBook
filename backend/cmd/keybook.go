@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"keybook/backend/internal/databases"
 	"keybook/backend/internal/frontend"
 	"keybook/backend/internal/handlers"
 	"keybook/backend/internal/repositories"
@@ -27,13 +26,11 @@ func startBackend() {
 	var constructors []interface{}
 
 	constructors = append(constructors, pocketbase.New)
-	constructors = append(constructors, databases.NewHistoryDatabase)
 
 	constructors = append(constructors, repositories.NewDeviceRepository)
 	constructors = append(constructors, repositories.NewPersonRepository)
 	constructors = append(constructors, repositories.NewPropertyRepository)
 	constructors = append(constructors, repositories.NewPersonDeviceRepository)
-	constructors = append(constructors, repositories.NewHistoryRepository)
 
 	constructors = append(constructors, services.NewDataImportServices)
 	constructors = append(constructors, services.NewDeviceServices)
@@ -42,7 +39,7 @@ func startBackend() {
 	constructors = append(constructors, services.NewPropertyServices)
 
 	constructors = append(constructors, handlers.NewDeviceHandlers)
-	constructors = append(constructors, handlers.NewHistoryHandlers)
+	constructors = append(constructors, handlers.NewDataImportHandlers)
 
 	for _, constructor := range constructors {
 		provideConstructorErr := container.Provide(constructor)
@@ -54,13 +51,12 @@ func startBackend() {
 
 	invokeErr := container.Invoke(func(
 		app *pocketbase.PocketBase,
-		personRepository repositories.IPersonRepository,
 		deviceHandlers handlers.IDeviceHandlers,
-		historyHandlers handlers.IHistoryHandlers,
+		dataImportHandlers handlers.IDataImportHandlers,
 	) {
 		app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
 			handlers.RegisterDeviceHandlersToRouter(e.Router, deviceHandlers)
-			handlers.RegisterHistoryHandlersToRouter(e.Router, historyHandlers)
+			handlers.RegisterDataImportHandlersToRouter(e.Router, dataImportHandlers)
 			return nil
 		})
 
