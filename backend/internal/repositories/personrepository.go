@@ -1,48 +1,98 @@
 package repositories
 
 import (
-	"keybook/backend/internal/helpers"
+	"keybook/backend/internal/dtos"
 
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase/daos"
 	"github.com/pocketbase/pocketbase/models"
 )
 
 type IPersonRepository interface {
-	GetPersonForUser(loggedInUser *models.Record) (*models.Record, error)
-	CreatePersonForUser(userId string) (string, error)
+	GetPersonsForPropertyIdByPersonNames(
+		propertyId string,
+		personNames []string,
+	) (
+		[]dtos.PersonIdNameDto,
+		error,
+	)
+	AddNewPersonsToProperty(
+		propertyId string,
+		personNames []string,
+	) (
+		[]dtos.PersonIdNameDto,
+		error,
+	)
 }
 
 type PersonRepository struct {
 	app *pocketbase.PocketBase
 }
 
-func (p PersonRepository) GetPersonForUser(loggedInUser *models.Record) (*models.Record, error) {
-	return p.app.Dao().FindFirstRecordByFilter(
-		"persons",
-		"user = {:user}",
-		dbx.Params{"user": loggedInUser.Get("id")},
+func (p PersonRepository) GetPersonsForPropertyIdByPersonNames(
+	propertyId string,
+	personNames []string,
+) (
+	[]dtos.PersonIdNameDto,
+	error,
+) {
+	var result []dtos.PersonIdNameDto
+
+	var propertyNamesAsInterfaces []interface{}
+	for _, personName := range personNames {
+		propertyNamesAsInterfaces = append(propertyNamesAsInterfaces, personName)
+	}
+
+	query := p.app.Dao().DB().Select(
+		"pr.id",
+		"pr.name",
+	).From(
+		"persons pr",
+	).Where(
+		dbx.NewExp("pr.property = {:propertyId}", dbx.Params{"propertyId": propertyId}),
+	).AndWhere(
+		dbx.In("pr.name", propertyNamesAsInterfaces...),
 	)
+	queryErr := query.All(&result)
+	return result, queryErr
 }
 
-func (p PersonRepository) CreatePersonForUser(userId string) (string, error) {
-	user, findUserErr := p.app.Dao().FindRecordById("users", userId)
-	if findUserErr != nil {
-		return "", findUserErr
+func (p PersonRepository) AddNewPersonsToProperty(
+	propertyId string,
+	personNames []string,
+) (
+	[]dtos.PersonIdNameDto,
+	error,
+) {
+	var newPersons []dtos.PersonIdNameDto
+
+	if transactionErr := p.app.Dao().WithoutHooks().RunInTransaction(func(txDao *daos.Dao) error {
+		personsCollection, findManagementsCollectionErr := p.app.Dao().FindCollectionByNameOrId("persons")
+		if findManagementsCollectionErr != nil {
+			return findManagementsCollectionErr
+		}
+
+		for _, personName := range personNames {
+			newPerson := models.NewRecord(personsCollection)
+			newPerson.Set("name", personName)
+			newPerson.Set("type", "Tenant")
+			newPerson.Set("property", propertyId)
+			if saveErr := txDao.WithoutHooks().SaveRecord(newPerson); saveErr != nil {
+				return saveErr
+			}
+			newPersons = append(newPersons, dtos.PersonIdNameDto{
+				Id:   newPerson.Get("id").(string),
+				Name: newPerson.Get("name").(string),
+			})
+		}
+
+		return nil
+	}); transactionErr != nil {
+		return nil, transactionErr
 	}
 
-	personsCollection, findCollectionErr := p.app.Dao().FindCollectionByNameOrId("persons")
-	if findCollectionErr != nil && !helpers.IsNoRowsResult(findCollectionErr) {
-		return "", findCollectionErr
-	}
-	newPerson := models.NewRecord(personsCollection)
-	newPerson.Set("name", user.Get("name"))
-	newPerson.Set("user", user.Get("id"))
-	if addPersonError := p.app.Dao().SaveRecord(newPerson); addPersonError != nil {
-		return "", addPersonError
-	}
-
-	return newPerson.Get("id").(string), nil
+	return newPersons, nil
 }
 
 func NewPersonRepository(app *pocketbase.PocketBase) IPersonRepository {

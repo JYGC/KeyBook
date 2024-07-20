@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"keybook/backend/internal/databases"
 	"keybook/backend/internal/frontend"
 	"keybook/backend/internal/handlers"
@@ -22,22 +23,36 @@ func startFrontend() {
 
 func startBackend() {
 	container := dig.New()
-	container.Provide(pocketbase.New)
-	container.Provide(databases.NewHistoryDatabase)
 
-	container.Provide(repositories.NewPersonRepository)
-	container.Provide(repositories.NewPropertyRepository)
-	container.Provide(repositories.NewOwnershipRepository)
-	container.Provide(repositories.NewPersonDeviceRepository)
-	container.Provide(repositories.NewHistoryRepository)
+	var constructors []interface{}
 
-	container.Provide(services.NewDataImportServices)
-	container.Provide(services.NewPropertyServices)
+	constructors = append(constructors, pocketbase.New)
+	constructors = append(constructors, databases.NewHistoryDatabase)
 
-	container.Provide(handlers.NewDeviceHandlers)
-	container.Provide(handlers.NewHistoryHandlers)
+	constructors = append(constructors, repositories.NewDeviceRepository)
+	constructors = append(constructors, repositories.NewPersonRepository)
+	constructors = append(constructors, repositories.NewPropertyRepository)
+	constructors = append(constructors, repositories.NewPersonDeviceRepository)
+	constructors = append(constructors, repositories.NewHistoryRepository)
 
-	container.Invoke(func(
+	constructors = append(constructors, services.NewDataImportServices)
+	constructors = append(constructors, services.NewDeviceServices)
+	constructors = append(constructors, services.NewPersonDeviceServices)
+	constructors = append(constructors, services.NewPersonServices)
+	constructors = append(constructors, services.NewPropertyServices)
+
+	constructors = append(constructors, handlers.NewDeviceHandlers)
+	constructors = append(constructors, handlers.NewHistoryHandlers)
+
+	for _, constructor := range constructors {
+		provideConstructorErr := container.Provide(constructor)
+		if provideConstructorErr != nil {
+			fmt.Printf("provideConstructorErr: %v\n", provideConstructorErr)
+			return
+		}
+	}
+
+	invokeErr := container.Invoke(func(
 		app *pocketbase.PocketBase,
 		personRepository repositories.IPersonRepository,
 		deviceHandlers handlers.IDeviceHandlers,
@@ -53,6 +68,10 @@ func startBackend() {
 			log.Fatal(err)
 		}
 	})
+	if invokeErr != nil {
+		fmt.Printf("invokeErr: %v\n", invokeErr)
+		return
+	}
 }
 
 func main() {

@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"keybook/backend/internal/dtos"
-	"keybook/backend/internal/helpers"
 
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
@@ -10,8 +9,8 @@ import (
 )
 
 type IPropertyRepository interface {
-	GetPropertiesManagedByUser(userId string, propertyAddress string) ([]dtos.PropertyIdAddressDto, error)
-	GetPropertyIdByName(propertyAddress string) (string, error)
+	GetPropertiesForUserByPropertyName(userId string, propertyAddress string) ([]dtos.PropertyIdAddressDto, error)
+	IsPropertyIdBelongToUser(userId string, propertyId string) (bool, error)
 	AddNewProperty(userId string, propertyAddress string) (dtos.PropertyIdAddressDto, error)
 }
 
@@ -19,7 +18,7 @@ type PropertyRepository struct {
 	app *pocketbase.PocketBase
 }
 
-func (p PropertyRepository) GetPropertiesManagedByUser(
+func (p PropertyRepository) GetPropertiesForUserByPropertyName(
 	userId string,
 	propertyAddress string,
 ) (
@@ -27,30 +26,41 @@ func (p PropertyRepository) GetPropertiesManagedByUser(
 	error,
 ) {
 	var result []dtos.PropertyIdAddressDto
-	query := p.app.Dao().DB().Select(
-		"p.id",
-		"p.address",
+	query := p.app.Dao().WithoutHooks().DB().Select(
+		"pt.id",
+		"pt.address",
 	).From(
-		"properties p, json_each(owners) o",
+		"properties pt, json_each(owners) o",
 	).Where(
 		dbx.NewExp("o.value = {:userId}", dbx.Params{"userId": userId}),
 	).AndWhere(
-		dbx.NewExp("p.address = {:address}", dbx.Params{"address": propertyAddress}),
+		dbx.NewExp("pt.address = {:address}", dbx.Params{"address": propertyAddress}),
 	)
 	queryErr := query.All(&result)
 	return result, queryErr
 }
 
-func (p PropertyRepository) GetPropertyIdByName(propertyAddress string) (string, error) {
-	property, err := p.app.Dao().FindFirstRecordByFilter(
-		"properties",
-		"address = {:address}",
-		dbx.Params{"address": propertyAddress},
-	)
-	if err != nil && !helpers.IsNoRowsResult(err) {
-		return "", err
-	}
-	return property.Get("id").(string), nil
+func (p PropertyRepository) IsPropertyIdBelongToUser(
+	userId string,
+	propertyId string,
+) (
+	bool,
+	error,
+) {
+	var result []dtos.PropertyIdAddressDto
+	query := p.app.Dao().WithoutHooks().DB().Select(
+		"pt.id",
+		"pt.address",
+	).From(
+		"properties pt, json_each(owners) o",
+	).Where(
+		dbx.NewExp("o.value = {:userId}", dbx.Params{"userId": userId}),
+	).AndWhere(
+		dbx.NewExp("pt.id = {:propertyId}", dbx.Params{"propertyId": propertyId}),
+	).Limit(1)
+
+	queryErr := query.All(&result)
+	return len(result) == 1, queryErr
 }
 
 func (p PropertyRepository) AddNewProperty(userId string, propertyAddress string) (dtos.PropertyIdAddressDto, error) {
@@ -62,7 +72,7 @@ func (p PropertyRepository) AddNewProperty(userId string, propertyAddress string
 	newProperty := models.NewRecord(propertiesCollection)
 	newProperty.Set("address", propertyAddress)
 	newProperty.Set("owners", []string{userId})
-	if savePropertyErr := p.app.Dao().SaveRecord(newProperty); savePropertyErr != nil {
+	if savePropertyErr := p.app.Dao().WithoutHooks().SaveRecord(newProperty); savePropertyErr != nil {
 		return dtos.PropertyIdAddressDto{}, savePropertyErr
 	}
 

@@ -104,6 +104,20 @@
           "min": "",
           "max": ""
         }
+      },
+      {
+        "system": false,
+        "id": "ym9ag6zc",
+        "name": "deviceid",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
       }
     ],
     "indexes": [],
@@ -255,6 +269,20 @@
           "min": "",
           "max": ""
         }
+      },
+      {
+        "system": false,
+        "id": "ooypmw2o",
+        "name": "persondeviceid",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
       }
     ],
     "indexes": [],
@@ -356,6 +384,20 @@
           "min": "",
           "max": ""
         }
+      },
+      {
+        "system": false,
+        "id": "k7ollxfy",
+        "name": "personid",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
       }
     ],
     "indexes": [],
@@ -389,7 +431,7 @@
       {
         "system": false,
         "id": "dyi6bggu",
-        "name": "field",
+        "name": "type",
         "type": "select",
         "required": true,
         "presentable": false,
@@ -478,6 +520,74 @@
           "minSelect": null,
           "maxSelect": null,
           "displayFields": null
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "",
+    "updateRule": "",
+    "deleteRule": "",
+    "options": {}
+  },
+  {
+    "id": "tb9i0r3354mhc7u",
+    "name": "propertyhistory",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "4khr8fml",
+        "name": "description",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "qvgqdgpu",
+        "name": "property",
+        "type": "json",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 2000000
+        }
+      },
+      {
+        "system": false,
+        "id": "c8weloon",
+        "name": "stateddatetime",
+        "type": "date",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": "",
+          "max": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "ryoftjvh",
+        "name": "propertyid",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
         }
       }
     ],

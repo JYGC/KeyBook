@@ -1,12 +1,17 @@
 package services
 
 import (
+	"fmt"
 	"keybook/backend/internal/dtos"
 	"keybook/backend/internal/repositories"
 	"time"
 )
 
 type IPropertyServices interface {
+	ErrorIfPropertyNotOwnedByUserOrCantCheck(
+		loggedInUserId string,
+		propertyId string,
+	) error
 	AddPropertyIfNotExists(
 		loggedInUserId string,
 		propertyAddress string,
@@ -15,8 +20,28 @@ type IPropertyServices interface {
 }
 
 type PropertyServices struct {
-	personRepository   repositories.IPersonRepository
 	propertyRepository repositories.IPropertyRepository
+}
+
+func (p PropertyServices) ErrorIfPropertyNotOwnedByUserOrCantCheck(
+	loggedInUserId string,
+	propertyId string,
+) error {
+	isPropertyBelongToUser, testOwnershipErr := p.propertyRepository.IsPropertyIdBelongToUser(
+		loggedInUserId,
+		propertyId,
+	)
+	if testOwnershipErr != nil {
+		return testOwnershipErr
+	}
+	if !isPropertyBelongToUser {
+		return fmt.Errorf(
+			"userid: %s does not own propertyid: %s",
+			loggedInUserId,
+			propertyId,
+		)
+	}
+	return nil
 }
 
 func (p PropertyServices) AddPropertyIfNotExists(
@@ -24,7 +49,7 @@ func (p PropertyServices) AddPropertyIfNotExists(
 	propertyAddress string,
 	startOfOwnership time.Time,
 ) (dtos.PropertyIdAddressDto, error) {
-	properties, getPropertyByNameErr := p.propertyRepository.GetPropertiesManagedByUser(loggedInUserId, propertyAddress)
+	properties, getPropertyByNameErr := p.propertyRepository.GetPropertiesForUserByPropertyName(loggedInUserId, propertyAddress)
 	if getPropertyByNameErr != nil {
 		return dtos.PropertyIdAddressDto{}, getPropertyByNameErr
 	}
@@ -35,11 +60,9 @@ func (p PropertyServices) AddPropertyIfNotExists(
 }
 
 func NewPropertyServices(
-	personRepository repositories.IPersonRepository,
 	propertyRepository repositories.IPropertyRepository,
 ) IPropertyServices {
-	propertyServices := PropertyServices{}
-	propertyServices.personRepository = personRepository
-	propertyServices.propertyRepository = propertyRepository
-	return propertyServices
+	return PropertyServices{
+		propertyRepository,
+	}
 }
