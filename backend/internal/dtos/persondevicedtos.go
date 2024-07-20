@@ -5,10 +5,10 @@ import "time"
 type NewPersonDeviceAndHistoriesDto struct {
 	Person    string
 	Device    string
-	Histories []NewPersonDeviceHistoriesDto
+	Histories []NewPersonDeviceHistoryDto
 }
 
-type NewPersonDeviceHistoriesDto struct {
+type NewPersonDeviceHistoryDto struct {
 	Person         string
 	Device         string
 	StatedDateTime time.Time

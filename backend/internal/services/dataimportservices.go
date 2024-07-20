@@ -41,17 +41,34 @@ func (d DataImportServices) getPersonNamesFromImportDataDto(
 
 func (d DataImportServices) getDevicesFromImportDataDto(
 	importDataDto dtos.AddPropertyDeviceAndHistoriesDto,
-) []dtos.NewDeviceDto {
+) (
+	[]dtos.NewDeviceDto,
+	error,
+) {
 	var importDevices []dtos.NewDeviceDto
 	for _, dpdh := range importDataDto.DevicesPersonDevicesAndHistories {
-		importDevices = append(importDevices, dtos.NewDeviceDto{
+		importDevice := dtos.NewDeviceDto{
 			Name:          dpdh.Name,
 			Identifier:    dpdh.Identifier,
 			Type:          dpdh.Type,
 			DefunctReason: dpdh.DefunctReason,
-		})
+		}
+		for _, dh := range dpdh.DeviceHistories {
+			dateSpecifiedTime, parseDateErr := time.Parse(
+				time.RFC3339,
+				dh.DateSpecified,
+			)
+			if parseDateErr != nil {
+				return nil, parseDateErr
+			}
+			importDevice.Histories = append(importDevice.Histories, dtos.NewDeviceHistoryDto{
+				Description:    dh.ActionDescription,
+				StatedDateTime: dateSpecifiedTime,
+			})
+		}
+		importDevices = append(importDevices, importDevice)
 	}
-	return importDevices
+	return importDevices, nil
 }
 
 func (d DataImportServices) getPersonDevicesAndHistoriesFromImportDataDto(
@@ -89,7 +106,7 @@ func (d DataImportServices) getPersonDevicesAndHistoriesFromImportDataDto(
 			}
 			importPersonDevice.Histories = append(
 				importPersonDevice.Histories,
-				dtos.NewPersonDeviceHistoriesDto{
+				dtos.NewPersonDeviceHistoryDto{
 					Device:         devicesMap[dpdh.Identifier].Id,
 					Person:         personsMap[pdh.DeviceHolder].Id,
 					StatedDateTime: dateSpecifiedTime,
@@ -129,7 +146,10 @@ func (d DataImportServices) ProcessImportData(loggedInUserId string, importDateJ
 		return addPersonErr
 	}
 
-	devices := d.getDevicesFromImportDataDto(importDataDto)
+	devices, getDevicesErr := d.getDevicesFromImportDataDto(importDataDto)
+	if getDevicesErr != nil {
+		return getDevicesErr
+	}
 	newDevices, addDeviceErr := d.deviceServices.AddNewDevicesIfNotExists(
 		loggedInUserId,
 		property.Id,
@@ -139,22 +159,25 @@ func (d DataImportServices) ProcessImportData(loggedInUserId string, importDateJ
 		return addDeviceErr
 	}
 
-	importPersonDevices, err := d.getPersonDevicesAndHistoriesFromImportDataDto(
+	newPersonDevices, getPersonDeviceErr := d.getPersonDevicesAndHistoriesFromImportDataDto(
 		importDataDto,
 		newDevices,
 		newPersons,
 	)
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		return err
+	if getPersonDeviceErr != nil {
+		fmt.Printf("err: %v\n", getPersonDeviceErr)
+		return getPersonDeviceErr
 	}
-	m, e := json.Marshal(importPersonDevices)
-	if e != nil {
-		fmt.Printf("e: %v\n", e)
-		return e
+
+	_, addPersonDeviceErr := d.personDeviceServices.AddNewPersonDeviceIfNotExists(
+		loggedInUserId,
+		property.Id,
+		newPersonDevices,
+	)
+	if addPersonDeviceErr != nil {
+		return addPersonDeviceErr
 	}
-	fmt.Printf("m: %v\n", string(m))
-	//_, addPersonDeviceErr := d.personDeviceServices.AddNewPersonDevices
+
 	return nil
 }
 

@@ -14,6 +14,13 @@ type IDeviceServices interface {
 		[]dtos.DeviceDto,
 		error,
 	)
+	ValidateOwnerGetDevicesByProperty(
+		loggedInUserId string,
+		propertyId string,
+	) (
+		[]dtos.DeviceDto,
+		error,
+	)
 }
 
 type DeviceServices struct {
@@ -57,7 +64,23 @@ func (d DeviceServices) AddNewDevicesIfNotExists(
 	if len(newDevices) > 0 {
 		return d.deviceRepository.AddNewDevicesToProperty(propertyId, newDevices)
 	}
-	return existingDevices, nil
+	return nil, nil
+}
+
+func (d DeviceServices) ValidateOwnerGetDevicesByProperty(
+	loggedInUserId string,
+	propertyId string,
+) (
+	[]dtos.DeviceDto,
+	error,
+) {
+	if checkPropertyOwnershipErr := d.propertyServices.ErrorIfPropertyNotOwnedByUserOrCantCheck(
+		loggedInUserId,
+		propertyId,
+	); checkPropertyOwnershipErr != nil {
+		return nil, checkPropertyOwnershipErr
+	}
+	return d.deviceRepository.GetDevicesForPropertyId(propertyId)
 }
 
 func NewDeviceServices(

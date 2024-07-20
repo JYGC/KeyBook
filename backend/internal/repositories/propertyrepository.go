@@ -9,9 +9,33 @@ import (
 )
 
 type IPropertyRepository interface {
-	GetPropertiesForUserByPropertyName(userId string, propertyAddress string) ([]dtos.PropertyIdAddressDto, error)
-	IsPropertyIdBelongToUser(userId string, propertyId string) (bool, error)
-	AddNewProperty(userId string, propertyAddress string) (dtos.PropertyIdAddressDto, error)
+	GetPropertiesForUserByPropertyName(
+		userId string,
+		propertyAddress string,
+	) (
+		[]dtos.PropertyIdAddressDto,
+		error,
+	)
+	IsPropertyIdBelongToUser(
+		userId string,
+		propertyId string,
+	) (
+		bool,
+		error,
+	)
+	GetPropertyOwnersById(
+		propertyId string,
+	) (
+		dtos.PropertyAddressOwnersDtos,
+		error,
+	)
+	AddNewProperty(
+		userId string,
+		propertyAddress string,
+	) (
+		dtos.PropertyIdAddressDto,
+		error,
+	)
 }
 
 type PropertyRepository struct {
@@ -61,6 +85,32 @@ func (p PropertyRepository) IsPropertyIdBelongToUser(
 
 	queryErr := query.All(&result)
 	return len(result) == 1, queryErr
+}
+
+func (p PropertyRepository) GetPropertyOwnersById(
+	propertyId string,
+) (
+	dtos.PropertyAddressOwnersDtos,
+	error,
+) {
+	var results []dtos.PropertyAddressOwnersDtos
+	query := p.app.Dao().WithoutHooks().DB().Select(
+		"pt.address",
+		"pt.owners",
+	).From(
+		"properties pt",
+	).Where(
+		dbx.NewExp("pt.id = {:propertyId}", dbx.Params{"propertyId": propertyId}),
+	)
+
+	queryErr := query.All(&results)
+	if queryErr != nil {
+		return dtos.PropertyAddressOwnersDtos{}, queryErr
+	}
+	if len(results) > 0 {
+		return results[0], nil
+	}
+	return dtos.PropertyAddressOwnersDtos{}, nil
 }
 
 func (p PropertyRepository) AddNewProperty(userId string, propertyAddress string) (dtos.PropertyIdAddressDto, error) {

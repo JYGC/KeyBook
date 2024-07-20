@@ -17,6 +17,12 @@ type IPersonRepository interface {
 		[]dtos.PersonIdNameDto,
 		error,
 	)
+	GetPersonsForPropertyId(
+		propertyId string,
+	) (
+		[]dtos.PersonIdNameDto,
+		error,
+	)
 	AddNewPersonsToProperty(
 		propertyId string,
 		personNames []string,
@@ -58,6 +64,26 @@ func (p PersonRepository) GetPersonsForPropertyIdByPersonNames(
 	return result, queryErr
 }
 
+func (p PersonRepository) GetPersonsForPropertyId(
+	propertyId string,
+) (
+	[]dtos.PersonIdNameDto,
+	error,
+) {
+	var result []dtos.PersonIdNameDto
+
+	query := p.app.Dao().DB().Select(
+		"pr.id",
+		"pr.name",
+	).From(
+		"persons pr",
+	).Where(
+		dbx.NewExp("pr.property = {:propertyId}", dbx.Params{"propertyId": propertyId}),
+	)
+	queryErr := query.All(&result)
+	return result, queryErr
+}
+
 func (p PersonRepository) AddNewPersonsToProperty(
 	propertyId string,
 	personNames []string,
@@ -68,9 +94,9 @@ func (p PersonRepository) AddNewPersonsToProperty(
 	var newPersons []dtos.PersonIdNameDto
 
 	if transactionErr := p.app.Dao().WithoutHooks().RunInTransaction(func(txDao *daos.Dao) error {
-		personsCollection, findManagementsCollectionErr := p.app.Dao().FindCollectionByNameOrId("persons")
-		if findManagementsCollectionErr != nil {
-			return findManagementsCollectionErr
+		personsCollection, findCollectionErr := p.app.Dao().FindCollectionByNameOrId("persons")
+		if findCollectionErr != nil {
+			return findCollectionErr
 		}
 
 		for _, personName := range personNames {

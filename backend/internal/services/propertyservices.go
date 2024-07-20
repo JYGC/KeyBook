@@ -16,7 +16,10 @@ type IPropertyServices interface {
 		loggedInUserId string,
 		propertyAddress string,
 		startOfOwnership time.Time,
-	) (dtos.PropertyIdAddressDto, error)
+	) (
+		dtos.PropertyIdAddressDto,
+		error,
+	)
 }
 
 type PropertyServices struct {
@@ -48,8 +51,14 @@ func (p PropertyServices) AddPropertyIfNotExists(
 	loggedInUserId string,
 	propertyAddress string,
 	startOfOwnership time.Time,
-) (dtos.PropertyIdAddressDto, error) {
-	properties, getPropertyByNameErr := p.propertyRepository.GetPropertiesForUserByPropertyName(loggedInUserId, propertyAddress)
+) (
+	dtos.PropertyIdAddressDto,
+	error,
+) {
+	properties, getPropertyByNameErr := p.propertyRepository.GetPropertiesForUserByPropertyName(
+		loggedInUserId,
+		propertyAddress,
+	)
 	if getPropertyByNameErr != nil {
 		return dtos.PropertyIdAddressDto{}, getPropertyByNameErr
 	}

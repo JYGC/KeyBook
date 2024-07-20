@@ -1,10 +1,18 @@
 package dtos
 
+import "time"
+
 type NewDeviceDto struct {
 	Name          string
 	Identifier    string
 	Type          string
 	DefunctReason string
+	Histories     []NewDeviceHistoryDto
+}
+
+type NewDeviceHistoryDto struct {
+	Description    string
+	StatedDateTime time.Time
 }
 
 type DeviceDto struct {

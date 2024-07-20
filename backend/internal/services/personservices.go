@@ -14,6 +14,13 @@ type IPersonServices interface {
 		[]dtos.PersonIdNameDto,
 		error,
 	)
+	ValidateOwnerGetPersonsByProperty(
+		loggedInUserId string,
+		propertyId string,
+	) (
+		[]dtos.PersonIdNameDto,
+		error,
+	)
 }
 
 type PersonServices struct {
@@ -57,7 +64,23 @@ func (p PersonServices) AddNewPersonsIfNotExists(
 	if len(newPersonNames) > 0 {
 		return p.personRepository.AddNewPersonsToProperty(propertyId, newPersonNames)
 	}
-	return existingPersons, nil
+	return nil, nil
+}
+
+func (p PersonServices) ValidateOwnerGetPersonsByProperty(
+	loggedInUserId string,
+	propertyId string,
+) (
+	[]dtos.PersonIdNameDto,
+	error,
+) {
+	if checkPropertyOwnershipErr := p.propertyServices.ErrorIfPropertyNotOwnedByUserOrCantCheck(
+		loggedInUserId,
+		propertyId,
+	); checkPropertyOwnershipErr != nil {
+		return nil, checkPropertyOwnershipErr
+	}
+	return p.personRepository.GetPersonsForPropertyId(propertyId)
 }
 
 func NewPersonServices(
