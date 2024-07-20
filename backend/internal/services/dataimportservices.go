@@ -127,13 +127,16 @@ func (d DataImportServices) ProcessImportData(loggedInUserId string, importDateJ
 	var importDataDto dtos.AddPropertyDeviceAndHistoriesDto
 	json.Unmarshal(importDateJson, &importDataDto)
 
-	property, addPropertyErr := d.propertyServices.AddPropertyIfNotExists(
+	property, addPropertyErr := d.propertyServices.AddPropertyIfNotExistsReturnEmptyIfExists(
 		loggedInUserId,
 		importDataDto.PropertyAddress,
 		time.Now(),
 	)
 	if addPropertyErr != nil {
 		return addPropertyErr
+	}
+	if property.Id == "" {
+		return fmt.Errorf("property exists")
 	}
 
 	personNames := d.getPersonNamesFromImportDataDto(importDataDto)

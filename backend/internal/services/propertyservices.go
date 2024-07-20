@@ -12,7 +12,7 @@ type IPropertyServices interface {
 		loggedInUserId string,
 		propertyId string,
 	) error
-	AddPropertyIfNotExists(
+	AddPropertyIfNotExistsReturnEmptyIfExists(
 		loggedInUserId string,
 		propertyAddress string,
 		startOfOwnership time.Time,
@@ -47,7 +47,7 @@ func (p PropertyServices) ErrorIfPropertyNotOwnedByUserOrCantCheck(
 	return nil
 }
 
-func (p PropertyServices) AddPropertyIfNotExists(
+func (p PropertyServices) AddPropertyIfNotExistsReturnEmptyIfExists(
 	loggedInUserId string,
 	propertyAddress string,
 	startOfOwnership time.Time,
@@ -63,7 +63,9 @@ func (p PropertyServices) AddPropertyIfNotExists(
 		return dtos.PropertyIdAddressDto{}, getPropertyByNameErr
 	}
 	if len(properties) > 0 {
-		return properties[0], nil
+		return dtos.PropertyIdAddressDto{
+			Id: "",
+		}, nil
 	}
 	return p.propertyRepository.AddNewProperty(loggedInUserId, propertyAddress)
 }
