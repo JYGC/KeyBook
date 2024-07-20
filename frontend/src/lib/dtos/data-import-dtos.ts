@@ -1,13 +1,3 @@
-export interface IQueryParameters {
-  page: number;
-  perPage: number;
-  parameters: {
-    expand: string | null,
-    fields: string | null,
-    filter: string | null
-  };
-}
-
 export interface AddDeviceAndHistoriesDTO {
   Name: string;
   Identifier: string;

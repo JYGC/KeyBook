@@ -1,5 +1,5 @@
 import PocketBase from "pocketbase";
-import type { AddPropertyDeviceAndHistoriesDTO } from "./dtos";
+import type { AddPropertyDeviceAndHistoriesDTO } from "./dtos/data-import-dtos";
 
 export interface IBackendClient {
   isTokenValid: boolean;
