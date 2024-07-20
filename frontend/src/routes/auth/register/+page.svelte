@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { BackendClient } from "$lib/api/backendclient.svelte";
-  import { LoginApi } from "$lib/api/loginapi.svelte";
-  import { RegisterApi } from "$lib/api/registerapi.svelte";
+	import { BackendClient } from "$lib/api/backend-client.svelte";
+  import { LoginApi } from "$lib/api/login-api.svelte";
+  import { RegisterApi } from "$lib/api/register-api.svelte";
 
   const backendClient = new BackendClient();
   const registerApi = new RegisterApi(backendClient);

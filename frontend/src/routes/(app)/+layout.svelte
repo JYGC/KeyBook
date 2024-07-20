@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BackendClient } from '$lib/api/backendclient.svelte';
+	import { BackendClient } from '$lib/api/backend-client.svelte';
 
   const { children } = $props();
 
