@@ -1,10 +1,10 @@
 <script lang="ts">
-  const { data } = $props();
+	import { BackendClient } from "$lib/api/backend-client.svelte";
+  import PropertyList from "$lib/components/property/PropertyList.svelte";
 
-  let resultList = $derived(data);
+  const backendClient = new BackendClient();
 </script>
 
-<p>
-  {JSON.stringify(resultList)}
-</p>
+<PropertyList backendClient={backendClient} />
+
 <a href="/importdata/csv1">import csv</a>

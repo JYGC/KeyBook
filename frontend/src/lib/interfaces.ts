@@ -1,4 +1,4 @@
-import PocketBase from "pocketbase";
+import PocketBase, { type AuthModel } from "pocketbase";
 import type { AddPropertyDeviceAndHistoriesDTO } from "./dtos/data-import-dtos";
 
 export interface IBackendClient {
@@ -6,6 +6,7 @@ export interface IBackendClient {
   logoutAsync: () => void;
   authRefresh: () => void;
   get pb(): PocketBase;
+  get loggedInUser(): AuthModel;
 }
 
 export interface ILoginApi {

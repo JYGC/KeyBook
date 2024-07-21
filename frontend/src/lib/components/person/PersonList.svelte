@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { IDeviceListItemDto } from "$lib/dtos/device-dtos";
+	import type { IPersonListItemDto } from "$lib/dtos/person-dtos";
 	import { type IBackendClient } from "../../interfaces";
   
   let {
@@ -10,11 +10,11 @@
     propertyId: string,
   }>();
 
-  let deviceListAsync = $derived.by<Promise<IDeviceListItemDto>>(async () => {
+  let personListAsync = $derived.by<Promise<IPersonListItemDto>>(async () => {
     try {
-      const response = await backendClient.pb.collection("devices").getList(1, 50, {
+      const response = await backendClient.pb.collection("persons").getList(1, 50, {
         filter: `property.id = "${propertyId}"`,
-        fields: "id,type,name,identifier",
+        fields: "id,type,name",
       });
       return response.items;
     } catch (ex) {
@@ -24,10 +24,10 @@
   });
 </script>
 
-{#await deviceListAsync}
-  ...getting devices
-{:then deviceList}
-  {JSON.stringify(deviceList)}
+{#await personListAsync}
+  ...getting persons
+{:then personList}
+  {JSON.stringify(personList)}
 {:catch error}
   {error}
 {/await}

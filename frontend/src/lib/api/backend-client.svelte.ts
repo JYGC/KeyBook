@@ -1,4 +1,4 @@
-import PocketBase from "pocketbase";
+import PocketBase, { type AuthModel } from "pocketbase";
 import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
 import type { IBackendClient } from "$lib/interfaces";
 
@@ -24,5 +24,9 @@ export class BackendClient implements IBackendClient {
 
   public get pb() {
     return this.__pb;
+  };
+
+  public get loggedInUser(): AuthModel {
+    return this.__pb.authStore.model;
   };
 }

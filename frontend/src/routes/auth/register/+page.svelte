@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { Link } from "carbon-components-svelte";
+
 	import { BackendClient } from "$lib/api/backend-client.svelte";
   import { LoginApi } from "$lib/api/login-api.svelte";
   import { RegisterApi } from "$lib/api/register-api.svelte";
@@ -64,5 +66,5 @@
 
 <div>
   <p>Already have an account?</p>
-  <a href="/auth/login">Login</a>
+  <Link href="/auth/login">Login</Link>
 </div>

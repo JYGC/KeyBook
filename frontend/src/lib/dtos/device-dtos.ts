@@ -1,4 +1,4 @@
-export interface IDeviceListItem {
+export interface IDeviceListItemDto {
   id: string;
   type: string;
   name: string;
