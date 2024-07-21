@@ -1,7 +1,10 @@
 <script lang="ts">
+	import { goto } from "$app/navigation";
 	import type { IPropertyListItemDto } from "$lib/dtos/property-dtos";
 	import type { IBackendClient } from "$lib/interfaces";
-	import { Button, DataTable, OverflowMenu, OverflowMenuItem } from "carbon-components-svelte";
+	import type { PropertyContext } from "$lib/stores/property-context.svelte";
+	import { Button, DataTable } from "carbon-components-svelte";
+	import { getContext } from "svelte";
 
   let {
     backendClient
@@ -21,6 +24,16 @@
       return [];
     }
   });
+
+  const selectedProperty = getContext<PropertyContext>("selectedProperty");
+  const goToDevicesOfProperty = (propertyId: string) => {
+    selectedProperty.propertyId = propertyId;
+    goto("/devices/listinproperty");
+  };
+  const goToPersonsOfProperty = (propertyId: string) => {
+    selectedProperty.propertyId = propertyId;
+    goto("/persons/listinproperty");
+  };
 </script>
 
 {#await propertyListAsync}
@@ -36,8 +49,8 @@
     <strong slot="title">Properties</strong>
     <svelte:fragment slot="cell" let:cell>
       {#if cell.key === "id"}
-        <Button href={`/devices/listinproperty/${cell.value}`}>View Devices</Button>
-        <Button href={`/persons/listinproperty/${cell.value}`}>View Persons</Button>
+        <Button onclick={() => goToDevicesOfProperty(cell.value)}>View Devices</Button>
+        <Button onclick={() => goToPersonsOfProperty(cell.value)}>View Persons</Button>
       {:else}
         {cell.value}
       {/if}

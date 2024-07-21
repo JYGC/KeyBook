@@ -4,6 +4,7 @@
 	import { BackendClient } from "$lib/api/backend-client.svelte";
   import { LoginApi } from "$lib/api/login-api.svelte";
   import { RegisterApi } from "$lib/api/register-api.svelte";
+	import { goto } from "$app/navigation";
 
   const backendClient = new BackendClient();
   const registerApi = new RegisterApi(backendClient);
@@ -17,7 +18,7 @@
     loginApi.email = registerApi.email;
     loginApi.password = registerApi.password;
     document.cookie = await loginApi.callApi();
-    window.location.replace("");
+    goto("/");
 
   };
 </script>

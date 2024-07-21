@@ -3,12 +3,13 @@
 
 	import { BackendClient } from "$lib/api/backend-client.svelte";
 	import { LoginApi } from "$lib/api/login-api.svelte";
+	import { goto } from "$app/navigation";
 
   const backendClient = new BackendClient();
   const loginApi = new LoginApi(backendClient);
   const login = async () => {
     document.cookie = await loginApi.callApi();
-    window.location.replace("");
+    goto("/");
   };
 </script>
 
