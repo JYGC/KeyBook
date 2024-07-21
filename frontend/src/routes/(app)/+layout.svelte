@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { BackendClient } from '$lib/api/backend-client.svelte';
-	import { PropertyContext } from '$lib/stores/property-context.svelte';
-	import { setContext } from "svelte";
+	import { setPropertyContext } from '$lib/contexts/property-context.svelte';
 
   const { children } = $props();
 
-  const propertyContext = new PropertyContext();
-  setContext<PropertyContext>("selectedProperty", propertyContext);
+  setPropertyContext();
 
   const logoutAndRedirect = async () => {
     const authManager = new BackendClient();

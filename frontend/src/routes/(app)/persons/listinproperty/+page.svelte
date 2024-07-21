@@ -1,12 +1,11 @@
 <script lang="ts">
 	import { BackendClient } from "$lib/api/backend-client.svelte";
 	import PersonList from "$lib/components/person/PersonList.svelte";
-	import { getContext } from "svelte";
-	import type { PropertyContext } from "$lib/stores/property-context.svelte";
+	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
 
-	const propertyContext = getContext<PropertyContext>("selectedProperty");
+	const propertyContext = getPropertyContext();
 
   const backendClient = new BackendClient();
 </script>
-{propertyContext.propertyId}
-<PersonList backendClient={backendClient} propertyId={propertyContext.propertyId} />
+{propertyContext.selectedPropertyId}
+<PersonList backendClient={backendClient} propertyId={propertyContext.selectedPropertyId} />

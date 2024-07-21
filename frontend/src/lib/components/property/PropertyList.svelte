@@ -2,9 +2,8 @@
 	import { goto } from "$app/navigation";
 	import type { IPropertyListItemDto } from "$lib/dtos/property-dtos";
 	import type { IBackendClient } from "$lib/interfaces";
-	import type { PropertyContext } from "$lib/stores/property-context.svelte";
+	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
 	import { Button, DataTable } from "carbon-components-svelte";
-	import { getContext } from "svelte";
 
   let {
     backendClient
@@ -25,13 +24,13 @@
     }
   });
 
-  const selectedProperty = getContext<PropertyContext>("selectedProperty");
+  const selectedProperty = getPropertyContext();
   const goToDevicesOfProperty = (propertyId: string) => {
-    selectedProperty.propertyId = propertyId;
+    selectedProperty.selectedPropertyId = propertyId;
     goto("/devices/listinproperty");
   };
   const goToPersonsOfProperty = (propertyId: string) => {
-    selectedProperty.propertyId = propertyId;
+    selectedProperty.selectedPropertyId = propertyId;
     goto("/persons/listinproperty");
   };
 </script>
