@@ -1,43 +1,25 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import type { IPropertyListItemDto } from "$lib/dtos/property-dtos";
-	import type { IBackendClient } from "$lib/interfaces";
-	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
 	import { Button, DataTable } from "carbon-components-svelte";
 
   let {
-    backendClient
+    propertyList,
+    selectedPropertyId = $bindable(),
   } = $props<{
-    backendClient: IBackendClient
+    propertyList: IPropertyListItemDto[],
+    selectedPropertyId: string,
   }>();
 
-  let propertyListAsync = $derived.by<Promise<IPropertyListItemDto[]>>(async () => {
-    try {
-      const response = await backendClient.pb.collection("properties").getList(1, 50, {
-        filter: `owners.id ?~ "${backendClient.loggedInUser.id}"`,
-        fields: "id,address"
-      });
-      return response.items;
-    } catch (ex) {
-      alert(ex);
-      return [];
-    }
-  });
-
-  const selectedProperty = getPropertyContext();
   const goToDevicesOfProperty = (propertyId: string) => {
-    selectedProperty.selectedPropertyId = propertyId;
+    selectedPropertyId = propertyId;
     goto("/devices/listinproperty");
   };
   const goToPersonsOfProperty = (propertyId: string) => {
-    selectedProperty.selectedPropertyId = propertyId;
+    selectedPropertyId = propertyId;
     goto("/persons/listinproperty");
   };
 </script>
-
-{#await propertyListAsync}
-  ...getting properties
-{:then propertyList}
   <DataTable
     headers={[
       { key: "address", value: "Property Address" },
@@ -55,6 +37,3 @@
       {/if}
     </svelte:fragment>
   </DataTable>
-{:catch error}
-  {error}
-{/await}

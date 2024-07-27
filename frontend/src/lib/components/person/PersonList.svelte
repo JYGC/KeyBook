@@ -1,33 +1,35 @@
 <script lang="ts">
 	import type { IPersonListItemDto } from "$lib/dtos/person-dtos";
-	import { type IBackendClient } from "../../interfaces";
+	import { Button, DataTable } from "carbon-components-svelte";
   
   let {
-    backendClient,
+    personList,
     propertyId,
+    selectedPersonId = $bindable(),
   } = $props<{
-    backendClient: IBackendClient,
+    personList: IPersonListItemDto[],
     propertyId: string,
+    selectedPersonId: string,
   }>();
 
-  let personListAsync = $derived.by<Promise<IPersonListItemDto>>(async () => {
-    try {
-      const response = await backendClient.pb.collection("persons").getList(1, 50, {
-        filter: `property.id = "${propertyId}"`,
-        fields: "id,type,name",
-      });
-      return response.items;
-    } catch (ex) {
-      alert(ex);
-      return [];
-    }
-  });
+  const gotoPersonDetails = (personId: string) => {
+    selectedPersonId = personId;
+  };
 </script>
-
-{#await personListAsync}
-  ...getting persons
-{:then personList}
-  {JSON.stringify(personList)}
-{:catch error}
-  {error}
-{/await}
+<DataTable
+  headers={[
+    { key: "name", value: "Name" },
+    { key: "type", value: "Type" },
+    { key: "id", empty: true },
+  ]}
+  rows={personList}
+>
+  <strong slot="title">Persons for PropertyId: {propertyId } <!--Get property name--></strong>
+  <svelte:fragment slot="cell" let:cell>
+    {#if cell.key === "id"}
+      <Button onclick={() => gotoPersonDetails(cell.value)}>Person Details</Button>
+    {:else}
+      {cell.value}
+    {/if}
+  </svelte:fragment>
+</DataTable>

@@ -4,8 +4,16 @@
 	import { getPropertyContext } from '$lib/contexts/property-context.svelte';
 	import type { IDeviceListItemDto } from '$lib/dtos/device-dtos';
 	import { getDeviceContext } from '$lib/contexts/device-context.svelte';
+	import { goto } from '$app/navigation';
 
   const propertyContext = getPropertyContext();
+  if (
+    propertyContext.selectedPropertyId === null ||
+    propertyContext.selectedPropertyId.trim() === ""
+  ) {
+    goto("/");
+  }
+
   const deviceContext = getDeviceContext();
   
   const backendClient = new BackendClient();

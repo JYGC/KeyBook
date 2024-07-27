@@ -11,25 +11,26 @@
     propertyId: string,
     selectedDeviceId: string,
   }>();
+  
   const gotoDeviceDetails = (deviceId: string) => {
     selectedDeviceId = deviceId; 
   };
 </script>
-  <DataTable
-    headers={[
-      { key: "name", value: "Device Name"},
-      { key: "identifier", value: "Indentification"},
-      { key: "type", value: "Type"},
-      { key: "id", empty: true },
-    ]}
-    rows={deviceList}
-  >
-    <strong slot="title">Devices for PropertyId: {propertyId } <!--Get property name--></strong>
-    <svelte:fragment slot="cell" let:cell>
-      {#if cell.key === "id"}
-        <Button onclick={() => gotoDeviceDetails(cell.value)}>Device Details</Button>
-      {:else}
-        {cell.value}
-      {/if}
-    </svelte:fragment>
-  </DataTable>
+<DataTable
+  headers={[
+    { key: "name", value: "Device Name"},
+    { key: "identifier", value: "Indentification"},
+    { key: "type", value: "Type"},
+    { key: "id", empty: true },
+  ]}
+  rows={deviceList}
+>
+  <strong slot="title">Devices for PropertyId: {propertyId } <!--Get property name--></strong>
+  <svelte:fragment slot="cell" let:cell>
+    {#if cell.key === "id"}
+      <Button onclick={() => gotoDeviceDetails(cell.value)}>Device Details</Button>
+    {:else}
+      {cell.value}
+    {/if}
+  </svelte:fragment>
+</DataTable>

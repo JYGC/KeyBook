@@ -1,11 +1,49 @@
 <script lang="ts">
+	import { goto } from "$app/navigation";
 	import { BackendClient } from "$lib/api/backend-client.svelte";
 	import PersonList from "$lib/components/person/PersonList.svelte";
+	import { getPersonContext } from "$lib/contexts/person-context.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
+	import type { IPersonListItemDto } from "$lib/dtos/person-dtos";
 
 	const propertyContext = getPropertyContext();
+  if (
+    propertyContext.selectedPropertyId === null ||
+    propertyContext.selectedPropertyId.trim() === ""
+  ) {
+    goto("/");
+  }
+
+	const personContext = getPersonContext();
 
   const backendClient = new BackendClient();
+
+	let personListAsync = $derived.by<Promise<IPersonListItemDto[]>>(async () => {
+		try {
+			const response = await backendClient.pb.collection("persons").getList<IPersonListItemDto>(
+				1,
+				50,
+				{
+					filter: `property.id = "${propertyContext.selectedPropertyId}"`,
+					fields: "id,type,name",
+				}
+			);
+			return response.items;
+		} catch (ex) {
+			alert(ex);
+			return [];
+		}
+	});
 </script>
-{propertyContext.selectedPropertyId}
-<PersonList backendClient={backendClient} propertyId={propertyContext.selectedPropertyId} />
+
+{#await personListAsync}
+  ...getting persons
+{:then personList}
+	<PersonList
+		personList={personList}
+		propertyId={propertyContext.selectedPropertyId}
+		bind:selectedPersonId={personContext.selectedPersonId}
+	/>
+{:catch error}
+  {error}
+{/await}
