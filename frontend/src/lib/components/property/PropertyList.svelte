@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import type { IPropertyListItemDto } from "$lib/dtos/property-dtos";
-	import { Button, DataTable } from "carbon-components-svelte";
+	import { Button, ButtonSet, DataTable } from "carbon-components-svelte";
 
   let {
     propertyList,
@@ -30,8 +30,10 @@
     <strong slot="title">Properties</strong>
     <svelte:fragment slot="cell" let:cell>
       {#if cell.key === "id"}
-        <Button onclick={() => goToDevicesOfProperty(cell.value)}>View Devices</Button>
-        <Button onclick={() => goToPersonsOfProperty(cell.value)}>View Persons</Button>
+        <ButtonSet>
+          <Button onclick={() => goToDevicesOfProperty(cell.value)}>View Devices</Button>
+          <Button onclick={() => goToPersonsOfProperty(cell.value)}>View Persons</Button>
+        </ButtonSet>
       {:else}
         {cell.value}
       {/if}

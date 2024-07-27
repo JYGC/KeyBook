@@ -19,6 +19,7 @@ export interface IRegisterApi {
   name: string;
   email: string;
   password: string;
+  passwordConfirm: string;
   callApi: () => Promise<boolean>;
   get error(): string;
 }

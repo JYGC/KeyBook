@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Link } from "carbon-components-svelte";
+  import { Link, TextInput, PasswordInput, Button } from "carbon-components-svelte";
 
 	import { BackendClient } from "$lib/api/backend-client.svelte";
   import { LoginApi } from "$lib/api/login-api.svelte";
@@ -24,46 +24,31 @@
 </script>
 
 <h1>Create an Account</h1>
-<div>
-  <label for="name">Name</label>
-  <input
-    type="text"
-    name="name"
-    bind:value={registerApi.name}
-  />
-</div>
-<div>
-  <label for="email">Email</label>
-  <input
-    type="email"
-    name="email"
-    bind:value={registerApi.email}
-  />
-</div>
-<div>
-  <label for="password">Password</label>
-  <input
-    type="password"
-    name="password"
-    bind:value={registerApi.password}
-  />
-</div>
+<br />
+<TextInput placeholder="Enter your name..." bind:value={registerApi.name} />
+<br />
+<TextInput placeholder="Enter email..." bind:value={registerApi.email} />
+<br />
+<PasswordInput placeholder="Enter password..." bind:value={registerApi.password} />
+<br />
+<PasswordInput placeholder="Confirm password..." bind:value={registerApi.passwordConfirm} />
+<br />
+<Button
+  disabled={
+    registerApi.name.length === 0 ||
+    registerApi.email.length === 0 ||
+    registerApi.password.length < 8 ||
+    registerApi.passwordConfirm !== registerApi.password
+  }
+  onclick={registerAndLogin}
+>Create account!</Button>
+<br />
+<br />
+<br />
 
 {#if registerApi.error}
   <p class="error">{registerApi.error}</p>
 {/if}
-
-<div>
-  <button
-    disabled={
-      registerApi.name.length === 0 ||
-      registerApi.email.length === 0 ||
-      registerApi.password.length < 8
-    }
-    onclick={registerAndLogin}
-  >Create account!</button>
-</div>
-
 
 <div>
   <p>Already have an account?</p>

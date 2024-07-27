@@ -6,6 +6,7 @@ export class RegisterApi implements IRegisterApi {
   public name = $state<string>("");
   public email = $state<string>("");
   public password = $state<string>("");
+  public passwordConfirm = $state<string>("");
 
   constructor(backendClient: IBackendClient) {
     this.__backendClient = backendClient;
@@ -18,7 +19,7 @@ export class RegisterApi implements IRegisterApi {
       await this.__backendClient.pb.collection("users").create({
         name: this.name,
         password: this.password,
-        passwordConfirm: this.password,
+        passwordConfirm: this.passwordConfirm,
         email: this.email,
         emailVisibility: false,
       });
