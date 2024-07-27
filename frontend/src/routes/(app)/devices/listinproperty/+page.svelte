@@ -2,10 +2,37 @@
   import DevlceList from '$lib/components/device/DevlceList.svelte';
   import { BackendClient } from '$lib/api/backend-client.svelte';
 	import { getPropertyContext } from '$lib/contexts/property-context.svelte';
+	import type { IDeviceListItemDto } from '$lib/dtos/device-dtos';
+	import { getDeviceContext } from '$lib/contexts/device-context.svelte';
+
+  const propertyContext = getPropertyContext();
+  const deviceContext = getDeviceContext();
   
   const backendClient = new BackendClient();
 
-  const propertyContext = getPropertyContext();
+  let deviceListAsync = $derived.by<Promise<IDeviceListItemDto[]>>(async () => {
+    try {
+      const response = await backendClient.pb.collection("devices").getList<IDeviceListItemDto>(1, 50, {
+        filter: `property.id = "${propertyContext.selectedPropertyId}"`,
+        fields: "id,type,name,identifier",
+      });
+      return response.items;
+    } catch (ex) {
+      alert(ex);
+      return [];
+    }
+  });
+
 </script>
-{propertyContext.selectedPropertyId}
-<DevlceList backendClient={backendClient} propertyId={propertyContext.selectedPropertyId} />
+
+{#await deviceListAsync}
+  ...getting devices
+{:then deviceList}
+  <DevlceList
+    deviceList={deviceList}
+    propertyId={propertyContext.selectedPropertyId} 
+    bind:selectedDeviceId={deviceContext.selectedDeviceId}
+  />
+{:catch error}
+  {error}
+{/await}

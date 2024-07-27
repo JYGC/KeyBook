@@ -1,33 +1,35 @@
 <script lang="ts">
 	import type { IDeviceListItemDto } from "$lib/dtos/device-dtos";
-	import { type IBackendClient } from "../../interfaces";
+	import { Button, DataTable } from "carbon-components-svelte";
   
   let {
-    backendClient,
+    deviceList,
     propertyId,
+    selectedDeviceId = $bindable(),
   } = $props<{
-    backendClient: IBackendClient,
+    deviceList: IDeviceListItemDto[],
     propertyId: string,
+    selectedDeviceId: string,
   }>();
-
-  let deviceListAsync = $derived.by<Promise<IDeviceListItemDto>>(async () => {
-    try {
-      const response = await backendClient.pb.collection("devices").getList(1, 50, {
-        filter: `property.id = "${propertyId}"`,
-        fields: "id,type,name,identifier",
-      });
-      return response.items;
-    } catch (ex) {
-      alert(ex);
-      return [];
-    }
-  });
+  const gotoDeviceDetails = (deviceId: string) => {
+    selectedDeviceId = deviceId; 
+  };
 </script>
-
-{#await deviceListAsync}
-  ...getting devices
-{:then deviceList}
-  {JSON.stringify(deviceList)}
-{:catch error}
-  {error}
-{/await}
+  <DataTable
+    headers={[
+      { key: "name", value: "Device Name"},
+      { key: "identifier", value: "Indentification"},
+      { key: "type", value: "Type"},
+      { key: "id", empty: true },
+    ]}
+    rows={deviceList}
+  >
+    <strong slot="title">Devices for PropertyId: {propertyId } <!--Get property name--></strong>
+    <svelte:fragment slot="cell" let:cell>
+      {#if cell.key === "id"}
+        <Button onclick={() => gotoDeviceDetails(cell.value)}>Device Details</Button>
+      {:else}
+        {cell.value}
+      {/if}
+    </svelte:fragment>
+  </DataTable>

@@ -35,7 +35,3 @@ export interface ICsvFileToObjectConverter {
 export interface IDeviceListDataService {
   add: () => void;
 }
-
-export interface IPropertyContext {
-  selectedPropertyId: string;
-}
