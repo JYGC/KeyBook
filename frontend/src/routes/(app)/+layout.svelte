@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { BackendClient } from '$lib/api/backend-client.svelte';
 	import { setPropertyContext } from '$lib/contexts/property-context.svelte';
-	import { Header, HeaderGlobalAction, HeaderUtilities } from 'carbon-components-svelte';
+	import { Button, Content, Header, HeaderGlobalAction, HeaderUtilities } from 'carbon-components-svelte';
 	import { Logout } from 'carbon-icons-svelte';
 
   const { children } = $props();
@@ -19,14 +19,17 @@
 </script>
 <Header company="SnailLabs" platformName="KeyBook">
   <HeaderUtilities>
-    <HeaderGlobalAction
+    <Button
       iconDescription="Log out"
       tooltipAlignment="end"
       icon={Logout}
+      kind="ghost"
       onclick={logoutAndRedirect}
     />
     <!-- One click does not work -->
   </HeaderUtilities>
 </Header>
 
-{@render children()}
+<Content>
+  {@render children()}
+</Content>

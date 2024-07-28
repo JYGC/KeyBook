@@ -1,8 +1,10 @@
 <script lang="ts">
+	import { goto } from "$app/navigation";
 	import { BackendClient } from "$lib/api/backend-client.svelte";
   import PropertyList from "$lib/components/property/PropertyList.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
 	import type { IPropertyListItemDto } from "$lib/dtos/property-dtos";
+	import { Button, OverflowMenu, OverflowMenuItem, Tile } from "carbon-components-svelte";
 
   const backendClient = new BackendClient();
 
@@ -23,11 +25,21 @@
   });
 
   const selectedProperty = getPropertyContext();
+
+  const gotoImportCsvDate = () => {
+    goto("/importdata/csv1");
+  };
 </script>
 
-
+<OverflowMenu size="xl" style="width: auto;">
+  <div slot="menu">
+    <Button>Add Property</Button>
+  </div>
+  <OverflowMenuItem text="Add One Property" />
+  <OverflowMenuItem onclick={gotoImportCsvDate} text="Add via CSV" />
+</OverflowMenu>
 {#await propertyListAsync}
-  ...getting properties
+<Tile>...getting properties</Tile>
 {:then propertyList}
   <PropertyList
     propertyList={propertyList}
@@ -36,5 +48,3 @@
 {:catch error}
   {error}
 {/await}
-
-<a href="/importdata/csv1">import csv</a>

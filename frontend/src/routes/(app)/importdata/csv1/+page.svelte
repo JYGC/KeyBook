@@ -2,6 +2,8 @@
 	import { CsvFileToObjectConverter } from "$lib/modules/csv-file-to-object-converter.svelte";
 	import { UploadCsvApi } from "$lib/api/upload-csv-api";
 	import { BackendClient } from "$lib/api/backend-client.svelte";
+	import { goto } from "$app/navigation";
+	import { Button } from "carbon-components-svelte";
 
   const acceptedExtensions = ['.csv']
   
@@ -15,23 +17,27 @@
   };
 
   let disableUploadButtonAsync = $derived.by(async () => await csvFileToObjectConverter.outputAsync === null);
+
+  const gotoPropertyList = () => {
+    goto("/properties/list");
+  };
 </script>
 
-<div class="group">
-  <input
-    type="file"
-    name="fileToUpload"
-    id="file"
-    accept={acceptedExtensions.join(',')}
-    bind:files={csvFileToObjectConverter.input}
-    required
-  />
-</div>
+<Button onclick={gotoPropertyList}>Back</Button>
+
+<input
+  type="file"
+  name="fileToUpload"
+  id="file"
+  accept={acceptedExtensions.join(',')}
+  bind:files={csvFileToObjectConverter.input}
+  required
+/>
 {#await disableUploadButtonAsync then value} 
-  <button
+  <Button
     disabled={value}
     onclick={uploadFile}
-  >Upload</button>
+  >Upload</Button>
 {/await}
 <p>
   {#await csvFileToObjectConverter.outputAsync}

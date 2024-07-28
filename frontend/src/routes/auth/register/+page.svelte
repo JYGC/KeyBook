@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Link, TextInput, PasswordInput, Button } from "carbon-components-svelte";
+  import { Link, TextInput, PasswordInput, Button, FluidForm } from "carbon-components-svelte";
 
 	import { BackendClient } from "$lib/api/backend-client.svelte";
   import { LoginApi } from "$lib/api/login-api.svelte";
@@ -25,13 +25,12 @@
 
 <h1>Create an Account</h1>
 <br />
-<TextInput placeholder="Enter your name..." bind:value={registerApi.name} />
-<br />
-<TextInput placeholder="Enter email..." bind:value={registerApi.email} />
-<br />
-<PasswordInput placeholder="Enter password..." bind:value={registerApi.password} />
-<br />
-<PasswordInput placeholder="Confirm password..." bind:value={registerApi.passwordConfirm} />
+<FluidForm>
+  <TextInput labelText="Name" placeholder="Enter your name..." bind:value={registerApi.name} />
+  <TextInput labelText="Email" placeholder="Enter email..." bind:value={registerApi.email} />
+  <PasswordInput labelText="Password" placeholder="Enter password..." bind:value={registerApi.password} />
+  <PasswordInput labelText="Confirm password" placeholder="Confirm password..." bind:value={registerApi.passwordConfirm} />
+</FluidForm>
 <br />
 <Button
   disabled={

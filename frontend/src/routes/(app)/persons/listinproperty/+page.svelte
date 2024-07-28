@@ -5,6 +5,7 @@
 	import { getPersonContext } from "$lib/contexts/person-context.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
 	import type { IPersonListItemDto } from "$lib/dtos/person-dtos";
+	import { Button, Tile } from "carbon-components-svelte";
 
 	const propertyContext = getPropertyContext();
   if (
@@ -34,10 +35,16 @@
 			return [];
 		}
 	});
+
+const gotoPropertyList = () => {
+	goto("/properties/list");
+};
 </script>
 
+<Button onclick={gotoPropertyList}>Back</Button>
+
 {#await personListAsync}
-  ...getting persons
+<Tile>...getting persons</Tile>
 {:then personList}
 	<PersonList
 		personList={personList}

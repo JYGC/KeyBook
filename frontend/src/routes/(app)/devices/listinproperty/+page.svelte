@@ -5,6 +5,7 @@
 	import type { IDeviceListItemDto } from '$lib/dtos/device-dtos';
 	import { getDeviceContext } from '$lib/contexts/device-context.svelte';
 	import { goto } from '$app/navigation';
+	import { Button, Tile } from 'carbon-components-svelte';
 
   const propertyContext = getPropertyContext();
   if (
@@ -31,10 +32,15 @@
     }
   });
 
+  const gotoPropertyList = () => {
+    goto("/properties/list");
+  };
 </script>
 
+<Button onclick={gotoPropertyList}>Back</Button>
+
 {#await deviceListAsync}
-  ...getting devices
+<Tile>...getting devices</Tile>
 {:then deviceList}
   <DevlceList
     deviceList={deviceList}
