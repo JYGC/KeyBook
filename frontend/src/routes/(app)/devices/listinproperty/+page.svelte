@@ -44,7 +44,7 @@
 {:then deviceList}
   <DevlceList
     deviceList={deviceList}
-    propertyId={propertyContext.selectedPropertyId} 
+    propertyId={propertyContext.selectedPropertyId}
     bind:selectedDeviceId={deviceContext.selectedDeviceId}
   />
 {:catch error}

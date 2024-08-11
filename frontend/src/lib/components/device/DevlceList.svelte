@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from "$app/navigation";
 	import type { IDeviceListItemDto } from "$lib/dtos/device-dtos";
 	import { Button, DataTable } from "carbon-components-svelte";
   
@@ -13,7 +14,8 @@
   }>();
   
   const gotoDeviceDetails = (deviceId: string) => {
-    selectedDeviceId = deviceId; 
+    selectedDeviceId = deviceId;
+    goto("/devices/edit");
   };
 </script>
 <DataTable
