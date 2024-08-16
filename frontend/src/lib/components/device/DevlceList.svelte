@@ -27,7 +27,7 @@
   ]}
   rows={deviceList}
 >
-  <strong slot="title">Devices for PropertyId: {propertyId } <!--Get property name--></strong>
+  <strong slot="title">Devices for PropertyId: {propertyId} <!--TODO: Get property name--></strong>
   <svelte:fragment slot="cell" let:cell>
     {#if cell.key === "id"}
       <Button onclick={() => gotoDeviceDetails(cell.value)}>Device Details</Button>

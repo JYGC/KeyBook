@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
 	import { goto } from "$app/navigation";
 	import { BackendClient } from "$lib/api/backend-client.svelte";
 	import DeviceEdit from "$lib/components/device/DeviceEdit.svelte";
@@ -7,6 +8,7 @@
 	import { Button, Tile } from 'carbon-components-svelte';
 
   const deviceContext = getDeviceContext();
+  const propertyContext = getPropertyContext();
 
   const backendClient = new BackendClient();
 
@@ -22,7 +24,7 @@
     }
   });
 
-  const saveDeviceAction = async (changedDevice: IDeviceEditDto) => {
+  const saveDeviceActionAsync = async (changedDevice: IDeviceEditDto) => {
     try {
       await backendClient.pb.collection("devices").update(changedDevice.id, {
         type: changedDevice.type,
@@ -36,12 +38,16 @@
     }
   };
 
-const gotoPropertyList = () => {
-  goto("/properties/list");
-};
+  const gotoPropertyListAsync = async () => {
+    const devicePropertyId = await (await deviceAsync)?.property;
+    if (devicePropertyId !== undefined) {
+      propertyContext.selectedPropertyId = devicePropertyId;
+    }
+    goto("/devices/listinproperty");
+  };
 </script>
 
-<Button onclick={gotoPropertyList}>Back</Button>
+<Button onclick={gotoPropertyListAsync}>Back</Button>
 
 {#await deviceAsync}
   <Tile>...getting device details</Tile>
@@ -52,7 +58,7 @@ const gotoPropertyList = () => {
     <DeviceEdit
       device={device}
       isAdd={false}
-      {saveDeviceAction}
+      saveDeviceAction={saveDeviceActionAsync}
     />
   {/if}
 {:catch error}
