@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import { BackendClient } from "$lib/api/backend-client";
-	import DeviceEdit from "$lib/components/device/DeviceEdit.svelte";
+	import DeviceEditor from "$lib/components/device/DeviceEditor.svelte";
 	import { getDeviceContext } from "$lib/contexts/device-context.svelte";
-	import type { IDeviceEditDto } from "$lib/dtos/device-dtos";
+	import type { IEditDeviceDto } from "$lib/dtos/device-dtos";
 	import { Button, Tile } from 'carbon-components-svelte';
 
   const deviceContext = getDeviceContext();
 
   const backendClient = new BackendClient();
 
-  let deviceAsync = $derived.by<Promise<IDeviceEditDto | null>>(async () => {
+  let deviceAsync = $derived.by<Promise<IEditDeviceDto | null>>(async () => {
     try {
-      return await backendClient.pb.collection("devices").getOne<IDeviceEditDto>(
+      return await backendClient.pb.collection("devices").getOne<IEditDeviceDto>(
         deviceContext.selectedDeviceId,
         { fields: "id,type,name,identifier,defunctreason,property" }
       )
@@ -22,7 +22,7 @@
     }
   });
 
-  const saveDeviceActionAsync = async (changedDevice: IDeviceEditDto) => {
+  const saveDeviceActionAsync = async (changedDevice: IEditDeviceDto) => {
     try {
       await backendClient.pb.collection("devices").update(changedDevice.id, {
         type: changedDevice.type,
@@ -49,7 +49,7 @@
   {#if device === null}
     {history.back()}
   {:else}
-    <DeviceEdit
+    <DeviceEditor
       device={device}
       isAdd={false}
       saveDeviceAction={saveDeviceActionAsync}

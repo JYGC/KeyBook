@@ -5,7 +5,7 @@ export interface IDeviceListItemDto {
   identifier: string;
 }
 
-export interface IDeviceEditDto {
+export interface IEditDeviceDto {
   id: string;
   type: string;
   name: string;

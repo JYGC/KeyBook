@@ -1,15 +1,15 @@
 <script lang="ts">
-	import type { IDeviceEditDto } from "$lib/dtos/device-dtos";
+	import type { IEditDeviceDto } from "$lib/dtos/device-dtos";
 	import { Button, ClickableTile, Select, SelectItem, TextInput } from "carbon-components-svelte";
 
   let { 
-    device = $bindable(),
+    device,
     isAdd,
     saveDeviceAction,
   } = $props<{
-    device: IDeviceEditDto,
+    device: IEditDeviceDto,
     isAdd: boolean,
-    saveDeviceAction: (device :IDeviceEditDto) => void,
+    saveDeviceAction: (device :IEditDeviceDto) => void,
   }>()
 
   let showDefunctReason = $state(false);
