@@ -17,7 +17,7 @@ export class UploadCsvApi implements IUploadCsvApi {
     if (csvContentObject === null) {
       return;
     }
-    await this.__authManager.pb.send("/api/dataimport/csv", {
+    await this.__authManager.pb.send("/dataimport/csv", {
       method: "POST",
       body: csvContentObject,
     });

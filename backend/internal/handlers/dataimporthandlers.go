@@ -35,5 +35,5 @@ func NewDataImportHandlers(dataImportServices services.IDataImportServices) IDat
 }
 
 func RegisterDataImportHandlersToRouter(router *echo.Echo, dataImportHandlers IDataImportHandlers) {
-	router.POST("/api/dataimport/csv", dataImportHandlers.ImportCsv)
+	router.POST("/dataimport/csv", dataImportHandlers.ImportCsv)
 }
