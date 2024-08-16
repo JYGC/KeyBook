@@ -1,3 +1,3 @@
-import { BackendClient } from "$lib/api/backend-client.svelte";
+import { BackendClient } from "$lib/api/backend-client";
 
 export const backendClient = new BackendClient();

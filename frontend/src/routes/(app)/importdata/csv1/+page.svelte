@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { CsvFileToObjectConverter } from "$lib/modules/csv-file-to-object-converter.svelte";
 	import { UploadCsvApi } from "$lib/api/upload-csv-api";
-	import { BackendClient } from "$lib/api/backend-client.svelte";
+	import { BackendClient } from "$lib/api/backend-client";
 	import { goto } from "$app/navigation";
 	import { Button } from "carbon-components-svelte";
 

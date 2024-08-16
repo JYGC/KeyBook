@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { AspectRatio, Button, FluidForm, Link, PasswordInput, TextInput } from "carbon-components-svelte";
+  import { Button, FluidForm, Link, PasswordInput, TextInput } from "carbon-components-svelte";
 
-	import { BackendClient } from "$lib/api/backend-client.svelte";
+	import { BackendClient } from "$lib/api/backend-client";
 	import { LoginApi } from "$lib/api/login-api.svelte";
 	import { goto } from "$app/navigation";
 

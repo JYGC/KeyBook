@@ -1,6 +1,6 @@
 <script lang="ts">
   import DevlceList from '$lib/components/device/DevlceList.svelte';
-  import { BackendClient } from '$lib/api/backend-client.svelte';
+  import { BackendClient } from '$lib/api/backend-client';
 	import { getPropertyContext } from '$lib/contexts/property-context.svelte';
 	import type { IDeviceListItemDto } from '$lib/dtos/device-dtos';
 	import { getDeviceContext } from '$lib/contexts/device-context.svelte';

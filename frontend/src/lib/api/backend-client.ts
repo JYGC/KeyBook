@@ -3,7 +3,7 @@ import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
 import type { IBackendClient } from "$lib/interfaces";
 
 export class BackendClient implements IBackendClient {
-  private readonly __pb = $state<PocketBase>(new PocketBase());
+  private readonly __pb = new PocketBase();
   
   constructor() {
     this.__pb = new PocketBase(PUBLIC_POCKETBASE_URL);
@@ -13,7 +13,9 @@ export class BackendClient implements IBackendClient {
     });
   }
 
-  public isTokenValid = $derived(this.__pb.authStore.isValid);
+  public get isTokenValid() {
+    return this.__pb.authStore.isValid;
+  }
 
   public logoutAsync = async () => {
     await this.__pb.collection('users').authRefresh();

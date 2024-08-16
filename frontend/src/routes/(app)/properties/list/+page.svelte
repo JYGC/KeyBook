@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import { BackendClient } from "$lib/api/backend-client.svelte";
+	import { BackendClient } from "$lib/api/backend-client";
   import PropertyList from "$lib/components/property/PropertyList.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
 	import type { IPropertyListItemDto } from "$lib/dtos/property-dtos";
