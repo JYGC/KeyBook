@@ -8,22 +8,24 @@
 
   const propertyContext = getPropertyContext();
 
+const gotoPropertyList = () => {
+  goto("/devices/listinproperty");
+}
+
   const saveDeviceActionAsync = async (changedDevice: IEditDeviceDto) => {
     try {
       const backendClient = new BackendClient();
+      changedDevice.property = propertyContext.selectedPropertyId;
       await backendClient.pb.collection("devices").create<IEditDeviceDto>(changedDevice);
+      gotoPropertyList();
     } catch (ex) {
       alert(ex);
     }
   };
-
-	const gotoPropertyListAsync = async () => {
-    goto("/devices/listinproperty");
-	}
 </script>
-<Button onclick={gotoPropertyListAsync}>Back</Button>
+<Button onclick={gotoPropertyList}>Back</Button>
 <DeviceEdit
-  device={{ property: propertyContext.selectedPropertyId } as IEditDeviceDto}
+  device={{} as IEditDeviceDto}
   isAdd={true}
   saveDeviceAction={saveDeviceActionAsync}
 />

@@ -6,18 +6,21 @@
     device,
     isAdd,
     saveDeviceAction,
+    deleteDeleteAction = undefined,
   } = $props<{
     device: IEditDeviceDto,
     isAdd: boolean,
     saveDeviceAction: (device :IEditDeviceDto) => void,
+    deleteDeleteAction?: (device :IEditDeviceDto) => void,
   }>()
 
-  let showDefunctReason = $state(false);
+  let showDefunctReason = $state(isAdd || false);
   const setShowDefunctReason = () => showDefunctReason = true;
 
   let deviceStatusText = $derived(device.defunctreason === "None" ? "Usuable" : device.defunctreason);
 
   const saveButtonClick = () => saveDeviceAction(device);
+  const deleteButtonClick = () => deleteDeleteAction(device);
 </script>
 <TextInput labelText="Device Name" bind:value={device.name} />
 <br />
@@ -47,3 +50,6 @@
 <br />
 <br />
 <Button onclick={saveButtonClick}>Save</Button>
+{#if deleteDeleteAction !== undefined}
+  <Button onclick={deleteButtonClick}>Delete</Button>
+{/if}

@@ -22,6 +22,10 @@
     }
   });
 
+  const gotoPropertyList = () => {
+    goto("/devices/listinproperty");
+  };
+
   const saveDeviceActionAsync = async (changedDevice: IEditDeviceDto) => {
     try {
       await backendClient.pb.collection("devices").update(changedDevice.id, {
@@ -30,14 +34,19 @@
         identifier: changedDevice.identifier,
         defunctreason: changedDevice.defunctreason,
       });
-      goto("/devices/listinproperty");
+      gotoPropertyList();
     } catch (ex) {
       alert(ex)
     }
   };
 
-  const gotoPropertyList = () => {
-    goto("/devices/listinproperty");
+  const deleteDeviceActionAsync = async (device: IEditDeviceDto) => {
+    try {
+      await backendClient.pb.collection("devices").delete(device.id);
+      gotoPropertyList();
+    } catch (ex) {
+      alert(ex)
+    }
   };
 </script>
 
@@ -53,6 +62,7 @@
       device={device}
       isAdd={false}
       saveDeviceAction={saveDeviceActionAsync}
+      deleteDeleteAction={deleteDeviceActionAsync}
     />
   {/if}
 {:catch error}
