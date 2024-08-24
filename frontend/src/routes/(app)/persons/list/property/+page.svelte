@@ -39,9 +39,14 @@
 const gotoPropertyList = () => {
 	goto("/properties/list");
 };
+
+const gotoAddNewProperty = () => {
+	goto("/persons/add");
+};
 </script>
 
 <Button onclick={gotoPropertyList}>Back</Button>
+<Button onclick={gotoAddNewProperty}>Add New Person</Button>
 
 {#await personListAsync}
 <Tile>...getting persons</Tile>

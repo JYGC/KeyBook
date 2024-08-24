@@ -14,15 +14,15 @@
     try {
       return await backendClient.pb.collection("devices").getOne<IEditDeviceDto>(
         deviceContext.selectedDeviceId,
-        { fields: "id,type,name,identifier,defunctreason,property" }
-      )
+        { fields: "id,type,name,identifier,defunctreason,property" },
+      );
     } catch (ex) {
       alert(ex);
       return null;
     }
   });
 
-  const gotoPropertyList = () => {
+  const gotoPropertyDeviceList = () => {
     goto("/devices/list/property");
   };
 
@@ -34,23 +34,23 @@
         identifier: changedDevice.identifier,
         defunctreason: changedDevice.defunctreason,
       });
-      gotoPropertyList();
+      gotoPropertyDeviceList();
     } catch (ex) {
-      alert(ex)
+      alert(ex);
     }
   };
 
   const deleteDeviceActionAsync = async (device: IEditDeviceDto) => {
     try {
       await backendClient.pb.collection("devices").delete(device.id);
-      gotoPropertyList();
+      gotoPropertyDeviceList();
     } catch (ex) {
-      alert(ex)
+      alert(ex);
     }
   };
 </script>
 
-<Button onclick={gotoPropertyList}>Back</Button>
+<Button onclick={gotoPropertyDeviceList}>Back</Button>
 
 {#await deviceAsync}
   <Tile>...getting device details</Tile>
@@ -62,7 +62,7 @@
       device={device}
       isAdd={false}
       saveDeviceAction={saveDeviceActionAsync}
-      deleteDeleteAction={deleteDeviceActionAsync}
+      deleteDeviceAction={deleteDeviceActionAsync}
     />
   {/if}
 {:catch error}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from "$app/navigation";
 	import type { IPersonListItemDto } from "$lib/dtos/person-dtos";
 	import { Button, DataTable } from "carbon-components-svelte";
   
@@ -14,6 +15,7 @@
 
   const gotoPersonDetails = (personId: string) => {
     selectedPersonId = personId;
+    goto("/persons/edit");
   };
 </script>
 <DataTable

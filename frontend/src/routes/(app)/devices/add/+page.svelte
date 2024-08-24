@@ -8,9 +8,9 @@
 
   const propertyContext = getPropertyContext();
 
-const gotoPropertyList = () => {
-  goto("/devices/list/property");
-}
+  const gotoPropertyList = () => {
+    goto("/devices/list/property");
+  }
 
   const saveDeviceActionAsync = async (changedDevice: IEditDeviceDto) => {
     try {
@@ -23,6 +23,7 @@ const gotoPropertyList = () => {
     }
   };
 </script>
+
 <Button onclick={gotoPropertyList}>Back</Button>
 <DeviceEdit
   device={{} as IEditDeviceDto}
