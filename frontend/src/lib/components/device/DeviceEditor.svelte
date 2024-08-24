@@ -41,11 +41,11 @@
 {/if}
 <br />
 <Select labelText="Device Type" bind:selected={device.type} disabled={!isAdd}>
-  <SelectItem value="Fob" />
   <SelectItem value="Key" />
-  <SelectItem value="Remote" />
   <SelectItem value="RoomKey" />
   <SelectItem value="MailboxKey" />
+  <SelectItem value="Fob" />
+  <SelectItem value="Remote" />
 </Select>
 <br />
 <br />
