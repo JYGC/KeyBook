@@ -9,7 +9,7 @@
   const propertyContext = getPropertyContext();
 
 const gotoPropertyList = () => {
-  goto("/devices/listinproperty");
+  goto("/devices/list/property");
 }
 
   const saveDeviceActionAsync = async (changedDevice: IEditDeviceDto) => {

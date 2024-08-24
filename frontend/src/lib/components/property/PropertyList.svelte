@@ -13,11 +13,11 @@
 
   const goToDevicesOfProperty = (propertyId: string) => {
     selectedPropertyId = propertyId;
-    goto("/devices/listinproperty");
+    goto("/devices/list/property");
   };
   const goToPersonsOfProperty = (propertyId: string) => {
     selectedPropertyId = propertyId;
-    goto("/persons/listinproperty");
+    goto("/persons/list/property");
   };
 </script>
   <DataTable
