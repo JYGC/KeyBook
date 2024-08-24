@@ -29,11 +29,15 @@
   const gotoImportCsvDate = () => {
     goto("/importdata/csv1");
   };
+
+  const gotoAddProperty = () => {
+    goto("/properties/add");
+  };
 </script>
 
 <OverflowMenu size="xl" style="width: auto;">
   <div slot="menu">
-    <Button>Add Property</Button>
+    <Button onclick={gotoAddProperty}>Add Property</Button>
   </div>
   <OverflowMenuItem text="Add One Property" />
   <OverflowMenuItem onclick={gotoImportCsvDate} text="Add via CSV" />

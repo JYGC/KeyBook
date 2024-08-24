@@ -19,6 +19,10 @@
     selectedPropertyId = propertyId;
     goto("/persons/list/property");
   };
+  const goToEditProperty = (propertyId: string) => {
+    selectedPropertyId = propertyId;
+    goto("/properties/edit");
+  };
 </script>
   <DataTable
     headers={[
@@ -33,6 +37,7 @@
         <ButtonSet>
           <Button onclick={() => goToDevicesOfProperty(cell.value)}>View Devices</Button>
           <Button onclick={() => goToPersonsOfProperty(cell.value)}>View Persons</Button>
+          <Button onclick={() => goToEditProperty(cell.value)}>Edit</Button>
         </ButtonSet>
       {:else}
         {cell.value}
