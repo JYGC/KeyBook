@@ -37,9 +37,9 @@
 
 <OverflowMenu size="xl" style="width: auto;">
   <div slot="menu">
-    <Button onclick={gotoAddProperty}>Add Property</Button>
+    <Button>Add Property</Button>
   </div>
-  <OverflowMenuItem text="Add One Property" />
+  <OverflowMenuItem onclick={gotoAddProperty} text="Add One Property" />
   <OverflowMenuItem onclick={gotoImportCsvDate} text="Add via CSV" />
 </OverflowMenu>
 {#await propertyListAsync}
