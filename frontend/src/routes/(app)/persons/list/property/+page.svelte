@@ -4,7 +4,7 @@
 	import PersonList from "$lib/components/person/PersonList.svelte";
 	import { getPersonContext } from "$lib/contexts/person-context.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
-	import type { IPersonListItemDto } from "$lib/dtos/person-dtos";
+	import type { IPersonIdNameTypeModel } from "$lib/dtos/person-dtos";
 	import { Button, Tile } from "carbon-components-svelte";
 
 	const propertyContext = getPropertyContext();
@@ -19,9 +19,9 @@
 
   const backendClient = new BackendClient();
 
-	let personListAsync = $derived.by<Promise<IPersonListItemDto[]>>(async () => {
+	let personListAsync = $derived.by<Promise<IPersonIdNameTypeModel[]>>(async () => {
 		try {
-			const response = await backendClient.pb.collection("persons").getList<IPersonListItemDto>(
+			const response = await backendClient.pb.collection("persons").getList<IPersonIdNameTypeModel>(
 				1,
 				50,
 				{

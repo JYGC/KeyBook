@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import { BackendClient } from "$lib/api/backend-client";
-	import DeviceEdit from "$lib/components/device/DeviceEditor.svelte";
+	import DeviceEditor from "$lib/components/device/DeviceEditor.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
 	import { type IEditDeviceDto } from "$lib/dtos/device-dtos";
 	import { Button } from "carbon-components-svelte";
@@ -25,7 +25,7 @@
 </script>
 
 <Button onclick={gotoPropertyList}>Back</Button>
-<DeviceEdit
+<DeviceEditor
   device={{} as IEditDeviceDto}
   isAdd={true}
   saveDeviceAction={saveDeviceActionAsync}

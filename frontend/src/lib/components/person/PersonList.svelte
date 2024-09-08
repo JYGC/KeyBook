@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import type { IPersonListItemDto } from "$lib/dtos/person-dtos";
+	import type { IPersonIdNameTypeModel } from "$lib/dtos/person-dtos";
 	import { Button, DataTable } from "carbon-components-svelte";
   
   let {
@@ -8,7 +8,7 @@
     propertyId,
     selectedPersonId = $bindable(),
   } = $props<{
-    personList: IPersonListItemDto[],
+    personList: IPersonIdNameTypeModel[],
     propertyId: string,
     selectedPersonId: string,
   }>();

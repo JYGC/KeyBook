@@ -1,55 +1,64 @@
 <script lang="ts">
-	import type { IEditDeviceDto } from "$lib/dtos/device-dtos";
-	import { Button, ClickableTile, Select, SelectItem, TextInput } from "carbon-components-svelte";
+	import type { IDeviceEditorModule } from "$lib/interfaces";
+	import { Button, ClickableTile, Select, SelectItem, TextInput, Tile } from "carbon-components-svelte";
+	import type { Snippet } from "svelte";
 
-  let { 
-    device,
-    isAdd,
-    saveDeviceAction,
-    deleteDeviceAction = undefined,
+  let {
+    children,
+    deviceEditorModule = $bindable(),
   } = $props<{
-    device: IEditDeviceDto,
-    isAdd: boolean,
-    saveDeviceAction: (device: IEditDeviceDto) => void,
-    deleteDeviceAction?: (device: IEditDeviceDto) => void,
+    children?: Snippet,
+    deviceEditorModule: IDeviceEditorModule,
   }>();
 
-  let showDefunctReason = $state(isAdd || false);
+  let showDefunctReason = $state(deviceEditorModule.isAdd);
   const setShowDefunctReason = () => showDefunctReason = true;
 
-  let deviceStatusText = $derived(device.defunctreason === "None" ? "Usuable" : device.defunctreason);
-
-  const saveButtonClick = () => saveDeviceAction(device);
-  const deleteButtonClick = () => deleteDeviceAction(device);
+  const saveButtonClick = deviceEditorModule.getSaveDeviceAction();
+  const deleteButtonClick = deviceEditorModule.getDeleteDeviceAction();
 </script>
-<TextInput labelText="Device Name" bind:value={device.name} />
-<br />
-<TextInput labelText="Device Identifier" bind:value={device.identifier} />
-<br />
-{#if showDefunctReason}
-  <Select labelText="Device Defunct Reason" bind:selected={device.defunctreason}>
-    <SelectItem value="None" />
-    <SelectItem value="Lost" />
-    <SelectItem value="Damaged" />
-    <SelectItem value="Retired" />
-    <SelectItem value="Stolen" />
-  </Select>
-{:else}
-  <ClickableTile onclick={setShowDefunctReason}>
-    Device status: {deviceStatusText} - Change
-  </ClickableTile>
-{/if}
-<br />
-<Select labelText="Device Type" bind:selected={device.type} disabled={!isAdd}>
-  <SelectItem value="Key" />
-  <SelectItem value="RoomKey" />
-  <SelectItem value="MailboxKey" />
-  <SelectItem value="Fob" />
-  <SelectItem value="Remote" />
-</Select>
-<br />
-<br />
-<Button onclick={saveButtonClick}>Save</Button>
-{#if deleteDeviceAction !== undefined}
-  <Button onclick={deleteButtonClick}>Delete</Button>
-{/if}
+{#await deviceEditorModule.deviceAsync}
+  <Tile>...getting device details</Tile>
+{:then device}
+  {#if device === null}
+    {deviceEditorModule.callBackAction()}
+  {:else}
+    <TextInput labelText="Device Name" bind:value={device.name} />
+    <br />
+    <TextInput labelText="Device Identifier" bind:value={device.identifier} />
+    <br />
+    {#if showDefunctReason}
+      <Select labelText="Device Defunct Reason" bind:selected={device.defunctreason}>
+        <SelectItem value="None" />
+        <SelectItem value="Lost" />
+        <SelectItem value="Damaged" />
+        <SelectItem value="Retired" />
+        <SelectItem value="Stolen" />
+      </Select>
+    {:else}
+    {#await deviceEditorModule.deviceStatusTextAsync then deviceStatusText}
+      <ClickableTile onclick={setShowDefunctReason}>
+        Device status: {deviceStatusText} - Change
+      </ClickableTile>
+    {/await}
+    {/if}
+    <br />
+    {#if children !== undefined}
+      {@render children()}
+      <br />
+    {/if}
+    <Select labelText="Device Type" bind:selected={device.type} disabled={!deviceEditorModule.isAdd}>
+      <SelectItem value="Key" />
+      <SelectItem value="RoomKey" />
+      <SelectItem value="MailboxKey" />
+      <SelectItem value="Fob" />
+      <SelectItem value="Remote" />
+    </Select>
+    <br />
+    <br />
+    <Button onclick={() => saveButtonClick(device)}>Save</Button>
+    {#if deleteButtonClick !== null}
+      <Button onclick={() => deleteButtonClick(device)}>Delete</Button>
+    {/if}
+  {/if}
+{/await}
