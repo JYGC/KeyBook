@@ -18,7 +18,7 @@
     goto("/devices/list/property");
   };
 
-  const deviceEditorModule = new DeviceUpdateEditorModule(
+  const deviceUpdateEditorModule = new DeviceUpdateEditorModule(
     backendClient,
     deviceContext,
     gotoPropertyDeviceList,
@@ -26,13 +26,13 @@
 
   const deviceHolderEditorModule = new DeviceHolderEditorModule(
     backendClient,
-    deviceEditorModule,
+    deviceUpdateEditorModule,
     propertyContext,
   );
 </script>
 
 <Button onclick={gotoPropertyDeviceList}>Back</Button>
 
-<DeviceEditor deviceEditorModule={deviceEditorModule}>
+<DeviceEditor deviceEditorModule={deviceUpdateEditorModule}>
   <DeviceHolderEditor deviceHolderEditorModule={deviceHolderEditorModule} />
 </DeviceEditor>

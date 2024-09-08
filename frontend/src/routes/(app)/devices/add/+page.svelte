@@ -3,30 +3,23 @@
 	import { BackendClient } from "$lib/api/backend-client";
 	import DeviceEditor from "$lib/components/device/DeviceEditor.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
-	import { type IEditDeviceDto } from "$lib/dtos/device-dtos";
+	import { DeviceAddEditorModule } from "$lib/modules/device/device-add-editor-module.svelte";
 	import { Button } from "carbon-components-svelte";
 
   const propertyContext = getPropertyContext();
+
+  const backendClient = new BackendClient();
 
   const gotoPropertyList = () => {
     goto("/devices/list/property");
   }
 
-  const saveDeviceActionAsync = async (changedDevice: IEditDeviceDto) => {
-    try {
-      const backendClient = new BackendClient();
-      changedDevice.property = propertyContext.selectedPropertyId;
-      await backendClient.pb.collection("devices").create<IEditDeviceDto>(changedDevice);
-      gotoPropertyList();
-    } catch (ex) {
-      alert(ex);
-    }
-  };
+  const deviceAddEditorModule = new DeviceAddEditorModule(
+    backendClient,
+    propertyContext,
+    gotoPropertyList,
+  );
 </script>
 
 <Button onclick={gotoPropertyList}>Back</Button>
-<DeviceEditor
-  device={{} as IEditDeviceDto}
-  isAdd={true}
-  saveDeviceAction={saveDeviceActionAsync}
-/>
+<DeviceEditor deviceEditorModule={deviceAddEditorModule} />
