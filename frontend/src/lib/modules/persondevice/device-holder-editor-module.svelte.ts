@@ -44,7 +44,7 @@ export class DeviceHolderEditorModule implements IDeviceHolderEditorModule {
     }
   });
 
-  public replaceDeviceHolderActionAsync = async (selectedDeviceHolderId: string) => {
+  public replaceDeviceHolderActionAsync = async () => {
     try {
       const deviceId = (await this.__deviceEditorModule.deviceAsync)?.id;
       if (deviceId === undefined) {
@@ -55,9 +55,9 @@ export class DeviceHolderEditorModule implements IDeviceHolderEditorModule {
         await this.__backendClient.pb.collection("persondevices").delete(personDeviceId);
       }
 
-      if (selectedDeviceHolderId !== "") {
+      if (this.selectedDeviceHolderId !== "") {
         await this.__backendClient.pb.collection("persondevices").create<IPersonDeviceModel>({
-          person: selectedDeviceHolderId,
+          person: this.selectedDeviceHolderId,
           device: deviceId,
         });
       }
@@ -67,6 +67,10 @@ export class DeviceHolderEditorModule implements IDeviceHolderEditorModule {
       alert(ex);
     }
   };
+
+  public currentDeviceHolderNameAsync = $derived.by<Promise<string>>(async () => (await this.personDeviceExpandPersonDevicePersonAsync)?.expand.person.name ?? "");
+
+  public selectedDeviceHolderId = $state<string>("");
 
   constructor(
     backendClient: IBackendClient,
@@ -78,5 +82,10 @@ export class DeviceHolderEditorModule implements IDeviceHolderEditorModule {
     this.__propertyContext = propertyContext;
 
     this.personDeviceExpandPersonDevicePersonAsync = this.__getPersonDeviceExpandPersonDevicePersonAsync();
+
+    this.personDeviceExpandPersonDevicePersonAsync
+      .then((personDeviceExpandPersonDevicePerson: IPersonDeviceExpandPersonDevicePersonEditModel | null) => {
+        this.selectedDeviceHolderId = personDeviceExpandPersonDevicePerson?.expand.person.id ?? "";
+      });
   }
 }

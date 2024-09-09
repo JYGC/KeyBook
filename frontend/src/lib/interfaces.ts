@@ -39,7 +39,9 @@ export interface IDeviceHolderEditorModule {
   personDeviceExpandPersonDevicePersonAsync:
     Promise<IPersonDeviceExpandPersonDevicePersonEditModel | null>;
   availablePersonsAsync: Promise<IPersonIdNameTypeModel[]>;
-  replaceDeviceHolderActionAsync: (selectedDeviceHolderId: string) => void;
+  replaceDeviceHolderActionAsync: () => void;
+  currentDeviceHolderNameAsync: Promise<string>;
+  selectedDeviceHolderId: string;
 }
 
 export interface IUploadCsvApi {

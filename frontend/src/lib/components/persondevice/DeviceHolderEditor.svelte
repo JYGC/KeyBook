@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "$lib/dtos/person-dtos";
 	import type { IDeviceHolderEditorModule } from "$lib/interfaces";
 	import { ClickableTile, Modal, Select, SelectItem } from "carbon-components-svelte";
 
@@ -8,22 +7,13 @@
   let isChangeDeviceHolderModalOpen = $state<boolean>(false);
   
   const onSubmitClick = () => {
-    deviceHolderEditorModule.replaceDeviceHolderActionAsync(selectedDeviceHolderId);
+    deviceHolderEditorModule.replaceDeviceHolderActionAsync();
     isChangeDeviceHolderModalOpen = false;
   };
-
-  let selectedDeviceHolderId = $state<string>("");
-
-  deviceHolderEditorModule.personDeviceExpandPersonDevicePersonAsync
-    .then((personDeviceExpandPersonDevicePerson: IPersonDeviceExpandPersonDevicePersonEditModel | null) => {
-      selectedDeviceHolderId = personDeviceExpandPersonDevicePerson?.expand.person.id ?? "";
-    });
-
-  let currentDeviceHolderNameAsync = $derived.by<Promise<string>>(async () => (await deviceHolderEditorModule.personDeviceExpandPersonDevicePersonAsync)?.expand.person.name ?? "");
 </script>
 
 <ClickableTile onclick={() => isChangeDeviceHolderModalOpen = true}>
-  {#await currentDeviceHolderNameAsync then currentDeviceHolderName}
+  {#await deviceHolderEditorModule.currentDeviceHolderNameAsync then currentDeviceHolderName}
     {#if currentDeviceHolderName === ""}
       No one is currently holding this device
     {:else}
@@ -42,7 +32,7 @@
 >
   <Select
     labelText="Current Device Holder"
-    bind:selected={selectedDeviceHolderId}
+    bind:selected={deviceHolderEditorModule.selectedDeviceHolderId}
   >
     <SelectItem value="" text="-- No holder --" />
     {#await deviceHolderEditorModule.availablePersonsAsync then availablePersons}
