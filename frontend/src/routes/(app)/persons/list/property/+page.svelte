@@ -4,7 +4,7 @@
 	import PersonList from "$lib/components/person/PersonList.svelte";
 	import { getPersonContext } from "$lib/contexts/person-context.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
-	import type { IPersonIdNameTypeModel } from "$lib/dtos/person-dtos";
+	import type { IPersonIdNameTypeModel } from "$lib/dtos/person-models";
 	import { Button, Tile } from "carbon-components-svelte";
 
 	const propertyContext = getPropertyContext();

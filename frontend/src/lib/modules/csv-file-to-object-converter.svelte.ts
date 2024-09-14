@@ -1,4 +1,4 @@
-import type { AddDeviceAndHistoriesModel, AddPropertyDeviceAndHistoriesModel } from "$lib/dtos/data-import-dtos";
+import type { AddDeviceAndHistoriesModel, AddPropertyDeviceAndHistoriesModel } from "$lib/dtos/data-import-models";
 import type { ICsvFileToObjectConverter } from "$lib/interfaces";
 
 export class CsvFileToObjectConverter implements ICsvFileToObjectConverter {  

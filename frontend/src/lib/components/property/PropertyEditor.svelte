@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { IEditPropertyModel } from "$lib/dtos/property-dtos";
+	import type { IEditPropertyModel } from "$lib/dtos/property-models";
 	import { Button, TextInput } from "carbon-components-svelte";
 
   let { 

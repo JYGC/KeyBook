@@ -3,7 +3,7 @@
 	import { BackendClient } from "$lib/api/backend-client";
 	import PropertyEditor from "$lib/components/property/PropertyEditor.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
-	import type { IEditPropertyModel } from "$lib/dtos/property-dtos";
+	import type { IEditPropertyModel } from "$lib/dtos/property-models";
 	import { Button, Tile } from "carbon-components-svelte";
 
   const propertyContext = getPropertyContext();

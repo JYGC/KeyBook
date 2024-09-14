@@ -2,7 +2,7 @@
   import DevlceList from '$lib/components/device/DevlceList.svelte';
   import { BackendClient } from '$lib/api/backend-client';
 	import { getPropertyContext } from '$lib/contexts/property-context.svelte';
-	import type { IDeviceListItemModel } from '$lib/dtos/device-dtos';
+	import type { IDeviceListItemModel } from '$lib/dtos/device-models';
 	import { getDeviceContext } from '$lib/contexts/device-context.svelte';
 	import { goto } from '$app/navigation';
 	import { Button, Tile } from 'carbon-components-svelte';

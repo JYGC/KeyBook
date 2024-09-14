@@ -1,5 +1,5 @@
 import type { DeviceContext } from "$lib/contexts/device-context.svelte";
-import type { IEditDeviceModel } from "$lib/dtos/device-dtos";
+import type { IEditDeviceModel } from "$lib/dtos/device-models";
 import type { IBackendClient, IDeviceEditorModule } from "$lib/interfaces";
 
 export class DeviceUpdateEditorModule implements IDeviceEditorModule {

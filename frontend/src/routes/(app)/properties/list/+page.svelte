@@ -3,7 +3,7 @@
 	import { BackendClient } from "$lib/api/backend-client";
   import PropertyList from "$lib/components/property/PropertyList.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
-	import type { IPropertyListItemModel } from "$lib/dtos/property-dtos";
+	import type { IPropertyListItemModel } from "$lib/dtos/property-models";
 	import { Button, OverflowMenu, OverflowMenuItem, Tile } from "carbon-components-svelte";
 
   const backendClient = new BackendClient();

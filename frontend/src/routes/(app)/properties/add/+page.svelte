@@ -2,7 +2,7 @@
 	import { goto } from "$app/navigation";
 	import { BackendClient } from "$lib/api/backend-client";
 	import PropertyEditor from "$lib/components/property/PropertyEditor.svelte";
-	import type { IEditPropertyModel } from "$lib/dtos/property-dtos";
+	import type { IEditPropertyModel } from "$lib/dtos/property-models";
 	import { Button } from "carbon-components-svelte";
 
   const gotoPropertyList = () => {

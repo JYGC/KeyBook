@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import type { IPersonIdNameTypeModel } from "$lib/dtos/person-dtos";
+	import type { IPersonIdNameTypeModel } from "$lib/dtos/person-models";
 	import { Button, DataTable } from "carbon-components-svelte";
   
   let {
