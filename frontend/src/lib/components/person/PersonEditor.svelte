@@ -26,6 +26,7 @@
   <Select labelText="Person Type" bind:selected={person.type}>
     <SelectItem value="Tenant" />
     <SelectItem value="Agent" />
+    <SelectItem value="Household" />
     <SelectItem value="Owner" />
   </Select>
 {:else}
