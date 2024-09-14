@@ -1,9 +1,9 @@
-export interface IPropertyListItemDto {
+export interface IPropertyListItemModel {
   id: string;
   address: string;
 }
 
-export interface IEditPropertyDto {
+export interface IEditPropertyModel {
   id: string;
   address: string;
   owners: Array<string>;

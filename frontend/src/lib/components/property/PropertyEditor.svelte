@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { IEditPropertyDto } from "$lib/dtos/property-dtos";
+	import type { IEditPropertyModel } from "$lib/dtos/property-dtos";
 	import { Button, TextInput } from "carbon-components-svelte";
 
   let { 
@@ -8,10 +8,10 @@
     savePropertyAction,
     deletePropertyAction = undefined,
   } = $props<{
-    property: IEditPropertyDto,
+    property: IEditPropertyModel,
     isAdd: boolean,
-    savePropertyAction: (property: IEditPropertyDto) => void,
-    deletePropertyAction?: (property: IEditPropertyDto) => void,
+    savePropertyAction: (property: IEditPropertyModel) => void,
+    deletePropertyAction?: (property: IEditPropertyModel) => void,
   }>();
 
 const saveButtonClick = () => savePropertyAction(property);

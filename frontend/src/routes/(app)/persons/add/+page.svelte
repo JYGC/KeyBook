@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type IEditPersonDto } from '$lib/dtos/person-dtos';
+	import { type IEditPersonModel } from '$lib/dtos/person-dtos';
 	import { goto } from "$app/navigation";
 	import PersonEditor from "$lib/components/person/PersonEditor.svelte";
 	import { Button } from "carbon-components-svelte";
@@ -12,11 +12,11 @@
     goto("/persons/list/property");
   };
 
-  const saveDeviceActionAsync = async (changedPerson: IEditPersonDto) => {
+  const saveDeviceActionAsync = async (changedPerson: IEditPersonModel) => {
     try {
       const backendClient = new BackendClient();
       changedPerson.property = propertyContext.selectedPropertyId;
-      await backendClient.pb.collection("persons").create<IEditPersonDto>(changedPerson);
+      await backendClient.pb.collection("persons").create<IEditPersonModel>(changedPerson);
       gotoPropertyPersonList();
     } catch (ex) {
       alert(ex);
@@ -26,7 +26,7 @@
 
 <Button onclick={gotoPropertyPersonList}>Back</Button>
 <PersonEditor
-  person={{} as IEditPersonDto}
+  person={{} as IEditPersonModel}
   isAdd={true}
   savePersonAction={saveDeviceActionAsync}
 />

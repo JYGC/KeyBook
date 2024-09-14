@@ -3,16 +3,16 @@
 	import { BackendClient } from "$lib/api/backend-client";
 	import PropertyEditor from "$lib/components/property/PropertyEditor.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
-	import type { IEditPropertyDto } from "$lib/dtos/property-dtos";
+	import type { IEditPropertyModel } from "$lib/dtos/property-dtos";
 	import { Button, Tile } from "carbon-components-svelte";
 
   const propertyContext = getPropertyContext();
 
   const backendClient = new BackendClient();
 
-  let propertyAsync = $derived.by<Promise<IEditPropertyDto | null>>(async () => {
+  let propertyAsync = $derived.by<Promise<IEditPropertyModel | null>>(async () => {
     try {
-      return await backendClient.pb.collection("properties").getOne<IEditPropertyDto>(
+      return await backendClient.pb.collection("properties").getOne<IEditPropertyModel>(
         propertyContext.selectedPropertyId,
         { fields: "id,address,owners,managers" },
       );
@@ -26,7 +26,7 @@
     goto("/properties/list");
   }
 
-  const savePropertiesActionAsync = async (changedProperty: IEditPropertyDto) => {
+  const savePropertiesActionAsync = async (changedProperty: IEditPropertyModel) => {
     try {
       await backendClient.pb.collection("properties").update(changedProperty.id, {
         address: changedProperty.address,
@@ -39,7 +39,7 @@
     }
   };
 
-  const deletePersonActionAsync = async (property: IEditPropertyDto) => {
+  const deletePersonActionAsync = async (property: IEditPropertyModel) => {
     try {
       await backendClient.pb.collection("properties").delete(property.id);
       gotoPropertyList();

@@ -1,4 +1,4 @@
-export interface IEditPersonDto {
+export interface IEditPersonModel {
   id: string;
   type: string;
   name: string;

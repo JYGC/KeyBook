@@ -1,4 +1,4 @@
-export interface AddDeviceAndHistoriesDTO {
+export interface AddDeviceAndHistoriesModel {
   Name: string;
   Identifier: string;
   Type: string;
@@ -12,12 +12,12 @@ export interface AddDeviceAndHistoriesDTO {
   }[]
 }
 
-export interface AddPropertyDeviceAndHistoriesDTO {
+export interface AddPropertyDeviceAndHistoriesModel {
   PropertyAddress: string;
-  DevicesPersonDevicesAndHistories: AddDeviceAndHistoriesDTO[];
+  DevicesPersonDevicesAndHistories: AddDeviceAndHistoriesModel[];
 }
 
-export interface DeviceIdNameIdentifierAndTypeDTO {
+export interface DeviceIdNameIdentifierAndTypeModel {
   Name: string,
   Identifier: string,
   Type: string,

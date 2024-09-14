@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import type { IPropertyListItemDto } from "$lib/dtos/property-dtos";
+	import type { IPropertyListItemModel } from "$lib/dtos/property-dtos";
 	import { Button, ButtonSet, DataTable } from "carbon-components-svelte";
 
   let {
     propertyList,
     selectedPropertyId = $bindable(),
   } = $props<{
-    propertyList: IPropertyListItemDto[],
+    propertyList: IPropertyListItemModel[],
     selectedPropertyId: string,
   }>();
 

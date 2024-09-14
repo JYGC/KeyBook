@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { IEditPersonDto } from "$lib/dtos/person-dtos";
+	import type { IEditPersonModel } from "$lib/dtos/person-dtos";
   import { Button, ClickableTile, Select, SelectItem, TextInput } from "carbon-components-svelte";
 
   let { 
@@ -8,10 +8,10 @@
     savePersonAction,
     deletePersonAction = undefined,
   } = $props<{
-    person: IEditPersonDto,
+    person: IEditPersonModel,
     isAdd: boolean,
-    savePersonAction: (person: IEditPersonDto) => void,
-    deletePersonAction?: (person: IEditPersonDto) => void,
+    savePersonAction: (person: IEditPersonModel) => void,
+    deletePersonAction?: (person: IEditPersonModel) => void,
   }>();
 
   let allowEditingPersonType = $state(isAdd)

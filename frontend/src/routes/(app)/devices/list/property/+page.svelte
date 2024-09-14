@@ -2,7 +2,7 @@
   import DevlceList from '$lib/components/device/DevlceList.svelte';
   import { BackendClient } from '$lib/api/backend-client';
 	import { getPropertyContext } from '$lib/contexts/property-context.svelte';
-	import type { IDeviceListItemDto } from '$lib/dtos/device-dtos';
+	import type { IDeviceListItemModel } from '$lib/dtos/device-dtos';
 	import { getDeviceContext } from '$lib/contexts/device-context.svelte';
 	import { goto } from '$app/navigation';
 	import { Button, Tile } from 'carbon-components-svelte';
@@ -19,9 +19,9 @@
   
   const backendClient = new BackendClient();
 
-  let deviceListAsync = $derived.by<Promise<IDeviceListItemDto[]>>(async () => {
+  let deviceListAsync = $derived.by<Promise<IDeviceListItemModel[]>>(async () => {
     try {
-      const response = await backendClient.pb.collection("devices").getList<IDeviceListItemDto>(1, 50, {
+      const response = await backendClient.pb.collection("devices").getList<IDeviceListItemModel>(1, 50, {
         filter: `property.id = "${propertyContext.selectedPropertyId}"`,
         fields: "id,type,name,identifier",
       });

@@ -1,5 +1,5 @@
 import type { DeviceContext } from "$lib/contexts/device-context.svelte";
-import type { IEditDeviceDto } from "$lib/dtos/device-dtos";
+import type { IEditDeviceModel } from "$lib/dtos/device-dtos";
 import type { IBackendClient, IDeviceEditorModule } from "$lib/interfaces";
 
 export class DeviceUpdateEditorModule implements IDeviceEditorModule {
@@ -7,9 +7,9 @@ export class DeviceUpdateEditorModule implements IDeviceEditorModule {
   private readonly __deviceContext: DeviceContext;
   private readonly __backAction: () => void;
 
-  public deviceAsync = $derived.by<Promise<IEditDeviceDto | null>>(async () => {
+  public deviceAsync = $derived.by<Promise<IEditDeviceModel | null>>(async () => {
     try {
-      return await this.__backendClient.pb.collection("devices").getOne<IEditDeviceDto>(
+      return await this.__backendClient.pb.collection("devices").getOne<IEditDeviceModel>(
         this.__deviceContext.selectedDeviceId,
         { fields: "id,type,name,identifier,defunctreason,property" },
       );
@@ -26,7 +26,7 @@ export class DeviceUpdateEditorModule implements IDeviceEditorModule {
     return (device === null || device.defunctreason === "None") ? "Usable" : device.defunctreason;
   });
 
-  public getSaveDeviceAction = () => (async (changedDevice: IEditDeviceDto) => {
+  public getSaveDeviceAction = () => (async (changedDevice: IEditDeviceModel) => {
     try {
       await this.__backendClient.pb.collection("devices").update(changedDevice.id, {
         type: changedDevice.type,
@@ -40,7 +40,7 @@ export class DeviceUpdateEditorModule implements IDeviceEditorModule {
     }
   });
 
-  public getDeleteDeviceAction = () => (async (device: IEditDeviceDto) => {
+  public getDeleteDeviceAction = () => (async (device: IEditDeviceModel) => {
     try {
       await this.__backendClient.pb.collection("devices").delete(device.id);
       this.__backAction();

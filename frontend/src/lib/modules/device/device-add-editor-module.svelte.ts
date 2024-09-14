@@ -1,5 +1,5 @@
 import type { PropertyContext } from "$lib/contexts/property-context.svelte";
-import type { IEditDeviceDto } from "$lib/dtos/device-dtos";
+import type { IEditDeviceModel } from "$lib/dtos/device-dtos";
 import type { IBackendClient, IDeviceEditorModule } from "$lib/interfaces";
 
 export class DeviceAddEditorModule implements IDeviceEditorModule {
@@ -7,16 +7,16 @@ export class DeviceAddEditorModule implements IDeviceEditorModule {
   private readonly __propertyContext: PropertyContext;
   private readonly __backAction: () => void;
 
-  public deviceAsync = $state<Promise<IEditDeviceDto | null>>((async () => ({} as IEditDeviceDto))());
+  public deviceAsync = $state<Promise<IEditDeviceModel | null>>((async () => ({} as IEditDeviceModel))());
   
   get isAdd() { return true; }
   
   public deviceStatusTextAsync = (async () => "")();
 
-  public getSaveDeviceAction = () => (async (changedDevice: IEditDeviceDto) => {
+  public getSaveDeviceAction = () => (async (changedDevice: IEditDeviceModel) => {
     try {
       changedDevice.property = this.__propertyContext.selectedPropertyId;
-      await this.__backendClient.pb.collection("devices").create<IEditDeviceDto>(changedDevice);
+      await this.__backendClient.pb.collection("devices").create<IEditDeviceModel>(changedDevice);
       this.__backAction();
     } catch (ex) {
       alert(ex);

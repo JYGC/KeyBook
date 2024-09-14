@@ -1,8 +1,8 @@
-import type { AddDeviceAndHistoriesDTO, AddPropertyDeviceAndHistoriesDTO } from "$lib/dtos/data-import-dtos";
+import type { AddDeviceAndHistoriesModel, AddPropertyDeviceAndHistoriesModel } from "$lib/dtos/data-import-dtos";
 import type { ICsvFileToObjectConverter } from "$lib/interfaces";
 
 export class CsvFileToObjectConverter implements ICsvFileToObjectConverter {  
-  private convertCsvFileToObject = async (input: FileList | null): Promise<AddPropertyDeviceAndHistoriesDTO | null> => {
+  private convertCsvFileToObject = async (input: FileList | null): Promise<AddPropertyDeviceAndHistoriesModel | null> => {
     if (input === null) {
       return null;
     }
@@ -32,7 +32,7 @@ export class CsvFileToObjectConverter implements ICsvFileToObjectConverter {
   
       let deviceProcurementDate: Date | null = null;
   
-      const device: AddDeviceAndHistoriesDTO = {
+      const device: AddDeviceAndHistoriesModel = {
         Name: deviceLineSplit[0],
         Identifier: deviceLineSplit[1],
         Type: deviceLineSplit[2],
@@ -123,7 +123,7 @@ export class CsvFileToObjectConverter implements ICsvFileToObjectConverter {
   };
   
   public input = $state<FileList | null>(null);
-  public outputAsync = $derived<Promise<AddPropertyDeviceAndHistoriesDTO | null>>(this.convertCsvFileToObject(this.input));
+  public outputAsync = $derived<Promise<AddPropertyDeviceAndHistoriesModel | null>>(this.convertCsvFileToObject(this.input));
 
   constructor() { }
 }

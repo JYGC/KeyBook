@@ -1,6 +1,6 @@
 import PocketBase, { type AuthModel } from "pocketbase";
-import type { AddPropertyDeviceAndHistoriesDTO } from "./dtos/data-import-dtos";
-import type { IEditDeviceDto } from "./dtos/device-dtos";
+import type { AddPropertyDeviceAndHistoriesModel } from "./dtos/data-import-dtos";
+import type { IEditDeviceModel } from "./dtos/device-dtos";
 import type { IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "./dtos/person-dtos";
 
 export interface IBackendClient {
@@ -27,11 +27,11 @@ export interface IRegisterApi {
 }
 
 export interface IDeviceEditorModule {
-  deviceAsync: Promise<IEditDeviceDto | null>;
+  deviceAsync: Promise<IEditDeviceModel | null>;
   get isAdd(): boolean;
   deviceStatusTextAsync: Promise<string>;
-  getSaveDeviceAction: () => ((device: IEditDeviceDto) => void);
-  getDeleteDeviceAction: () => ((device: IEditDeviceDto) => void) | null;
+  getSaveDeviceAction: () => ((device: IEditDeviceModel) => void);
+  getDeleteDeviceAction: () => ((device: IEditDeviceModel) => void) | null;
   callBackAction: () => void;
 }
 
@@ -50,7 +50,7 @@ export interface IUploadCsvApi {
 
 export interface ICsvFileToObjectConverter {
   input: FileList | null;
-  outputAsync: Promise<AddPropertyDeviceAndHistoriesDTO | null>;
+  outputAsync: Promise<AddPropertyDeviceAndHistoriesModel | null>;
 }
 
 export interface IDeviceListDataService {

@@ -3,17 +3,17 @@
 	import { BackendClient } from "$lib/api/backend-client";
   import PropertyList from "$lib/components/property/PropertyList.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
-	import type { IPropertyListItemDto } from "$lib/dtos/property-dtos";
+	import type { IPropertyListItemModel } from "$lib/dtos/property-dtos";
 	import { Button, OverflowMenu, OverflowMenuItem, Tile } from "carbon-components-svelte";
 
   const backendClient = new BackendClient();
 
-  let propertyListAsync = $derived.by<Promise<IPropertyListItemDto[]>>(async () => {
+  let propertyListAsync = $derived.by<Promise<IPropertyListItemModel[]>>(async () => {
     try {
       if (backendClient.loggedInUser === null) {
         throw new Error("Cannot find loggedInUser.");
       }
-      const response = await backendClient.pb.collection("properties").getList<IPropertyListItemDto>(1, 50, {
+      const response = await backendClient.pb.collection("properties").getList<IPropertyListItemModel>(1, 50, {
         filter: `owners.id ?~ "${backendClient.loggedInUser.id}"`,
         fields: "id,address"
       });

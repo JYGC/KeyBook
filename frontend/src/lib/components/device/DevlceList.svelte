@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import type { IDeviceListItemDto } from "$lib/dtos/device-dtos";
+	import type { IDeviceListItemModel } from "$lib/dtos/device-dtos";
 	import { Button, DataTable } from "carbon-components-svelte";
   
   let {
@@ -8,7 +8,7 @@
     propertyId,
     selectedDeviceId = $bindable(),
   } = $props<{
-    deviceList: IDeviceListItemDto[],
+    deviceList: IDeviceListItemModel[],
     propertyId: string,
     selectedDeviceId: string,
   }>();
