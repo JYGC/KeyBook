@@ -1,6 +1,6 @@
 import type { PropertyContext } from "$lib/contexts/property-context.svelte";
-import type { IPersonDeviceModel } from "$lib/dtos/person-device-models";
-import type { IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "$lib/dtos/person-models";
+import type { IPersonDeviceModel } from "$lib/models/person-device-models";
+import type { IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "$lib/models/person-models";
 import type { IBackendClient, IDeviceEditorModule, IDeviceHolderEditorModule } from "$lib/interfaces";
 
 export class DeviceHolderEditorModule implements IDeviceHolderEditorModule {

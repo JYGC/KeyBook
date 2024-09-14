@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { IEditPersonModel } from "$lib/dtos/person-models";
+	import type { IEditPersonModel } from "$lib/models/person-models";
   import { Button, ClickableTile, Select, SelectItem, TextInput } from "carbon-components-svelte";
 
   let { 

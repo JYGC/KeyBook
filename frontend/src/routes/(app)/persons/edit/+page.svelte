@@ -3,7 +3,7 @@
 	import { BackendClient } from "$lib/api/backend-client";
 	import PersonEditor from "$lib/components/person/PersonEditor.svelte";
 	import { getPersonContext } from "$lib/contexts/person-context.svelte";
-	import type { IEditPersonModel } from "$lib/dtos/person-models";
+	import type { IEditPersonModel } from "$lib/models/person-models";
 	import { Button, Tile } from "carbon-components-svelte";
 
   const personContext = getPersonContext();

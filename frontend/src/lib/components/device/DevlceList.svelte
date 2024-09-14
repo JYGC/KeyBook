@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import type { IDeviceListItemModel } from "$lib/dtos/device-models";
+	import type { IDeviceListItemModel } from "$lib/models/device-models";
 	import { Button, DataTable } from "carbon-components-svelte";
   
   let {

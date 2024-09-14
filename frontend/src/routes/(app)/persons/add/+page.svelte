@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type IEditPersonModel } from '$lib/dtos/person-models';
+	import { type IEditPersonModel } from '$lib/models/person-models';
 	import { goto } from "$app/navigation";
 	import PersonEditor from "$lib/components/person/PersonEditor.svelte";
 	import { Button } from "carbon-components-svelte";
