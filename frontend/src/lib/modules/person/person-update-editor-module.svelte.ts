@@ -19,7 +19,7 @@ export class PersonUpdateEditorModule implements IPersonEditorModule {
     }
   });
 
-  public get isAdd(): boolean { return true; }
+  public get isAdd(): boolean { return false; }
 
   public getSavePersonAction = () => (async (changedPerson: IEditPersonModel) => {
     try {

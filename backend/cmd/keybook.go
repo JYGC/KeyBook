@@ -51,7 +51,7 @@ func startBackend() {
 
 	invokeErr := container.Invoke(func(
 		app *pocketbase.PocketBase,
-		deviceHandlers handlers.IDeviceHandlers,
+		deviceHandlers handlers.IDeviceHoldingHandlers,
 		dataImportHandlers handlers.IDataImportHandlers,
 	) {
 		app.OnBeforeServe().Add(func(e *core.ServeEvent) error {

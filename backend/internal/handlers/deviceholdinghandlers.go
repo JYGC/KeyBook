@@ -8,15 +8,15 @@ import (
 	"github.com/pocketbase/pocketbase/apis"
 )
 
-type IDeviceHandlers interface {
-	ImportCsv(context echo.Context) error
+type IDeviceHoldingHandlers interface {
+	ListDevicesHeld(context echo.Context) error
 }
 
-type DeviceHandlers struct {
+type DeviceHoldingHandlers struct {
 	dataImportServices services.IDataImportServices
 }
 
-func (d DeviceHandlers) ImportCsv(context echo.Context) error {
+func (d DeviceHoldingHandlers) ListDevicesHeld(context echo.Context) error {
 	loggedInUser := apis.RequestInfo(context).AuthRecord
 	csvContent := apis.RequestInfo(context).Data
 	csvContentJson, csvContentJsonErr := json.Marshal(csvContent)
@@ -28,12 +28,12 @@ func (d DeviceHandlers) ImportCsv(context echo.Context) error {
 	return nil
 }
 
-func NewDeviceHandlers(dataImportServices services.IDataImportServices) IDeviceHandlers {
-	deviceHandlers := DeviceHandlers{}
+func NewDeviceHandlers(dataImportServices services.IDataImportServices) IDeviceHoldingHandlers {
+	deviceHandlers := DeviceHoldingHandlers{}
 	deviceHandlers.dataImportServices = dataImportServices
 	return deviceHandlers
 }
 
-func RegisterDeviceHandlersToRouter(router *echo.Echo, deviceHandlers IDeviceHandlers) {
-	router.POST("/api/device/importcsv", deviceHandlers.ImportCsv)
+func RegisterDeviceHandlersToRouter(router *echo.Echo, deviceHandlers IDeviceHoldingHandlers) {
+	router.POST("/device/importcsv", deviceHandlers.ListDevicesHeld)
 }

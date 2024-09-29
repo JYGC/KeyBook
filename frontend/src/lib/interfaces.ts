@@ -1,6 +1,6 @@
 import PocketBase, { type AuthModel } from "pocketbase";
 import type { AddPropertyDeviceAndHistoriesModel } from "./models/data-import-models";
-import type { IEditDeviceModel } from "./models/device-models";
+import type { IDeviceListItemModel, IEditDeviceModel } from "./models/device-models";
 import type { IEditPersonModel, IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "./models/person-models";
 
 export interface IBackendClient {
@@ -50,6 +50,10 @@ export interface IDeviceHolderEditorModule {
   replaceDeviceHolderActionAsync: () => void;
   currentDeviceHolderNameAsync: Promise<string>;
   selectedDeviceHolderId: string;
+}
+
+export interface IDeviceHoldingListModule {
+  deviceHoldingListOfPersonAsync: Promise<IDeviceListItemModel[]>;
 }
 
 export interface IUploadCsvApi {

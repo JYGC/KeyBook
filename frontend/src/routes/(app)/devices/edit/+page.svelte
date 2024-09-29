@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from "$app/navigation";
 	import { BackendClient } from "$lib/api/backend-client";
 	import DeviceEditor from "$lib/components/device/DeviceEditor.svelte";
 	import DeviceHolderEditor from "$lib/components/persondevice/DeviceHolderEditor.svelte";
@@ -14,14 +13,14 @@
 
   const backendClient = new BackendClient();
 
-  const gotoPropertyDeviceList = () => {
-    goto("/devices/list/property");
+  const goBack = () => {
+    history.back();
   };
 
   const deviceUpdateEditorModule = new DeviceUpdateEditorModule(
     backendClient,
     deviceContext,
-    gotoPropertyDeviceList,
+    goBack,
   );
 
   const deviceHolderEditorModule = new DeviceHolderEditorModule(
@@ -31,7 +30,7 @@
   );
 </script>
 
-<Button onclick={gotoPropertyDeviceList}>Back</Button>
+<Button onclick={goBack}>Back</Button>
 
 <DeviceEditor deviceEditorModule={deviceUpdateEditorModule}>
   <DeviceHolderEditor deviceHolderEditorModule={deviceHolderEditorModule} />

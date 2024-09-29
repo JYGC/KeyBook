@@ -1,10 +1,13 @@
 <script lang="ts">
 	import type { IPersonEditorModule } from "$lib/interfaces";
   import { Button, ClickableTile, Select, SelectItem, TextInput, Tile } from "carbon-components-svelte";
+	import type { Snippet } from "svelte";
 
   let {
+    children,
     personEditorModule = $bindable(),
   } = $props<{
+    children?: Snippet,
     personEditorModule: IPersonEditorModule
   }>();
 
@@ -35,6 +38,10 @@
       </ClickableTile>
     {/if}
     <br />
+    {#if children !== undefined}
+      {@render children()}
+      <br />
+    {/if}
     <br />
     <Button onclick={() => saveButtonClick(person)}>Save</Button>
     {#if deleteButtonClick !== null}
