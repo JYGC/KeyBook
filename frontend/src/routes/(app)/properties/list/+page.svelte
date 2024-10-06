@@ -4,25 +4,12 @@
   import PropertyList from "$lib/components/property/PropertyList.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
 	import type { IPropertyListItemModel } from "$lib/models/property-models";
+	import { PropertyListModule } from "$lib/modules/property/property-list-module.svelte";
 	import { Button, OverflowMenu, OverflowMenuItem, Tile } from "carbon-components-svelte";
 
   const backendClient = new BackendClient();
 
-  let propertyListAsync = $derived.by<Promise<IPropertyListItemModel[]>>(async () => {
-    try {
-      if (backendClient.loggedInUser === null) {
-        throw new Error("Cannot find loggedInUser.");
-      }
-      const response = await backendClient.pb.collection("properties").getList<IPropertyListItemModel>(1, 50, {
-        filter: `owners.id ?~ "${backendClient.loggedInUser.id}"`,
-        fields: "id,address"
-      });
-      return response.items;
-    } catch (ex) {
-      alert(ex);
-      return [];
-    }
-  });
+  const propertyListModule = new PropertyListModule(backendClient);
 
   const selectedProperty = getPropertyContext();
 
@@ -42,13 +29,7 @@
   <OverflowMenuItem onclick={gotoAddProperty} text="Add One Property" />
   <OverflowMenuItem onclick={gotoImportCsvDate} text="Add via CSV" />
 </OverflowMenu>
-{#await propertyListAsync}
-<Tile>...getting properties</Tile>
-{:then propertyList}
-  <PropertyList
-    propertyList={propertyList}
-    bind:selectedPropertyId={selectedProperty.selectedPropertyId}
-  />
-{:catch error}
-  {error}
-{/await}
+<PropertyList
+propertyListModule={propertyListModule}
+  bind:selectedPropertyId={selectedProperty.selectedPropertyId}
+/>

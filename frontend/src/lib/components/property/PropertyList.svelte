@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import type { IPropertyListItemModel } from "$lib/models/property-models";
-	import { Button, ButtonSet, DataTable } from "carbon-components-svelte";
+	import type { IPropertyListModule } from "$lib/interfaces";
+	import { Button, ButtonSet, DataTable, Tile } from "carbon-components-svelte";
 
   let {
-    propertyList,
+    propertyListModule,
     selectedPropertyId = $bindable(),
   } = $props<{
-    propertyList: IPropertyListItemModel[],
+    propertyListModule: IPropertyListModule,
     selectedPropertyId: string,
   }>();
 
@@ -24,6 +24,9 @@
     goto("/properties/edit");
   };
 </script>
+{#await propertyListModule.propertyListAsync}
+<Tile>...getting properties</Tile>
+{:then propertyList}
   <DataTable
     headers={[
       { key: "address", value: "Property Address" },
@@ -44,3 +47,6 @@
       {/if}
     </svelte:fragment>
   </DataTable>
+{:catch error}
+  {error}
+{/await}

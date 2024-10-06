@@ -1,11 +1,11 @@
 <script lang="ts">
+	import { DeviceListModule } from '$lib/modules/device/device-list-module.svelte';
   import DevlceList from '$lib/components/device/DevlceList.svelte';
   import { BackendClient } from '$lib/api/backend-client';
 	import { getPropertyContext } from '$lib/contexts/property-context.svelte';
-	import type { IDeviceListItemModel } from '$lib/models/device-models';
 	import { getDeviceContext } from '$lib/contexts/device-context.svelte';
 	import { goto } from '$app/navigation';
-	import { Button, Tile } from 'carbon-components-svelte';
+	import { Button } from 'carbon-components-svelte';
 
   const propertyContext = getPropertyContext();
   if (
@@ -16,21 +16,9 @@
   }
 
   const deviceContext = getDeviceContext();
-  
-  const backendClient = new BackendClient();
 
-  let deviceListAsync = $derived.by<Promise<IDeviceListItemModel[]>>(async () => {
-    try {
-      const response = await backendClient.pb.collection("devices").getList<IDeviceListItemModel>(1, 50, {
-        filter: `property.id = "${propertyContext.selectedPropertyId}"`,
-        fields: "id,type,name,identifier",
-      });
-      return response.items;
-    } catch (ex) {
-      alert(ex);
-      return [];
-    }
-  });
+  const backendClient = new BackendClient();
+  const deviceListModule = new DeviceListModule(backendClient, propertyContext);
 
   const gotoPropertyList = () => {
     goto("/properties/list");
@@ -44,14 +32,8 @@ const gotoAddNewDevice = () => {
 <Button onclick={gotoPropertyList}>Back</Button>
 <Button onclick={gotoAddNewDevice}>Add New Device</Button>
 
-{#await deviceListAsync}
-<Tile>...getting devices</Tile>
-{:then deviceList}
-  <DevlceList
-    deviceList={deviceList}
-    propertyId={propertyContext.selectedPropertyId}
-    bind:selectedDeviceId={deviceContext.selectedDeviceId}
-  />
-{:catch error}
-  {error}
-{/await}
+<DevlceList
+  deviceListModule={deviceListModule}
+  propertyId={propertyContext.selectedPropertyId}
+  bind:selectedDeviceId={deviceContext.selectedDeviceId}
+/>

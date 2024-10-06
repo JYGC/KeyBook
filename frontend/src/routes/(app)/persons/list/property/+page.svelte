@@ -4,8 +4,8 @@
 	import PersonList from "$lib/components/person/PersonList.svelte";
 	import { getPersonContext } from "$lib/contexts/person-context.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
-	import type { IPersonIdNameTypeModel } from "$lib/models/person-models";
-	import { Button, Tile } from "carbon-components-svelte";
+	import { PersonListModule } from "$lib/modules/person/person-list-module.svelte";
+	import { Button } from "carbon-components-svelte";
 
 	const propertyContext = getPropertyContext();
   if (
@@ -18,23 +18,7 @@
 	const personContext = getPersonContext();
 
   const backendClient = new BackendClient();
-
-	let personListAsync = $derived.by<Promise<IPersonIdNameTypeModel[]>>(async () => {
-		try {
-			const response = await backendClient.pb.collection("persons").getList<IPersonIdNameTypeModel>(
-				1,
-				50,
-				{
-					filter: `property.id = "${propertyContext.selectedPropertyId}"`,
-					fields: "id,type,name",
-				}
-			);
-			return response.items;
-		} catch (ex) {
-			alert(ex);
-			return [];
-		}
-	});
+	const personListModule = new PersonListModule(backendClient, propertyContext);
 
 const gotoPropertyList = () => {
 	goto("/properties/list");
@@ -48,14 +32,8 @@ const gotoAddNewProperty = () => {
 <Button onclick={gotoPropertyList}>Back</Button>
 <Button onclick={gotoAddNewProperty}>Add New Person</Button>
 
-{#await personListAsync}
-<Tile>...getting persons</Tile>
-{:then personList}
-	<PersonList
-		personList={personList}
-		propertyId={propertyContext.selectedPropertyId}
-		bind:selectedPersonId={personContext.selectedPersonId}
-	/>
-{:catch error}
-  {error}
-{/await}
+<PersonList
+	personListModule={personListModule}
+	propertyId={propertyContext.selectedPropertyId}
+	bind:selectedPersonId={personContext.selectedPersonId}
+/>

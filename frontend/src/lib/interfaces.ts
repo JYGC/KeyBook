@@ -2,6 +2,7 @@ import PocketBase, { type AuthModel } from "pocketbase";
 import type { AddPropertyDeviceAndHistoriesModel } from "./models/data-import-models";
 import type { IDeviceListItemModel, IEditDeviceModel } from "./models/device-models";
 import type { IEditPersonModel, IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "./models/person-models";
+import type { IPropertyListItemModel } from "./models/property-models";
 
 export interface IBackendClient {
   isTokenValid: boolean;
@@ -26,6 +27,10 @@ export interface IRegisterApi {
   get error(): string;
 }
 
+export interface IPropertyListModule {
+  propertyListAsync: Promise<IPropertyListItemModel[]>;
+}
+
 export interface IDeviceEditorModule {
   deviceAsync: Promise<IEditDeviceModel | null>;
   get isAdd(): boolean;
@@ -35,12 +40,20 @@ export interface IDeviceEditorModule {
   callBackAction: () => void;
 }
 
+export interface IDeviceListModule {
+  deviceListAsync: Promise<IDeviceListItemModel[]>;
+}
+
 export interface IPersonEditorModule {
   personAsync: Promise<IEditPersonModel | null>;
   get isAdd(): boolean;
   getSavePersonAction: () => ((device: IEditPersonModel) => void);
   getDeletePersonAction: () => ((device: IEditPersonModel) => void) | null;
   callBackAction: () => void;
+}
+
+export interface IPersonListModule {
+  personListAsync: Promise<IPersonIdNameTypeModel[]>;
 }
 
 export interface IDeviceHolderEditorModule {
