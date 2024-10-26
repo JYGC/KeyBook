@@ -11,6 +11,10 @@ import (
 )
 
 type IDeviceRepository interface {
+	GetDeviceId(deviceId string) (
+		dtos.DeviceDto,
+		error,
+	)
 	GetDeviceForPropertyId(
 		propertyId string,
 		inboundDevices []dtos.NewDeviceDto,
@@ -35,6 +39,29 @@ type IDeviceRepository interface {
 
 type DeviceRepository struct {
 	app *pocketbase.PocketBase
+}
+
+func (d DeviceRepository) GetDeviceId(deviceId string) (
+	dtos.DeviceDto,
+	error,
+) {
+	query := d.app.Dao().DB().Select(
+		"d.id",
+		"d.name",
+		"d.identifier",
+		"d.type",
+		"d.defunctreason",
+		"d.property",
+	).From(
+		"devices d",
+	).Where(
+		dbx.NewExp("d.id = {:deviceId}", dbx.Params{"deviceId": deviceId}),
+	)
+
+	var result dtos.DeviceDto
+
+	queryErr := query.One(&result)
+	return result, queryErr
 }
 
 func (d DeviceRepository) GetDeviceForPropertyId(
