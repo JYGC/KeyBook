@@ -32,6 +32,7 @@ func startBackend() {
 	constructors = append(constructors, repositories.NewPropertyRepository)
 	constructors = append(constructors, repositories.NewPersonDeviceRepository)
 	constructors = append(constructors, repositories.NewDeviceHistoryRepository)
+	constructors = append(constructors, repositories.NewPersonHistoryRepository)
 
 	constructors = append(constructors, services.NewDataImportServices)
 	constructors = append(constructors, services.NewDeviceServices)
@@ -39,6 +40,7 @@ func startBackend() {
 	constructors = append(constructors, services.NewPersonServices)
 	constructors = append(constructors, services.NewPropertyServices)
 	constructors = append(constructors, services.NewDeviceHistoryServices)
+	constructors = append(constructors, services.NewPersonHistoryServices)
 
 	constructors = append(constructors, handlers.NewDeviceHandlers)
 	constructors = append(constructors, handlers.NewDataImportHandlers)
@@ -54,6 +56,7 @@ func startBackend() {
 	invokeErr := container.Invoke(func(
 		app *pocketbase.PocketBase,
 		deviceHistoryServices services.IDeviceHistoryServices,
+		personHistoryServices services.IPersonHistoryServices,
 		deviceHandlers handlers.IDeviceHoldingHandlers,
 		dataImportHandlers handlers.IDataImportHandlers,
 	) {
@@ -74,6 +77,44 @@ func startBackend() {
 			if updateErr := deviceHistoryServices.AddNewDeviceHistoryDueToUpdateDeviceHook(e.Model); updateErr != nil {
 				return updateErr
 			}
+			return nil
+		})
+
+		app.OnModelAfterCreate("persons").Add(func(e *core.ModelEvent) error {
+			if updateErr := personHistoryServices.AddNewPersonHistoryDueToCreatePersonHook(e.Model); updateErr != nil {
+				return updateErr
+			}
+			return nil
+		})
+
+		app.OnModelBeforeUpdate("persons").Add(func(e *core.ModelEvent) error {
+			if updateErr := personHistoryServices.AddNewPersonHistoryDueToUpdatePersonHook(e.Model); updateErr != nil {
+				return updateErr
+			}
+			return nil
+		})
+
+		app.OnModelAfterCreate("persondevices").Add(func(e *core.ModelEvent) error {
+			return nil
+		})
+
+		app.OnModelBeforeUpdate("persondevices").Add(func(e *core.ModelEvent) error {
+			return nil
+		})
+
+		app.OnModelAfterCreate("properties").Add(func(e *core.ModelEvent) error {
+			return nil
+		})
+
+		app.OnModelBeforeUpdate("properties").Add(func(e *core.ModelEvent) error {
+			return nil
+		})
+
+		app.OnModelAfterCreate("users").Add(func(e *core.ModelEvent) error {
+			return nil
+		})
+
+		app.OnModelBeforeUpdate("users").Add(func(e *core.ModelEvent) error {
 			return nil
 		})
 

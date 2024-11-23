@@ -11,7 +11,7 @@ import (
 )
 
 type IDeviceRepository interface {
-	GetDeviceId(deviceId string) (
+	GetDeviceById(deviceId string) (
 		dtos.DeviceDto,
 		error,
 	)
@@ -41,7 +41,7 @@ type DeviceRepository struct {
 	app *pocketbase.PocketBase
 }
 
-func (d DeviceRepository) GetDeviceId(deviceId string) (
+func (d DeviceRepository) GetDeviceById(deviceId string) (
 	dtos.DeviceDto,
 	error,
 ) {

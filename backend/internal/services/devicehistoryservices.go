@@ -11,8 +11,12 @@ import (
 )
 
 type IDeviceHistoryServices interface {
-	AddNewDeviceHistoryDueToCreateDeviceHook(deviceModel models.Model) error
-	AddNewDeviceHistoryDueToUpdateDeviceHook(deviceAfterUpdateModel models.Model) error
+	AddNewDeviceHistoryDueToCreateDeviceHook(
+		deviceModel models.Model,
+	) error
+	AddNewDeviceHistoryDueToUpdateDeviceHook(
+		deviceAfterUpdateModel models.Model,
+	) error
 }
 
 type DeviceHistoryServices struct {
@@ -33,9 +37,11 @@ func (dh DeviceHistoryServices) AddNewDeviceHistoryDueToCreateDeviceHook(
 func (dh DeviceHistoryServices) AddNewDeviceHistoryDueToUpdateDeviceHook(
 	deviceAfterUpdateModel models.Model,
 ) error {
-	deviceBeforeUpdate, getDeviceErr := dh.deviceRepository.GetDeviceId(deviceAfterUpdateModel.GetId())
+	deviceBeforeUpdate, getDeviceErr := dh.deviceRepository.GetDeviceById(
+		deviceAfterUpdateModel.GetId(),
+	)
 	if getDeviceErr != nil {
-		return nil
+		return getDeviceErr
 	}
 	deviceAfterUpdateModelJson, _ := json.Marshal(deviceAfterUpdateModel)
 	var deviceAfterUpdate dtos.DeviceDto
