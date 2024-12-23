@@ -11,6 +11,12 @@ import (
 )
 
 type IPersonDeviceRepository interface {
+	GetPersonDeviceById(
+		personDeviceId string,
+	) (
+		dtos.PersonDeviceDto,
+		error,
+	)
 	GetPersonDevicesForProperty(
 		personDevicesToAdd []dtos.NewPersonDeviceAndHistoriesDto,
 	) (
@@ -29,7 +35,29 @@ type PersonDeviceRepository struct {
 	app *pocketbase.PocketBase
 }
 
-func (p PersonDeviceRepository) GetPersonDevicesForProperty(
+func (pdr PersonDeviceRepository) GetPersonDeviceById(
+	personDeviceId string,
+) (
+	dtos.PersonDeviceDto,
+	error,
+) {
+	query := pdr.app.Dao().DB().Select(
+		"pd.id",
+		"pd.person",
+		"pd.device",
+	).From(
+		"persondevices pd",
+	).Where(
+		dbx.NewExp("d.id = {:personDeviceId}", dbx.Params{"personDeviceId": personDeviceId}),
+	)
+
+	var result dtos.PersonDeviceDto
+
+	queryErr := query.One(&result)
+	return result, queryErr
+}
+
+func (pdr PersonDeviceRepository) GetPersonDevicesForProperty(
 	personDevicesToAdd []dtos.NewPersonDeviceAndHistoriesDto,
 ) (
 	[]dtos.PersonDeviceDto,
@@ -45,7 +73,7 @@ func (p PersonDeviceRepository) GetPersonDevicesForProperty(
 		)
 	}
 
-	query := p.app.Dao().DB().Select(
+	query := pdr.app.Dao().DB().Select(
 	//
 	).From(
 		"persondevices pd",
@@ -56,7 +84,7 @@ func (p PersonDeviceRepository) GetPersonDevicesForProperty(
 	return result, queryErr
 }
 
-func (p PersonDeviceRepository) AddNewPersonDevices(
+func (pdr PersonDeviceRepository) AddNewPersonDevices(
 	personDevicesToAdd []dtos.NewPersonDeviceAndHistoriesDto,
 ) (
 	[]dtos.PersonDeviceDto,
@@ -64,12 +92,12 @@ func (p PersonDeviceRepository) AddNewPersonDevices(
 ) {
 	var newPersonDevices []dtos.PersonDeviceDto
 
-	if transactionErr := p.app.Dao().WithoutHooks().RunInTransaction(func(txDao *daos.Dao) error {
-		personDeviceCollection, findCollectionErr := p.app.Dao().FindCollectionByNameOrId("persondevices")
+	if transactionErr := pdr.app.Dao().WithoutHooks().RunInTransaction(func(txDao *daos.Dao) error {
+		personDeviceCollection, findCollectionErr := pdr.app.Dao().FindCollectionByNameOrId("persondevices")
 		if findCollectionErr != nil {
 			return findCollectionErr
 		}
-		personDeviceHistoryCollection, findHistoryCollectionErr := p.app.Dao().FindCollectionByNameOrId("persondevicehistory")
+		personDeviceHistoryCollection, findHistoryCollectionErr := pdr.app.Dao().FindCollectionByNameOrId("persondevicehistory")
 		if findHistoryCollectionErr != nil {
 			return findHistoryCollectionErr
 		}

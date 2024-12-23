@@ -33,6 +33,7 @@ func startBackend() {
 	constructors = append(constructors, repositories.NewPersonDeviceRepository)
 	constructors = append(constructors, repositories.NewDeviceHistoryRepository)
 	constructors = append(constructors, repositories.NewPersonHistoryRepository)
+	constructors = append(constructors, repositories.NewPersonDeviceHistoryRepository)
 
 	constructors = append(constructors, services.NewDataImportServices)
 	constructors = append(constructors, services.NewDeviceServices)
@@ -41,6 +42,7 @@ func startBackend() {
 	constructors = append(constructors, services.NewPropertyServices)
 	constructors = append(constructors, services.NewDeviceHistoryServices)
 	constructors = append(constructors, services.NewPersonHistoryServices)
+	constructors = append(constructors, services.NewPersonDeviceHistoryServices)
 
 	constructors = append(constructors, handlers.NewDeviceHandlers)
 	constructors = append(constructors, handlers.NewDataImportHandlers)
@@ -57,6 +59,7 @@ func startBackend() {
 		app *pocketbase.PocketBase,
 		deviceHistoryServices services.IDeviceHistoryServices,
 		personHistoryServices services.IPersonHistoryServices,
+		personDeviceHistoryServices services.IPersonDeviceHistoryServices,
 		deviceHandlers handlers.IDeviceHoldingHandlers,
 		dataImportHandlers handlers.IDataImportHandlers,
 	) {
@@ -95,10 +98,16 @@ func startBackend() {
 		})
 
 		app.OnModelAfterCreate("persondevices").Add(func(e *core.ModelEvent) error {
+			if updateErr := personDeviceHistoryServices.AddNewPersonDeviceHistoryDueToCreatePersonDeviceHook(e.Model); updateErr != nil {
+				return updateErr
+			}
 			return nil
 		})
 
 		app.OnModelBeforeUpdate("persondevices").Add(func(e *core.ModelEvent) error {
+			if updateErr := personDeviceHistoryServices.AddNewPersonDeviceHistoryDueToUpdatePersonDeviceHook(e.Model); updateErr != nil {
+				return updateErr
+			}
 			return nil
 		})
 
