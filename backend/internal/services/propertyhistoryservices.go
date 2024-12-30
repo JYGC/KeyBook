@@ -1,7 +1,11 @@
 package services
 
 import (
+	"encoding/json"
+	"fmt"
+	"keybook/backend/internal/dtos"
 	"keybook/backend/internal/repositories"
+	"time"
 
 	"github.com/pocketbase/pocketbase/models"
 )
@@ -23,13 +27,47 @@ type PropertyHistoryServices struct {
 func (phs PropertyHistoryServices) AddPropertyHistoryDueToCreatePropertyHook(
 	propertyModel models.Model,
 ) error {
-	return nil
+	return phs.propertyHistoryRepository.AddPropertyHistoryFromModel(
+		propertyModel,
+		"New property record in system",
+		time.Now(),
+	)
 }
 
 func (phs PropertyHistoryServices) AddPropertyHistoryDueToUpdatePropertyHook(
 	propertyAfterUpdateModel models.Model,
 ) error {
-	return nil
+	propertyBeforeUpdate, getPropertyErr := phs.propertyRepository.GetFullPropertyById(
+		propertyAfterUpdateModel.GetId(),
+	)
+	if getPropertyErr != nil {
+		return getPropertyErr
+	}
+	propertyAfterUpdateModelJson, marshalErr := json.Marshal(propertyAfterUpdateModel)
+	if marshalErr != nil {
+		return marshalErr
+	}
+	var propertyAfterUpdate dtos.PropertyIdAddressDto
+	if unmarshalErr := json.Unmarshal(propertyAfterUpdateModelJson, &propertyAfterUpdate); unmarshalErr != nil {
+		return unmarshalErr
+	}
+
+	description := "Details updated."
+
+	if propertyBeforeUpdate.Address != propertyAfterUpdate.Address {
+		description = fmt.Sprintf(
+			"%s Address changed from \"%s\" to \"%s\".",
+			description,
+			propertyBeforeUpdate.Address,
+			propertyAfterUpdate.Address,
+		)
+	}
+
+	return phs.propertyHistoryRepository.AddPropertyHistoryFromModel(
+		propertyAfterUpdateModel,
+		description,
+		propertyAfterUpdateModel.GetUpdated().Time(),
+	)
 }
 
 func NewPropertyHistoryServices(

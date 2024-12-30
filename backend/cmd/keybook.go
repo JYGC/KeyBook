@@ -30,6 +30,7 @@ func startBackend() {
 	constructors = append(constructors, repositories.NewDeviceRepository)
 	constructors = append(constructors, repositories.NewPersonRepository)
 	constructors = append(constructors, repositories.NewPropertyRepository)
+	constructors = append(constructors, repositories.NewPropertyHistoryRepository)
 	constructors = append(constructors, repositories.NewPersonDeviceRepository)
 	constructors = append(constructors, repositories.NewDeviceHistoryRepository)
 	constructors = append(constructors, repositories.NewPersonHistoryRepository)
@@ -40,6 +41,7 @@ func startBackend() {
 	constructors = append(constructors, services.NewPersonDeviceServices)
 	constructors = append(constructors, services.NewPersonServices)
 	constructors = append(constructors, services.NewPropertyServices)
+	constructors = append(constructors, services.NewPropertyHistoryServices)
 	constructors = append(constructors, services.NewDeviceHistoryServices)
 	constructors = append(constructors, services.NewPersonHistoryServices)
 	constructors = append(constructors, services.NewPersonDeviceHistoryServices)
@@ -57,6 +59,7 @@ func startBackend() {
 
 	invokeErr := container.Invoke(func(
 		app *pocketbase.PocketBase,
+		propertyHistoryServices services.IPropertyHistoryServices,
 		deviceHistoryServices services.IDeviceHistoryServices,
 		personHistoryServices services.IPersonHistoryServices,
 		personDeviceHistoryServices services.IPersonDeviceHistoryServices,
@@ -112,19 +115,11 @@ func startBackend() {
 		})
 
 		app.OnModelAfterCreate("properties").Add(func(e *core.ModelEvent) error {
-			return nil
+			return propertyHistoryServices.AddPropertyHistoryDueToCreatePropertyHook(e.Model)
 		})
 
 		app.OnModelBeforeUpdate("properties").Add(func(e *core.ModelEvent) error {
-			return nil
-		})
-
-		app.OnModelAfterCreate("users").Add(func(e *core.ModelEvent) error {
-			return nil
-		})
-
-		app.OnModelBeforeUpdate("users").Add(func(e *core.ModelEvent) error {
-			return nil
+			return propertyHistoryServices.AddPropertyHistoryDueToUpdatePropertyHook(e.Model)
 		})
 
 		if err := app.Start(); err != nil {

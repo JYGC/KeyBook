@@ -9,6 +9,12 @@ import (
 )
 
 type IPropertyRepository interface {
+	GetFullPropertyById(
+		propertyId string,
+	) (
+		dtos.PropertyIdAddressDto,
+		error,
+	)
 	GetPropertiesForUserByPropertyName(
 		userId string,
 		propertyAddress string,
@@ -40,6 +46,29 @@ type IPropertyRepository interface {
 
 type PropertyRepository struct {
 	app *pocketbase.PocketBase
+}
+
+func (p PropertyRepository) GetFullPropertyById(
+	propertyId string,
+) (
+	dtos.PropertyIdAddressDto,
+	error,
+) {
+	query := p.app.Dao().DB().Select(
+		"p.id",
+		"p.address",
+		"p.owners",
+		"p.managers",
+	).From(
+		"properties p",
+	).Where(
+		dbx.NewExp("p.id = {:propertyId}", dbx.Params{"propertyId": propertyId}),
+	)
+
+	var result dtos.PropertyIdAddressDto
+
+	queryErr := query.One(&result)
+	return result, queryErr
 }
 
 func (p PropertyRepository) GetPropertiesForUserByPropertyName(
