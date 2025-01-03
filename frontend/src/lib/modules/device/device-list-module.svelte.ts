@@ -8,11 +8,11 @@ export class DeviceListModule implements IDeviceListModule {
 
   public deviceListAsync = $derived.by<Promise<IDeviceListItemModel[]>>(async () => {
     try {
-      const response = await this.__backendClient.pb.collection("devices").getList<IDeviceListItemModel>(1, 50, {
-        filter: `property.id = "${this.__propertyContext.selectedPropertyId}"`,
-        fields: "id,type,name,identifier",
+      const items = await this.__backendClient.pb.collection("devicelistview").getFullList<IDeviceListItemModel>({
+        filter: `propertyid = "${this.__propertyContext.selectedPropertyId}"`,
+        fields: "id,deviceid,devicename,deviceidentifier,devicetype,personname",
       });
-      return response.items;
+      return items;
     } catch (ex) {
       alert(ex);
       return [];

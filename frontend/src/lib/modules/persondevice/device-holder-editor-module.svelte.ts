@@ -35,10 +35,10 @@ export class DeviceHolderEditorModule implements IDeviceHolderEditorModule {
       if (this.__backendClient.loggedInUser === null) {
         throw new Error("Cannot find loggedInUser.");
       }
-      return (await this.__backendClient.pb.collection("persons").getList<IPersonIdNameTypeModel>(1, 50, {
+      return (await this.__backendClient.pb.collection("persons").getFullList<IPersonIdNameTypeModel>({
         filter: `property.id = "${this.__propertyContext.selectedPropertyId}" && property.owners.id ?~ "${this.__backendClient.loggedInUser.id}"`,
         fields: "id,name,type"
-      })).items;
+      }));
     } catch {
       return [];
     }

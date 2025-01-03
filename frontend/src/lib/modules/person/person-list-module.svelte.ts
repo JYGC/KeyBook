@@ -1,22 +1,18 @@
 import type { PropertyContext } from "$lib/contexts/property-context.svelte";
 import type { IBackendClient, IPersonListModule } from "$lib/interfaces";
-import type { IPersonIdNameTypeModel } from "$lib/models/person-models";
+import type { IPersonListItemModel } from "$lib/models/person-models";
 
 export class PersonListModule implements IPersonListModule {
   private readonly __backendClient: IBackendClient;
   private readonly __propertyContext: PropertyContext;
 
-  public personListAsync = $derived.by<Promise<IPersonIdNameTypeModel[]>>(async () => {
+  public personListAsync = $derived.by<Promise<IPersonListItemModel[]>>(async () => {
 		try {
-			const response = await this.__backendClient.pb.collection("persons").getList<IPersonIdNameTypeModel>(
-				1,
-				50,
-				{
-					filter: `property.id = "${this.__propertyContext.selectedPropertyId}"`,
-					fields: "id,type,name",
-				}
-			);
-			return response.items;
+			const items = await this.__backendClient.pb.collection("personlistview").getFullList<IPersonListItemModel>({
+				filter: `propertyid = "${this.__propertyContext.selectedPropertyId}"`,
+				fields: "id,personid,personname,persontype,devicejsons",
+			});
+			return items;
 		} catch (ex) {
 			alert(ex);
 			return [];

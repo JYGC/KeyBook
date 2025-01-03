@@ -12,16 +12,12 @@ export class DeviceHoldingListModule implements IDeviceHoldingListModule {
       if (this.__backendClient.loggedInUser === null) {
         throw new Error("Cannot find loggedInUser.");
       }
-      const response = await this.__backendClient.pb.collection("persondevices").getList<IDeviceHeldExpandDeviceModel>(
-        1,
-        50,
-        {
-          filter: `person.id = "${this.__personContext.selectedPersonId}"`,
-          expand: "device",
-          fields: "id,expand.device.id,expand.device.name,expand.device.identifier,expand.device.type",
-        }
-      );
-      return response.items.map(dh => dh.expand.device);
+      const items = await this.__backendClient.pb.collection("persondevices").getFullList<IDeviceHeldExpandDeviceModel>({
+        filter: `person.id = "${this.__personContext.selectedPersonId}"`,
+        expand: "device",
+        fields: "id,expand.device.id,expand.device.name,expand.device.identifier,expand.device.type",
+      });
+      return items.map(dh => dh.expand.device);
     } catch {
       return [];
     }

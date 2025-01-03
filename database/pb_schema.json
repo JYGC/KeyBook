@@ -599,5 +599,208 @@
     "updateRule": "",
     "deleteRule": "",
     "options": {}
+  },
+  {
+    "id": "vxo2pex1iq0dbgn",
+    "name": "devicelistview",
+    "type": "view",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "cmydsouc",
+        "name": "propertyid",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "gcu9zs3x383uquo",
+          "cascadeDelete": true,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "kf2jyfvj",
+        "name": "deviceid",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "wikt02c8wi5skhv",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "nzhc4yz6",
+        "name": "devicename",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "ujmoy7ma",
+        "name": "deviceidentifier",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "zeuzlhd8",
+        "name": "devicetype",
+        "type": "select",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "Fob",
+            "Key",
+            "Remote",
+            "RoomKey",
+            "MailboxKey"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "qfmjvwkl",
+        "name": "personname",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {
+      "query": "SELECT\n  d.id as id,\n  d.property as propertyid,\n  d.id as deviceid,\n  d.name as devicename,\n  d.identifier as deviceidentifier,\n  d.type as devicetype,\n  p.name as personname\nFROM devices d\nLEFT JOIN persondevices pd ON d.id = pd.device\nLEFT JOIN persons p ON pd.person = p.id"
+    }
+  },
+  {
+    "id": "vuoiwg6vro7sdx9",
+    "name": "personlistview",
+    "type": "view",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "coqnniyt",
+        "name": "propertyid",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "gcu9zs3x383uquo",
+          "cascadeDelete": true,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "jvdzd50r",
+        "name": "personid",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "zb56u6bvqo9m8dm",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "zwupikwj",
+        "name": "personname",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "k8izftgj",
+        "name": "persontype",
+        "type": "select",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "Owner",
+            "Tenant",
+            "Agent",
+            "Household"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "7nbhk5ax",
+        "name": "devicejsons",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {
+      "query": "WITH device_assignments AS (\n  SELECT\n  pd.person,\n  json_group_array(\n    json_object(\n      'deviceid', d.id,\n      'devicename', d.name\n    )\n  ) devicejsons\n  FROM persondevices pd\n  INNER JOIN devices d ON pd.device = d.id\n  GROUP BY pd.person\n)\nSELECT\n  p.id,\n  p.property propertyid,\n  p.id personid,\n  p.name personname,\n  p.type persontype,\n  da.devicejsons\nFROM persons p\nLEFT JOIN\n  device_assignments da ON p.id = da.person"
+    }
   }
 ]

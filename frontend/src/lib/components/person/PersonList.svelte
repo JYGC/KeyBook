@@ -24,16 +24,19 @@
 {:then personList}
   <DataTable
     headers={[
-      { key: "name", value: "Name" },
-      { key: "type", value: "Type" },
-      { key: "id", empty: true },
+      { key: "personname", value: "Name" },
+      { key: "persontype", value: "Type" },
+      { key: "devices", value: "Holding Devices" },
+      { key: "personid", empty: true },
     ]}
     rows={personList}
   >
     <strong slot="title">Persons for PropertyId: {propertyId } <!--Get property name--></strong>
     <svelte:fragment slot="cell" let:cell>
-      {#if cell.key === "id"}
+      {#if cell.key === "personid"}
         <Button onclick={() => gotoPersonDetails(cell.value)}>Person Details</Button>
+      {:else if cell.key === "devices"}
+        {JSON.stringify(cell.value)}
       {:else}
         {cell.value}
       {/if}

@@ -9,11 +9,11 @@ export class PropertyListModule implements IPropertyListModule {
       if (this.__backendClient.loggedInUser === null) {
         throw new Error("Cannot find loggedInUser.");
       }
-      const response = await this.__backendClient.pb.collection("properties").getList<IPropertyListItemModel>(1, 50, {
+      const items = await this.__backendClient.pb.collection("properties").getFullList<IPropertyListItemModel>({
         filter: `owners.id ?~ "${this.__backendClient.loggedInUser.id}"`,
         fields: "id,address"
       });
-      return response.items;
+      return items;
     } catch (ex) {
       alert(ex);
       return [];
