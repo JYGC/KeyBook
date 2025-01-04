@@ -1,8 +1,9 @@
 import PocketBase, { type AuthModel } from "pocketbase";
 import type { AddPropertyDeviceAndHistoriesModel } from "./models/data-import-models";
-import type { IDeviceListItemModel, IEditDeviceModel } from "./models/device-models";
-import type { IEditPersonModel, IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel, IPersonListItemModel } from "./models/person-models";
+import type { IEditDeviceModel } from "./models/device-models";
+import type { IEditPersonModel, IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "./models/person-models";
 import type { IPropertyListItemModel } from "./models/property-models";
+import type { IDeviceListItemModel, IPersonListItemModel } from "./models/person-device-models";
 
 export interface IBackendClient {
   isTokenValid: boolean;

@@ -11,14 +11,6 @@ export interface IPersonIdNameTypeModel {
   name: string;
 }
 
-export interface IPersonListItemModel {
-  id: string;
-  personid: string;
-  personname: string;
-  persontype: string;
-  devicejsons: string;
-}
-
 export interface IPersonDeviceExpandPersonDevicePersonEditModel {
   id: string;
   expand: {

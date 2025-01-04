@@ -718,7 +718,7 @@
     "schema": [
       {
         "system": false,
-        "id": "coqnniyt",
+        "id": "fgykcvrv",
         "name": "propertyid",
         "type": "relation",
         "required": true,
@@ -734,7 +734,7 @@
       },
       {
         "system": false,
-        "id": "jvdzd50r",
+        "id": "tugefh5o",
         "name": "personid",
         "type": "relation",
         "required": false,
@@ -750,7 +750,7 @@
       },
       {
         "system": false,
-        "id": "zwupikwj",
+        "id": "aacnutkc",
         "name": "personname",
         "type": "text",
         "required": true,
@@ -764,7 +764,7 @@
       },
       {
         "system": false,
-        "id": "k8izftgj",
+        "id": "xcpb0uwo",
         "name": "persontype",
         "type": "select",
         "required": true,
@@ -782,8 +782,8 @@
       },
       {
         "system": false,
-        "id": "7nbhk5ax",
-        "name": "devicejsons",
+        "id": "gnt8gwva",
+        "name": "holdingdevicejsons",
         "type": "json",
         "required": false,
         "presentable": false,
@@ -800,7 +800,7 @@
     "updateRule": null,
     "deleteRule": null,
     "options": {
-      "query": "WITH device_assignments AS (\n  SELECT\n  pd.person,\n  json_group_array(\n    json_object(\n      'deviceid', d.id,\n      'devicename', d.name\n    )\n  ) devicejsons\n  FROM persondevices pd\n  INNER JOIN devices d ON pd.device = d.id\n  GROUP BY pd.person\n)\nSELECT\n  p.id,\n  p.property propertyid,\n  p.id personid,\n  p.name personname,\n  p.type persontype,\n  da.devicejsons\nFROM persons p\nLEFT JOIN\n  device_assignments da ON p.id = da.person"
+      "query": "WITH device_assignments AS (\n  SELECT\n  pd.person,\n  json_group_array(\n    json_object(\n      'deviceid', d.id,\n      'devicename', d.name\n    )\n  ) holdingdevicejsons\n  FROM persondevices pd\n  INNER JOIN devices d ON pd.device = d.id\n  GROUP BY pd.person\n)\nSELECT\n  p.id,\n  p.property propertyid,\n  p.id personid,\n  p.name personname,\n  p.type persontype,\n  da.holdingdevicejsons\nFROM persons p\nLEFT JOIN\n  device_assignments da ON p.id = da.person"
     }
   }
 ]

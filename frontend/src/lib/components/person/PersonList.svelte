@@ -26,7 +26,7 @@
     headers={[
       { key: "personname", value: "Name" },
       { key: "persontype", value: "Type" },
-      { key: "devices", value: "Holding Devices" },
+      { key: "holdingdevicejsons", value: "Holding Devices Json" },
       { key: "personid", empty: true },
     ]}
     rows={personList}
@@ -35,8 +35,14 @@
     <svelte:fragment slot="cell" let:cell>
       {#if cell.key === "personid"}
         <Button onclick={() => gotoPersonDetails(cell.value)}>Person Details</Button>
-      {:else if cell.key === "devices"}
-        {JSON.stringify(cell.value)}
+      {:else if cell.key === "holdingdevicejsons"}
+        {#if cell.value !== null && cell.value instanceof Array}
+          {#each cell.value as holdingDevice}
+            {#if "devicename" in holdingDevice}
+              <div>{holdingDevice.devicename}</div>
+            {/if}
+          {/each}
+        {/if}
       {:else}
         {cell.value}
       {/if}

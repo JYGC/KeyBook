@@ -1,5 +1,3 @@
-import type { IDeviceListItemModel } from "./device-models";
-
 export interface IPersonDeviceModel {
   person: string;
   device: string;
@@ -11,3 +9,25 @@ export interface IDeviceHeldExpandDeviceModel {
     device: IDeviceListItemModel
   }
 }
+
+export interface IHoldingDeviceIdName {
+  deviceid: string;
+  devicename: string;
+}
+
+export interface IPersonListItemModel {
+  id: string;
+  personid: string;
+  personname: string;
+  persontype: string;
+  holdingdevicejsons: IHoldingDeviceIdName[];
+}
+export interface IDeviceListItemModel {
+  id: string;
+  deviceid: string;
+  devicename: string;
+  deviceidentifier: string;
+  devicetype: string;
+  personname: string;
+}
+

@@ -1,6 +1,6 @@
 import type { PropertyContext } from "$lib/contexts/property-context.svelte";
 import type { IBackendClient, IPersonListModule } from "$lib/interfaces";
-import type { IPersonListItemModel } from "$lib/models/person-models";
+import type { IPersonListItemModel } from "$lib/models/person-device-models";
 
 export class PersonListModule implements IPersonListModule {
   private readonly __backendClient: IBackendClient;
@@ -10,8 +10,8 @@ export class PersonListModule implements IPersonListModule {
 		try {
 			const items = await this.__backendClient.pb.collection("personlistview").getFullList<IPersonListItemModel>({
 				filter: `propertyid = "${this.__propertyContext.selectedPropertyId}"`,
-				fields: "id,personid,personname,persontype,devicejsons",
-			});
+				fields: "id,personid,personname,persontype,holdingdevicejsons",
+			})
 			return items;
 		} catch (ex) {
 			alert(ex);
