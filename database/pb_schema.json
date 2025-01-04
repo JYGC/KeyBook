@@ -215,14 +215,34 @@
           "maxSelect": 1,
           "displayFields": null
         }
+      },
+      {
+        "system": false,
+        "id": "7vbii0le",
+        "name": "image",
+        "type": "file",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "mimeTypes": [
+            "image/png",
+            "image/jpeg",
+            "image/gif"
+          ],
+          "thumbs": [],
+          "maxSelect": 1,
+          "maxSize": 5242880,
+          "protected": false
+        }
       }
     ],
     "indexes": [],
-    "listRule": "",
-    "viewRule": "",
-    "createRule": "",
-    "updateRule": "",
-    "deleteRule": "",
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "createRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "updateRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "deleteRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
     "options": {}
   },
   {
@@ -333,11 +353,11 @@
       }
     ],
     "indexes": [],
-    "listRule": "",
-    "viewRule": "",
-    "createRule": "",
-    "updateRule": "",
-    "deleteRule": "",
+    "listRule": "@request.auth.id != \"\" && (@request.auth.id ?= person.property.owners.id || @request.auth.id ?= device.property.owners.id)",
+    "viewRule": "@request.auth.id != \"\" && (@request.auth.id ?= person.property.owners.id || @request.auth.id ?= device.property.owners.id)",
+    "createRule": "@request.auth.id != \"\" && (@request.auth.id ?= person.property.owners.id || @request.auth.id ?= device.property.owners.id)",
+    "updateRule": "@request.auth.id != \"\" && (@request.auth.id ?= person.property.owners.id || @request.auth.id ?= device.property.owners.id)",
+    "deleteRule": "@request.auth.id != \"\" && (@request.auth.id ?= person.property.owners.id || @request.auth.id ?= device.property.owners.id)",
     "options": {}
   },
   {
@@ -461,14 +481,34 @@
           "maxSelect": 1,
           "displayFields": null
         }
+      },
+      {
+        "system": false,
+        "id": "nrdwo9yc",
+        "name": "profileimage",
+        "type": "file",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "mimeTypes": [
+            "image/jpeg",
+            "image/png",
+            "image/gif"
+          ],
+          "thumbs": [],
+          "maxSelect": 1,
+          "maxSize": 5242880,
+          "protected": false
+        }
       }
     ],
     "indexes": [],
-    "listRule": "",
-    "viewRule": "",
-    "createRule": "",
-    "updateRule": "",
-    "deleteRule": "",
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "createRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "updateRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "deleteRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
     "options": {}
   },
   {
@@ -525,11 +565,11 @@
       }
     ],
     "indexes": [],
-    "listRule": "",
-    "viewRule": "",
-    "createRule": "",
-    "updateRule": "",
-    "deleteRule": "",
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= owners.id",
+    "createRule": "@request.auth.id != \"\" && @request.auth.id ?= owners.id",
+    "updateRule": "@request.auth.id != \"\" && @request.auth.id ?= owners.id",
+    "deleteRule": "@request.auth.id != \"\" && @request.auth.id ?= owners.id",
     "options": {}
   },
   {
@@ -608,7 +648,7 @@
     "schema": [
       {
         "system": false,
-        "id": "cmydsouc",
+        "id": "afelzeok",
         "name": "propertyid",
         "type": "relation",
         "required": true,
@@ -624,7 +664,7 @@
       },
       {
         "system": false,
-        "id": "kf2jyfvj",
+        "id": "1zfnc3k3",
         "name": "deviceid",
         "type": "relation",
         "required": false,
@@ -640,7 +680,7 @@
       },
       {
         "system": false,
-        "id": "nzhc4yz6",
+        "id": "xlr1zoaz",
         "name": "devicename",
         "type": "text",
         "required": true,
@@ -654,7 +694,7 @@
       },
       {
         "system": false,
-        "id": "ujmoy7ma",
+        "id": "xvuy4zml",
         "name": "deviceidentifier",
         "type": "text",
         "required": true,
@@ -668,7 +708,7 @@
       },
       {
         "system": false,
-        "id": "zeuzlhd8",
+        "id": "bsnvg6xt",
         "name": "devicetype",
         "type": "select",
         "required": true,
@@ -687,7 +727,7 @@
       },
       {
         "system": false,
-        "id": "qfmjvwkl",
+        "id": "pqw5fsor",
         "name": "personname",
         "type": "text",
         "required": true,
@@ -701,8 +741,8 @@
       }
     ],
     "indexes": [],
-    "listRule": "",
-    "viewRule": "",
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= propertyid.owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= propertyid.owners.id",
     "createRule": null,
     "updateRule": null,
     "deleteRule": null,
@@ -718,7 +758,7 @@
     "schema": [
       {
         "system": false,
-        "id": "fgykcvrv",
+        "id": "8mmhkpn7",
         "name": "propertyid",
         "type": "relation",
         "required": true,
@@ -734,7 +774,7 @@
       },
       {
         "system": false,
-        "id": "tugefh5o",
+        "id": "ekoubekb",
         "name": "personid",
         "type": "relation",
         "required": false,
@@ -750,7 +790,7 @@
       },
       {
         "system": false,
-        "id": "aacnutkc",
+        "id": "yx4ulasq",
         "name": "personname",
         "type": "text",
         "required": true,
@@ -764,7 +804,7 @@
       },
       {
         "system": false,
-        "id": "xcpb0uwo",
+        "id": "khckk330",
         "name": "persontype",
         "type": "select",
         "required": true,
@@ -782,7 +822,7 @@
       },
       {
         "system": false,
-        "id": "gnt8gwva",
+        "id": "hj5uef3a",
         "name": "holdingdevicejsons",
         "type": "json",
         "required": false,
@@ -794,8 +834,8 @@
       }
     ],
     "indexes": [],
-    "listRule": "",
-    "viewRule": "",
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= propertyid.owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= propertyid.owners.id",
     "createRule": null,
     "updateRule": null,
     "deleteRule": null,
