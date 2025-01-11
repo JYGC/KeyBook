@@ -50,7 +50,7 @@ func (pdhs PersonDeviceHistoryServices) AddNewPersonDeviceHistoryDueToCreatePers
 
 	return pdhs.personDeviceHistoryRepository.AddNewPersonDeviceHistoryFromModel(
 		personDeviceModel,
-		fmt.Sprintf("The %s, %s (%s), given to %s, %s", device.Type, device.Name, device.Type, newDeviceHolder.Type, newDeviceHolder.Name),
+		fmt.Sprintf("The %s, %s (%s), given to %s, %s", device.Type, device.Name, device.Identifier, newDeviceHolder.Type, newDeviceHolder.Name),
 		time.Now(),
 	)
 }
