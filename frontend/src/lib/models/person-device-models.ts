@@ -1,6 +1,7 @@
 export interface IPersonDeviceModel {
   person: string;
   device: string;
+  property: string;
 }
 
 export interface IDeviceHeldExpandDeviceModel {

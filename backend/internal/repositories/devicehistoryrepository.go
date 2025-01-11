@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"encoding/json"
+	"keybook/backend/internal/dtos"
 	"time"
 
 	"github.com/pocketbase/pocketbase"
@@ -29,15 +30,24 @@ func (dh DeviceHistoryRepository) AddNewDeviceHistoryFromModel(
 	if findHistoryCollectionErr != nil {
 		return findHistoryCollectionErr
 	}
+
 	deviceJson, mashalErr := json.Marshal(deviceModel)
 	if mashalErr != nil {
 		return mashalErr
 	}
+
+	var propertyIdDto dtos.PropertyIdFromJsonDto
+	if unmashalErr := json.Unmarshal(deviceJson, &propertyIdDto); unmashalErr != nil {
+		return unmashalErr
+	}
+
 	newDeviceHistory := models.NewRecord(deviceHistoryCollection)
 	newDeviceHistory.Set("description", description)
 	newDeviceHistory.Set("device", string(deviceJson))
 	newDeviceHistory.Set("stateddatetime", statedDateTime)
 	newDeviceHistory.Set("deviceid", deviceModel.GetId())
+	newDeviceHistory.Set("property", propertyIdDto.Property)
+
 	if saveHistoryErr := dh.app.Dao().SaveRecord(newDeviceHistory); saveHistoryErr != nil {
 		return saveHistoryErr
 	}

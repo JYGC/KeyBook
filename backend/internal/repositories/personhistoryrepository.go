@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"encoding/json"
+	"keybook/backend/internal/dtos"
 	"time"
 
 	"github.com/pocketbase/pocketbase"
@@ -29,15 +30,24 @@ func (ph PersonHistoryRepository) AddNewPersonHistoryFromModel(
 	if findHistoryCollectionErr != nil {
 		return findHistoryCollectionErr
 	}
+
 	personJson, mashalErr := json.Marshal(personModel)
 	if mashalErr != nil {
 		return mashalErr
 	}
+
+	var propertyIdDto dtos.PropertyIdFromJsonDto
+	if unmashalErr := json.Unmarshal(personJson, &propertyIdDto); unmashalErr != nil {
+		return unmashalErr
+	}
+
 	newPersonHistory := models.NewRecord(personHistoryCollection)
 	newPersonHistory.Set("description", description)
 	newPersonHistory.Set("person", string(personJson))
 	newPersonHistory.Set("stateddatetime", statedDateTime)
 	newPersonHistory.Set("personid", personModel.GetId())
+	newPersonHistory.Set("property", propertyIdDto.Property)
+
 	if saveHistoryErr := ph.app.Dao().SaveRecord(newPersonHistory); saveHistoryErr != nil {
 		return saveHistoryErr
 	}

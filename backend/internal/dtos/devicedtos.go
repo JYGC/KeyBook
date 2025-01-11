@@ -21,4 +21,5 @@ type DeviceDto struct {
 	Identifier    string `db:"identifier" json:"identifier"`
 	Type          string `db:"type" json:"type"`
 	DefunctReason string `db:"defunctreason" json:"defunctReason"`
+	Property      string `db:"property" json:"property"`
 }

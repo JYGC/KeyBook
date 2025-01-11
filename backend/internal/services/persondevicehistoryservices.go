@@ -21,11 +21,22 @@ type IPersonDeviceHistoryServices interface {
 type PersonDeviceHistoryServices struct {
 	//personDeviceRepository        repositories.IPersonDeviceRepository
 	personDeviceHistoryRepository repositories.IPersonDeviceHistoryRepository
+	deviceHistory                 repositories.IDeviceRepository
 }
 
 func (pdhs PersonDeviceHistoryServices) AddNewPersonDeviceHistoryDueToCreatePersonDeviceHook(
 	personDeviceModel models.Model,
 ) error {
+	personDeviceModelJson, mashalErr := json.Marshal(personDeviceModel)
+	if mashalErr != nil {
+		return mashalErr
+	}
+
+	var personDevice dtos.PersonDeviceDto
+	if unmashalErr := json.Unmarshal(personDeviceModelJson, &personDevice); unmashalErr != nil {
+		return unmashalErr
+	}
+
 	return pdhs.personDeviceHistoryRepository.AddNewPersonDeviceHistoryFromModel(
 		personDeviceModel,
 		"Person device assignment created",
@@ -42,9 +53,16 @@ func (pdhs PersonDeviceHistoryServices) AddNewPersonDeviceHistoryDueToUpdatePers
 	// if getPersonDeviceErr != nil {
 	// 	return getPersonDeviceErr
 	// }
-	personDeviceAfterUpdateModelJson, _ := json.Marshal(personDeviceAfterUpdateModel)
+
+	personDeviceAfterUpdateModelJson, mashalErr := json.Marshal(personDeviceAfterUpdateModel)
+	if mashalErr != nil {
+		return mashalErr
+	}
+
 	var personDeviceAfterUpdate dtos.PersonDeviceDto
-	json.Unmarshal(personDeviceAfterUpdateModelJson, &personDeviceAfterUpdate)
+	if unmashalErr := json.Unmarshal(personDeviceAfterUpdateModelJson, &personDeviceAfterUpdate); unmashalErr != nil {
+		return unmashalErr
+	}
 
 	return pdhs.personDeviceHistoryRepository.AddNewPersonDeviceHistoryFromModel(
 		personDeviceAfterUpdateModel,
@@ -55,8 +73,10 @@ func (pdhs PersonDeviceHistoryServices) AddNewPersonDeviceHistoryDueToUpdatePers
 
 func NewPersonDeviceHistoryServices(
 	personDeviceHistoryRepository repositories.IPersonDeviceHistoryRepository,
+	deviceHistory repositories.IDeviceRepository,
 ) IPersonDeviceHistoryServices {
 	return PersonDeviceHistoryServices{
 		personDeviceHistoryRepository,
+		deviceHistory,
 	}
 }

@@ -1,7 +1,6 @@
 import type { PersonContext } from "$lib/contexts/person-context.svelte";
 import type { IBackendClient, IDeviceHoldingListModule } from "$lib/interfaces";
-import type { IDeviceListItemModel } from "$lib/models/device-models";
-import type { IDeviceHeldExpandDeviceModel } from "$lib/models/person-device-models";
+import type { IDeviceHeldExpandDeviceModel, IDeviceListItemModel } from "$lib/models/person-device-models";
 
 export class DeviceHoldingListModule implements IDeviceHoldingListModule {
   private readonly __backendClient: IBackendClient;

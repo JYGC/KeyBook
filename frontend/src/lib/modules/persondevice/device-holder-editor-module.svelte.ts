@@ -59,6 +59,7 @@ export class DeviceHolderEditorModule implements IDeviceHolderEditorModule {
         await this.__backendClient.pb.collection("persondevices").create<IPersonDeviceModel>({
           person: this.selectedDeviceHolderId,
           device: deviceId,
+          property: this.__propertyContext.selectedPropertyId,
         });
       }
 

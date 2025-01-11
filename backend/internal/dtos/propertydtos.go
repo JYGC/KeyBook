@@ -16,3 +16,7 @@ type PropertyFullDto struct {
 	Owners   []string `db:"owners" json:"owners"`
 	Managers []string `db:"managers" json:"managers"`
 }
+
+type PropertyIdFromJsonDto struct {
+	Property string `json:"property"`
+}
