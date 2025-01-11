@@ -11,10 +11,10 @@ import (
 )
 
 type IPersonDeviceRepository interface {
-	GetPersonDeviceById(
+	GetHoldingPersonNameByDeviceId(
 		personDeviceId string,
 	) (
-		dtos.PersonDeviceDto,
+		dtos.PersonIdNameDto,
 		error,
 	)
 	GetPersonDevicesForProperty(
@@ -35,24 +35,25 @@ type PersonDeviceRepository struct {
 	app *pocketbase.PocketBase
 }
 
-func (pdr PersonDeviceRepository) GetPersonDeviceById(
+func (pdr PersonDeviceRepository) GetHoldingPersonNameByDeviceId(
 	personDeviceId string,
 ) (
-	dtos.PersonDeviceDto,
+	dtos.PersonIdNameDto,
 	error,
 ) {
 	query := pdr.app.Dao().DB().Select(
-		"pd.id",
-		"pd.person",
-		"pd.device",
-		"pd.property",
+		"p.id",
+		"p.name",
 	).From(
 		"persondevices pd",
+	).InnerJoin(
+		"persons p",
+		dbx.NewExp("pd.person = p.id"),
 	).Where(
 		dbx.NewExp("d.id = {:personDeviceId}", dbx.Params{"personDeviceId": personDeviceId}),
 	)
 
-	var result dtos.PersonDeviceDto
+	var result dtos.PersonIdNameDto
 
 	queryErr := query.One(&result)
 	return result, queryErr

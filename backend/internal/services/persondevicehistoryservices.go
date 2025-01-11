@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/json"
+	"fmt"
 	"keybook/backend/internal/dtos"
 	"keybook/backend/internal/repositories"
 	"time"
@@ -19,9 +20,8 @@ type IPersonDeviceHistoryServices interface {
 }
 
 type PersonDeviceHistoryServices struct {
-	//personDeviceRepository        repositories.IPersonDeviceRepository
+	personRepository              repositories.IPersonRepository
 	personDeviceHistoryRepository repositories.IPersonDeviceHistoryRepository
-	deviceHistory                 repositories.IDeviceRepository
 }
 
 func (pdhs PersonDeviceHistoryServices) AddNewPersonDeviceHistoryDueToCreatePersonDeviceHook(
@@ -37,9 +37,14 @@ func (pdhs PersonDeviceHistoryServices) AddNewPersonDeviceHistoryDueToCreatePers
 		return unmashalErr
 	}
 
+	newDeviceHolder, getNewDeviceHolderErr := pdhs.personRepository.GetPersonById(personDevice.Person)
+	if getNewDeviceHolderErr != nil {
+		return getNewDeviceHolderErr
+	}
+
 	return pdhs.personDeviceHistoryRepository.AddNewPersonDeviceHistoryFromModel(
 		personDeviceModel,
-		"Person device assignment created",
+		fmt.Sprintf("Device given to %s", newDeviceHolder.Name),
 		time.Now(),
 	)
 }
@@ -47,13 +52,6 @@ func (pdhs PersonDeviceHistoryServices) AddNewPersonDeviceHistoryDueToCreatePers
 func (pdhs PersonDeviceHistoryServices) AddNewPersonDeviceHistoryDueToUpdatePersonDeviceHook(
 	personDeviceAfterUpdateModel models.Model,
 ) error {
-	// personDeviceBeforeUpdate, getPersonDeviceErr := pdhs.personDeviceRepository.GetPersonDeviceById(
-	// 	personDeviceAfterUpdateModel.GetId(),
-	// )
-	// if getPersonDeviceErr != nil {
-	// 	return getPersonDeviceErr
-	// }
-
 	personDeviceAfterUpdateModelJson, mashalErr := json.Marshal(personDeviceAfterUpdateModel)
 	if mashalErr != nil {
 		return mashalErr
@@ -64,19 +62,25 @@ func (pdhs PersonDeviceHistoryServices) AddNewPersonDeviceHistoryDueToUpdatePers
 		return unmashalErr
 	}
 
+	newDeviceHolder, getNewDeviceHolderErr := pdhs.personRepository.GetPersonById(personDeviceAfterUpdate.Person)
+	if getNewDeviceHolderErr != nil {
+		return getNewDeviceHolderErr
+	}
+
 	return pdhs.personDeviceHistoryRepository.AddNewPersonDeviceHistoryFromModel(
 		personDeviceAfterUpdateModel,
-		"Assignment changed",
+		fmt.Sprintf("Device given to %s", newDeviceHolder.Name),
 		personDeviceAfterUpdateModel.GetUpdated().Time(),
 	)
 }
 
 func NewPersonDeviceHistoryServices(
+	personRepository repositories.IPersonRepository,
 	personDeviceHistoryRepository repositories.IPersonDeviceHistoryRepository,
-	deviceHistory repositories.IDeviceRepository,
+
 ) IPersonDeviceHistoryServices {
 	return PersonDeviceHistoryServices{
+		personRepository,
 		personDeviceHistoryRepository,
-		deviceHistory,
 	}
 }
