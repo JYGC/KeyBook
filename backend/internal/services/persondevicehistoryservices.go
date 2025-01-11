@@ -20,6 +20,7 @@ type IPersonDeviceHistoryServices interface {
 }
 
 type PersonDeviceHistoryServices struct {
+	deviceRepository              repositories.IDeviceRepository
 	personRepository              repositories.IPersonRepository
 	personDeviceHistoryRepository repositories.IPersonDeviceHistoryRepository
 }
@@ -37,6 +38,11 @@ func (pdhs PersonDeviceHistoryServices) AddNewPersonDeviceHistoryDueToCreatePers
 		return unmashalErr
 	}
 
+	device, getDeviceErr := pdhs.deviceRepository.GetDeviceById(personDevice.Device)
+	if getDeviceErr != nil {
+		return getDeviceErr
+	}
+
 	newDeviceHolder, getNewDeviceHolderErr := pdhs.personRepository.GetPersonById(personDevice.Person)
 	if getNewDeviceHolderErr != nil {
 		return getNewDeviceHolderErr
@@ -44,7 +50,7 @@ func (pdhs PersonDeviceHistoryServices) AddNewPersonDeviceHistoryDueToCreatePers
 
 	return pdhs.personDeviceHistoryRepository.AddNewPersonDeviceHistoryFromModel(
 		personDeviceModel,
-		fmt.Sprintf("Device given to %s", newDeviceHolder.Name),
+		fmt.Sprintf("The %s, %s (%s), given to %s, %s", device.Type, device.Name, device.Type, newDeviceHolder.Type, newDeviceHolder.Name),
 		time.Now(),
 	)
 }
@@ -75,11 +81,13 @@ func (pdhs PersonDeviceHistoryServices) AddNewPersonDeviceHistoryDueToUpdatePers
 }
 
 func NewPersonDeviceHistoryServices(
+	deviceRepository repositories.IDeviceRepository,
 	personRepository repositories.IPersonRepository,
 	personDeviceHistoryRepository repositories.IPersonDeviceHistoryRepository,
 
 ) IPersonDeviceHistoryServices {
 	return PersonDeviceHistoryServices{
+		deviceRepository,
 		personRepository,
 		personDeviceHistoryRepository,
 	}

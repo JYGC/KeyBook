@@ -733,6 +733,59 @@
     "options": {}
   },
   {
+    "id": "trcf8ri0xw3uf7i",
+    "name": "devicehistorylistview",
+    "type": "view",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "im2c6zvk",
+        "name": "deviceid",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "dcmxdq1h",
+        "name": "description",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "uin1843d",
+        "name": "property",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": null,
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {
+      "query": "SELECT\n  (ROW_NUMBER() OVER()) as id,\n  dhlv.deviceid,\n  dhlv.created,\n  dhlv.description,\n  dhlv.property\nFROM (\n  SELECT\n  dh.deviceid,\n  dh.created,\n  dh.description,\n  dh.property\n  FROM devicehistory dh\n  UNION\n  SELECT\n  pdh.deviceid,\n  pdh.created,\n  pdh.description,\n  pdh.property\n  FROM persondevicehistory pdh\n) dhlv"
+    }
+  },
+  {
     "id": "vxo2pex1iq0dbgn",
     "name": "devicelistview",
     "type": "view",
