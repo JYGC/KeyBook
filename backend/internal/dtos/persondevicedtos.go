@@ -16,7 +16,8 @@ type NewPersonDeviceHistoryDto struct {
 }
 
 type PersonDeviceDto struct {
-	Id     string `db:"id" json:"id"`
-	Person string `db:"person" json:"person"`
-	Device string `db:"device" json:"device"`
+	Id       string `db:"id" json:"id"`
+	Person   string `db:"person" json:"person"`
+	Device   string `db:"device" json:"device"`
+	Property string `db:"property" json:"property"`
 }

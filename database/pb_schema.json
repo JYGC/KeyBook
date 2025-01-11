@@ -335,6 +335,34 @@
           "maxSelect": 1,
           "displayFields": null
         }
+      },
+      {
+        "system": false,
+        "id": "ju9kevo2",
+        "name": "deviceid",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "0maseubl",
+        "name": "personid",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
       }
     ],
     "indexes": [],
@@ -712,7 +740,7 @@
     "schema": [
       {
         "system": false,
-        "id": "v1eathns",
+        "id": "i95ayset",
         "name": "propertyid",
         "type": "relation",
         "required": true,
@@ -728,7 +756,7 @@
       },
       {
         "system": false,
-        "id": "s8mrqxnp",
+        "id": "5v3wpggf",
         "name": "deviceid",
         "type": "relation",
         "required": false,
@@ -744,7 +772,7 @@
       },
       {
         "system": false,
-        "id": "qjdgxcsz",
+        "id": "nr8olqmj",
         "name": "devicename",
         "type": "text",
         "required": true,
@@ -758,7 +786,7 @@
       },
       {
         "system": false,
-        "id": "kaxexaoi",
+        "id": "927q2mev",
         "name": "deviceidentifier",
         "type": "text",
         "required": true,
@@ -772,7 +800,7 @@
       },
       {
         "system": false,
-        "id": "bdj0vkxh",
+        "id": "cm9lvjzq",
         "name": "devicetype",
         "type": "select",
         "required": true,
@@ -791,7 +819,7 @@
       },
       {
         "system": false,
-        "id": "sespfskb",
+        "id": "x9eckrkv",
         "name": "personname",
         "type": "text",
         "required": true,
@@ -822,7 +850,7 @@
     "schema": [
       {
         "system": false,
-        "id": "crd1qvsd",
+        "id": "omtphf7c",
         "name": "propertyid",
         "type": "relation",
         "required": true,
@@ -838,7 +866,7 @@
       },
       {
         "system": false,
-        "id": "2ta8d5pk",
+        "id": "zvcj7bsi",
         "name": "personid",
         "type": "relation",
         "required": false,
@@ -854,7 +882,7 @@
       },
       {
         "system": false,
-        "id": "6z6cwiex",
+        "id": "0zvthppz",
         "name": "personname",
         "type": "text",
         "required": true,
@@ -868,7 +896,7 @@
       },
       {
         "system": false,
-        "id": "u0crjfqm",
+        "id": "co2nc8jv",
         "name": "persontype",
         "type": "select",
         "required": true,
@@ -886,7 +914,7 @@
       },
       {
         "system": false,
-        "id": "ghutcs9h",
+        "id": "pvyibwji",
         "name": "holdingdevicejsons",
         "type": "json",
         "required": false,

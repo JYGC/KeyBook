@@ -36,7 +36,7 @@ func (pdhr PersonDeviceHistoryRepository) AddNewPersonDeviceHistoryFromModel(
 		return mashalErr
 	}
 
-	var propertyIdDto dtos.PropertyIdFromJsonDto
+	var propertyIdDto dtos.PersonDeviceDto
 	if unmashalErr := json.Unmarshal(personDeviceJson, &propertyIdDto); unmashalErr != nil {
 		return unmashalErr
 	}
@@ -47,6 +47,8 @@ func (pdhr PersonDeviceHistoryRepository) AddNewPersonDeviceHistoryFromModel(
 	newPersonDeviceHistory.Set("stateddatetime", statedDateTime)
 	newPersonDeviceHistory.Set("persondeviceid", personDeviceModel.GetId())
 	newPersonDeviceHistory.Set("property", propertyIdDto.Property)
+	newPersonDeviceHistory.Set("deviceid", propertyIdDto.Device)
+	newPersonDeviceHistory.Set("personid", propertyIdDto.Person)
 
 	if saveHistoryErr := pdhr.app.Dao().SaveRecord(newPersonDeviceHistory); saveHistoryErr != nil {
 		return saveHistoryErr

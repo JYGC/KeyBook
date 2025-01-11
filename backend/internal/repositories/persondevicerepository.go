@@ -45,6 +45,7 @@ func (pdr PersonDeviceRepository) GetPersonDeviceById(
 		"pd.id",
 		"pd.person",
 		"pd.device",
+		"pd.property",
 	).From(
 		"persondevices pd",
 	).Where(
