@@ -17,6 +17,8 @@
         { key: "description", value: "Description" },
       ]}
       rows={deviceHistoryList}
-    />
+    >
+      <strong slot="title">Device history</strong>
+    </DataTable>
   {/if}
 {/await}

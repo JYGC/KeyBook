@@ -43,4 +43,8 @@
 <DeviceEditor deviceEditorModule={deviceUpdateEditorModule}>
   <DeviceHolderEditor deviceHolderEditorModule={deviceHolderEditorModule} />
 </DeviceEditor>
+<br />
+<br />
+<br />
+<br />
 <DeviceHistoryList deviceHistoryListModule={deviceHistoryListModule} />
