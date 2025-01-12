@@ -1,0 +1,995 @@
+[
+  {
+    "id": "_pb_users_auth_",
+    "name": "users",
+    "type": "auth",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "users_name",
+        "name": "name",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "users_avatar",
+        "name": "avatar",
+        "type": "file",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "mimeTypes": [
+            "image/jpeg",
+            "image/png",
+            "image/svg+xml",
+            "image/gif",
+            "image/webp"
+          ],
+          "thumbs": null,
+          "maxSelect": 1,
+          "maxSize": 5242880,
+          "protected": false
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "id = @request.auth.id",
+    "viewRule": "id = @request.auth.id",
+    "createRule": "",
+    "updateRule": "id = @request.auth.id",
+    "deleteRule": "id = @request.auth.id",
+    "options": {
+      "allowEmailAuth": true,
+      "allowOAuth2Auth": true,
+      "allowUsernameAuth": true,
+      "exceptEmailDomains": null,
+      "manageRule": null,
+      "minPasswordLength": 8,
+      "onlyEmailDomains": null,
+      "onlyVerified": false,
+      "requireEmail": false
+    }
+  },
+  {
+    "id": "f2l9of6x80jcky2",
+    "name": "devicehistory",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "myyj10zg",
+        "name": "description",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "hwojjbcu",
+        "name": "device",
+        "type": "json",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 2000000
+        }
+      },
+      {
+        "system": false,
+        "id": "o4iqhp3l",
+        "name": "stateddatetime",
+        "type": "date",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": "",
+          "max": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "ym9ag6zc",
+        "name": "deviceid",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "6w1k5mxx",
+        "name": "property",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "gcu9zs3x383uquo",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "createRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  },
+  {
+    "id": "wikt02c8wi5skhv",
+    "name": "devices",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "xkcropoi",
+        "name": "name",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "oystyavx",
+        "name": "identifier",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "zxlzlnwp",
+        "name": "defunctreason",
+        "type": "select",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "None",
+            "Lost",
+            "Damaged",
+            "Retired",
+            "Stolen"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "sqa5jhul",
+        "name": "type",
+        "type": "select",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "Fob",
+            "Key",
+            "Remote",
+            "RoomKey",
+            "MailboxKey"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "1qkpoxwb",
+        "name": "property",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "gcu9zs3x383uquo",
+          "cascadeDelete": true,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "7vbii0le",
+        "name": "image",
+        "type": "file",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "mimeTypes": [
+            "image/png",
+            "image/jpeg",
+            "image/gif"
+          ],
+          "thumbs": [],
+          "maxSelect": 1,
+          "maxSize": 5242880,
+          "protected": false
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "createRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "updateRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "deleteRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "options": {}
+  },
+  {
+    "id": "to045v3rlwxd41i",
+    "name": "persondevicehistory",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "yv8rq2vn",
+        "name": "description",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "gtpgadpx",
+        "name": "persondevice",
+        "type": "json",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 2000000
+        }
+      },
+      {
+        "system": false,
+        "id": "1chuwzqo",
+        "name": "stateddatetime",
+        "type": "date",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": "",
+          "max": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "ooypmw2o",
+        "name": "persondeviceid",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "lfpwwx5p",
+        "name": "property",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "gcu9zs3x383uquo",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "ju9kevo2",
+        "name": "deviceid",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "0maseubl",
+        "name": "personid",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "createRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  },
+  {
+    "id": "3zlawaia42a1o69",
+    "name": "persondevices",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "xfyxti1b",
+        "name": "person",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "zb56u6bvqo9m8dm",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "gao1dp44",
+        "name": "device",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "wikt02c8wi5skhv",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "pktsy9ht",
+        "name": "property",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "gcu9zs3x383uquo",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id != \"\" && (@request.auth.id ?= person.property.owners.id || @request.auth.id ?= device.property.owners.id)",
+    "viewRule": "@request.auth.id != \"\" && (@request.auth.id ?= person.property.owners.id || @request.auth.id ?= device.property.owners.id)",
+    "createRule": "@request.auth.id != \"\" && (@request.auth.id ?= person.property.owners.id || @request.auth.id ?= device.property.owners.id)",
+    "updateRule": "@request.auth.id != \"\" && (@request.auth.id ?= person.property.owners.id || @request.auth.id ?= device.property.owners.id)",
+    "deleteRule": "@request.auth.id != \"\" && (@request.auth.id ?= person.property.owners.id || @request.auth.id ?= device.property.owners.id)",
+    "options": {}
+  },
+  {
+    "id": "galq7rsqz3n1a42",
+    "name": "personhistory",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "pulovqey",
+        "name": "description",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "0ec3ohnp",
+        "name": "person",
+        "type": "json",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 2000000
+        }
+      },
+      {
+        "system": false,
+        "id": "xolkmvl0",
+        "name": "stateddatetime",
+        "type": "date",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": "",
+          "max": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "k7ollxfy",
+        "name": "personid",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "c1dh0xuw",
+        "name": "property",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "gcu9zs3x383uquo",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "createRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  },
+  {
+    "id": "zb56u6bvqo9m8dm",
+    "name": "persons",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "w8qdt2id",
+        "name": "name",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "dyi6bggu",
+        "name": "type",
+        "type": "select",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "Owner",
+            "Tenant",
+            "Agent",
+            "Household"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "chnjaghj",
+        "name": "property",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "gcu9zs3x383uquo",
+          "cascadeDelete": true,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "nrdwo9yc",
+        "name": "profileimage",
+        "type": "file",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "mimeTypes": [
+            "image/jpeg",
+            "image/png",
+            "image/gif"
+          ],
+          "thumbs": [],
+          "maxSelect": 1,
+          "maxSize": 5242880,
+          "protected": false
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "createRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "updateRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "deleteRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "options": {}
+  },
+  {
+    "id": "gcu9zs3x383uquo",
+    "name": "properties",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "7jcwtlcz",
+        "name": "address",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "nv57zrhf",
+        "name": "owners",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": null,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "8ryl3erc",
+        "name": "managers",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": null,
+          "displayFields": null
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= owners.id",
+    "createRule": "@request.auth.id != \"\" && @request.auth.id ?= owners.id",
+    "updateRule": "@request.auth.id != \"\" && @request.auth.id ?= owners.id",
+    "deleteRule": "@request.auth.id != \"\" && @request.auth.id ?= owners.id",
+    "options": {}
+  },
+  {
+    "id": "tb9i0r3354mhc7u",
+    "name": "propertyhistory",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "4khr8fml",
+        "name": "description",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "qvgqdgpu",
+        "name": "property",
+        "type": "json",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 2000000
+        }
+      },
+      {
+        "system": false,
+        "id": "c8weloon",
+        "name": "stateddatetime",
+        "type": "date",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": "",
+          "max": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "ryoftjvh",
+        "name": "propertyid",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "",
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  },
+  {
+    "id": "trcf8ri0xw3uf7i",
+    "name": "devicehistorylistview",
+    "type": "view",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "i3owhqyh",
+        "name": "deviceid",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "wn0yoxbv",
+        "name": "description",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "g1cvoncy",
+        "name": "property",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "gcu9zs3x383uquo",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {
+      "query": "SELECT\n  (ROW_NUMBER() OVER()) AS id,\n  dhlv.deviceid,\n  dhlv.created,\n  dhlv.description,\n  p.id AS property\nFROM (\n  SELECT\n  dh.deviceid,\n  dh.created,\n  dh.description,\n  dh.property\n  FROM devicehistory dh\n  UNION\n  SELECT\n  pdh.deviceid,\n  pdh.created,\n  pdh.description,\n  pdh.property\n  FROM persondevicehistory pdh\n) dhlv\nINNER JOIN properties p ON dhlv.property = p.id"
+    }
+  },
+  {
+    "id": "vxo2pex1iq0dbgn",
+    "name": "devicelistview",
+    "type": "view",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "q0w96hmx",
+        "name": "propertyid",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "gcu9zs3x383uquo",
+          "cascadeDelete": true,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "yjvfdhk9",
+        "name": "deviceid",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "wikt02c8wi5skhv",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "kbotcpsp",
+        "name": "devicename",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "cnbmdrab",
+        "name": "deviceidentifier",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "6q8ru9ew",
+        "name": "devicetype",
+        "type": "select",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "Fob",
+            "Key",
+            "Remote",
+            "RoomKey",
+            "MailboxKey"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "cwbxf14b",
+        "name": "personname",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= propertyid.owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= propertyid.owners.id",
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {
+      "query": "SELECT\n  d.id as id,\n  d.property as propertyid,\n  d.id as deviceid,\n  d.name as devicename,\n  d.identifier as deviceidentifier,\n  d.type as devicetype,\n  p.name as personname\nFROM devices d\nLEFT JOIN persondevices pd ON d.id = pd.device\nLEFT JOIN persons p ON pd.person = p.id"
+    }
+  },
+  {
+    "id": "vuoiwg6vro7sdx9",
+    "name": "personlistview",
+    "type": "view",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "ueh7yskq",
+        "name": "propertyid",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "gcu9zs3x383uquo",
+          "cascadeDelete": true,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "bsovh4va",
+        "name": "personid",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "zb56u6bvqo9m8dm",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "gdcbmp1f",
+        "name": "personname",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "obyzvgjj",
+        "name": "persontype",
+        "type": "select",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "Owner",
+            "Tenant",
+            "Agent",
+            "Household"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "0qotdlvu",
+        "name": "holdingdevicejsons",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= propertyid.owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= propertyid.owners.id",
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {
+      "query": "WITH device_assignments AS (\n  SELECT\n  pd.person,\n  json_group_array(\n    json_object(\n      'deviceid', d.id,\n      'devicename', d.name\n    )\n  ) holdingdevicejsons\n  FROM persondevices pd\n  INNER JOIN devices d ON pd.device = d.id\n  GROUP BY pd.person\n)\nSELECT\n  p.id,\n  p.property propertyid,\n  p.id personid,\n  p.name personname,\n  p.type persontype,\n  da.holdingdevicejsons\nFROM persons p\nLEFT JOIN\n  device_assignments da ON p.id = da.person"
+    }
+  }
+]
