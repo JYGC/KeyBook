@@ -27,7 +27,7 @@
     <Button>Add Property</Button>
   </div>
   <OverflowMenuItem onclick={gotoAddProperty} text="Add One Property" />
-  <OverflowMenuItem onclick={gotoImportCsvDate} text="Add via CSV" />
+  <OverflowMenuItem disabled onclick={gotoImportCsvDate} text="Add via CSV" />
 </OverflowMenu>
 <PropertyList
 propertyListModule={propertyListModule}
