@@ -740,7 +740,7 @@
     "schema": [
       {
         "system": false,
-        "id": "im2c6zvk",
+        "id": "i3owhqyh",
         "name": "deviceid",
         "type": "json",
         "required": false,
@@ -752,7 +752,7 @@
       },
       {
         "system": false,
-        "id": "dcmxdq1h",
+        "id": "wn0yoxbv",
         "name": "description",
         "type": "json",
         "required": false,
@@ -764,25 +764,29 @@
       },
       {
         "system": false,
-        "id": "uin1843d",
+        "id": "g1cvoncy",
         "name": "property",
-        "type": "json",
+        "type": "relation",
         "required": false,
         "presentable": false,
         "unique": false,
         "options": {
-          "maxSize": 1
+          "collectionId": "gcu9zs3x383uquo",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
         }
       }
     ],
     "indexes": [],
-    "listRule": null,
-    "viewRule": null,
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= property.owners.id",
     "createRule": null,
     "updateRule": null,
     "deleteRule": null,
     "options": {
-      "query": "SELECT\n  (ROW_NUMBER() OVER()) as id,\n  dhlv.deviceid,\n  dhlv.created,\n  dhlv.description,\n  dhlv.property\nFROM (\n  SELECT\n  dh.deviceid,\n  dh.created,\n  dh.description,\n  dh.property\n  FROM devicehistory dh\n  UNION\n  SELECT\n  pdh.deviceid,\n  pdh.created,\n  pdh.description,\n  pdh.property\n  FROM persondevicehistory pdh\n) dhlv"
+      "query": "SELECT\n  (ROW_NUMBER() OVER()) AS id,\n  dhlv.deviceid,\n  dhlv.created,\n  dhlv.description,\n  p.id AS property\nFROM (\n  SELECT\n  dh.deviceid,\n  dh.created,\n  dh.description,\n  dh.property\n  FROM devicehistory dh\n  UNION\n  SELECT\n  pdh.deviceid,\n  pdh.created,\n  pdh.description,\n  pdh.property\n  FROM persondevicehistory pdh\n) dhlv\nINNER JOIN properties p ON dhlv.property = p.id"
     }
   },
   {
@@ -793,7 +797,7 @@
     "schema": [
       {
         "system": false,
-        "id": "i95ayset",
+        "id": "q0w96hmx",
         "name": "propertyid",
         "type": "relation",
         "required": true,
@@ -809,7 +813,7 @@
       },
       {
         "system": false,
-        "id": "5v3wpggf",
+        "id": "yjvfdhk9",
         "name": "deviceid",
         "type": "relation",
         "required": false,
@@ -825,7 +829,7 @@
       },
       {
         "system": false,
-        "id": "nr8olqmj",
+        "id": "kbotcpsp",
         "name": "devicename",
         "type": "text",
         "required": true,
@@ -839,7 +843,7 @@
       },
       {
         "system": false,
-        "id": "927q2mev",
+        "id": "cnbmdrab",
         "name": "deviceidentifier",
         "type": "text",
         "required": true,
@@ -853,7 +857,7 @@
       },
       {
         "system": false,
-        "id": "cm9lvjzq",
+        "id": "6q8ru9ew",
         "name": "devicetype",
         "type": "select",
         "required": true,
@@ -872,7 +876,7 @@
       },
       {
         "system": false,
-        "id": "x9eckrkv",
+        "id": "cwbxf14b",
         "name": "personname",
         "type": "text",
         "required": true,
@@ -903,7 +907,7 @@
     "schema": [
       {
         "system": false,
-        "id": "omtphf7c",
+        "id": "ueh7yskq",
         "name": "propertyid",
         "type": "relation",
         "required": true,
@@ -919,7 +923,7 @@
       },
       {
         "system": false,
-        "id": "zvcj7bsi",
+        "id": "bsovh4va",
         "name": "personid",
         "type": "relation",
         "required": false,
@@ -935,7 +939,7 @@
       },
       {
         "system": false,
-        "id": "0zvthppz",
+        "id": "gdcbmp1f",
         "name": "personname",
         "type": "text",
         "required": true,
@@ -949,7 +953,7 @@
       },
       {
         "system": false,
-        "id": "co2nc8jv",
+        "id": "obyzvgjj",
         "name": "persontype",
         "type": "select",
         "required": true,
@@ -967,7 +971,7 @@
       },
       {
         "system": false,
-        "id": "pvyibwji",
+        "id": "0qotdlvu",
         "name": "holdingdevicejsons",
         "type": "json",
         "required": false,

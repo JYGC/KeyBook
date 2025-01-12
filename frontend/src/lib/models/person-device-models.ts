@@ -32,3 +32,9 @@ export interface IDeviceListItemModel {
   personname: string;
 }
 
+export interface IDeviceHistoryListItem {
+  id: string;
+  deviceid: string;
+  description: string;
+  created: string;
+}

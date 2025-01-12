@@ -27,6 +27,6 @@ export class DeviceHoldingListModule implements IDeviceHoldingListModule {
     personContext: PersonContext
   ) {
     this.__backendClient = backendClient;
-    this.__personContext = personContext
+    this.__personContext = personContext;
   }
 }

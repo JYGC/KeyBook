@@ -3,7 +3,7 @@ import type { AddPropertyDeviceAndHistoriesModel } from "./models/data-import-mo
 import type { IEditDeviceModel } from "./models/device-models";
 import type { IEditPersonModel, IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "./models/person-models";
 import type { IPropertyListItemModel } from "./models/property-models";
-import type { IDeviceListItemModel, IPersonListItemModel } from "./models/person-device-models";
+import type { IDeviceHistoryListItem, IDeviceListItemModel, IPersonListItemModel } from "./models/person-device-models";
 
 export interface IBackendClient {
   isTokenValid: boolean;
@@ -81,4 +81,8 @@ export interface ICsvFileToObjectConverter {
 
 export interface IDeviceListDataService {
   add: () => void;
+}
+
+export interface IDeviceHistoryListModule {
+  deviceHistoryListAsync: Promise<IDeviceHistoryListItem[] | null>;
 }

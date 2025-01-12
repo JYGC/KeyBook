@@ -1,6 +1,6 @@
 import type { PropertyContext } from "$lib/contexts/property-context.svelte";
 import type { IBackendClient, IDeviceListModule } from "$lib/interfaces";
-import type { IDeviceListItemModel } from "$lib/models/device-models";
+import type { IDeviceListItemModel } from "$lib/models/person-device-models";
 
 export class DeviceListModule implements IDeviceListModule {
   private readonly __backendClient: IBackendClient;
