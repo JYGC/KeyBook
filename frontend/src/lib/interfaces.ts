@@ -86,3 +86,7 @@ export interface IDeviceListDataService {
 export interface IDeviceHistoryListModule {
   deviceHistoryListAsync: Promise<IDeviceHistoryListItem[] | null>;
 }
+
+export interface IDeviceHistoryListUpdaterModule {
+  updateTriggerState: unknown;
+}

@@ -1,9 +1,9 @@
 import type { PropertyContext } from "$lib/contexts/property-context.svelte";
 import type { IPersonDeviceModel } from "$lib/models/person-device-models";
 import type { IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "$lib/models/person-models";
-import type { IBackendClient, IDeviceEditorModule, IDeviceHolderEditorModule } from "$lib/interfaces";
+import type { IBackendClient, IDeviceEditorModule, IDeviceHistoryListUpdaterModule, IDeviceHolderEditorModule } from "$lib/interfaces";
 
-export class DeviceHolderEditorModule implements IDeviceHolderEditorModule {
+export class DeviceHolderEditorModule implements IDeviceHolderEditorModule, IDeviceHistoryListUpdaterModule {
   private readonly __backendClient: IBackendClient;
   private readonly __deviceEditorModule: IDeviceEditorModule;
   private readonly __propertyContext: PropertyContext;
@@ -29,6 +29,7 @@ export class DeviceHolderEditorModule implements IDeviceHolderEditorModule {
   };
 
   public personDeviceExpandPersonDevicePersonAsync = $state<Promise<IPersonDeviceExpandPersonDevicePersonEditModel | null>>((async () => null)());
+  public updateTriggerState = $derived(this.personDeviceExpandPersonDevicePersonAsync);
 
   public availablePersonsAsync = $derived.by<Promise<IPersonIdNameTypeModel[]>>(async () => {
     try {

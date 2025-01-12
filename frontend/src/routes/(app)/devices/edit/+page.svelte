@@ -34,6 +34,7 @@
   const deviceHistoryListModule = new DeviceHistoryListModule(
     backendClient,
     deviceContext,
+    deviceHolderEditorModule,
   )
 </script>
 
