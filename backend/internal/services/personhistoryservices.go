@@ -47,7 +47,7 @@ func (ph PersonHistoryServices) AddNewPersonHistoryDueToUpdatePersonHook(
 	var personAfterUpdate dtos.PersonDto
 	json.Unmarshal(personAfterUpdateModelJson, &personAfterUpdate)
 
-	description := "Details updated."
+	description := ""
 
 	if personBeforeUpdate.Name != personAfterUpdate.Name {
 		description = fmt.Sprintf(
@@ -65,6 +65,10 @@ func (ph PersonHistoryServices) AddNewPersonHistoryDueToUpdatePersonHook(
 			personBeforeUpdate.Type,
 			personAfterUpdate.Type,
 		)
+	}
+
+	if description == "" {
+		return nil
 	}
 
 	return ph.personHistoryRepository.AddNewPersonHistoryFromModel(

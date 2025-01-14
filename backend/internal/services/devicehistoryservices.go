@@ -47,7 +47,7 @@ func (dh DeviceHistoryServices) AddNewDeviceHistoryDueToUpdateDeviceHook(
 	var deviceAfterUpdate dtos.DeviceDto
 	json.Unmarshal(deviceAfterUpdateModelJson, &deviceAfterUpdate)
 
-	description := "Details updated."
+	description := ""
 
 	if deviceBeforeUpdate.Identifier != deviceAfterUpdate.Identifier {
 		description = fmt.Sprintf(
@@ -83,6 +83,10 @@ func (dh DeviceHistoryServices) AddNewDeviceHistoryDueToUpdateDeviceHook(
 			deviceBeforeUpdate.Type,
 			deviceAfterUpdate.Type,
 		)
+	}
+
+	if description == "" {
+		return nil
 	}
 
 	return dh.deviceHistoryRepository.AddNewDeviceHistoryFromModel(

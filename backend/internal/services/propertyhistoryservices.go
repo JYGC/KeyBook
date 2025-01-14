@@ -52,7 +52,7 @@ func (phs PropertyHistoryServices) AddPropertyHistoryDueToUpdatePropertyHook(
 		return unmarshalErr
 	}
 
-	description := "Details updated."
+	description := ""
 
 	if propertyBeforeUpdate.Address != propertyAfterUpdate.Address {
 		description = fmt.Sprintf(
@@ -61,6 +61,10 @@ func (phs PropertyHistoryServices) AddPropertyHistoryDueToUpdatePropertyHook(
 			propertyBeforeUpdate.Address,
 			propertyAfterUpdate.Address,
 		)
+	}
+
+	if description == "" {
+		return nil
 	}
 
 	return phs.propertyHistoryRepository.AddPropertyHistoryFromModel(
