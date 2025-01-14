@@ -13,10 +13,6 @@
 
   const selectedProperty = getPropertyContext();
 
-  const gotoImportCsvDate = () => {
-    goto("/importdata/csv1");
-  };
-
   const gotoAddProperty = () => {
     goto("/properties/add");
   };
@@ -27,7 +23,6 @@
     <Button>Add Property</Button>
   </div>
   <OverflowMenuItem onclick={gotoAddProperty} text="Add One Property" />
-  <OverflowMenuItem disabled onclick={gotoImportCsvDate} text="Add via CSV" />
 </OverflowMenu>
 <PropertyList
 propertyListModule={propertyListModule}
