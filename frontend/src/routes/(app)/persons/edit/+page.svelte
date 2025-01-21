@@ -3,6 +3,7 @@
 	import { BackendClient } from "$lib/api/backend-client";
 	import PersonEditor from "$lib/components/person/PersonEditor.svelte";
 	import DeviceHoldingList from "$lib/components/persondevice/DeviceHoldingList.svelte";
+	import ConfirmButtonAndDialog from "$lib/components/shared/ConfirmButtonAndDialog.svelte";
 	import { getDeviceContext } from "$lib/contexts/device-context.svelte";
 	import { getPersonContext } from "$lib/contexts/person-context.svelte";
 	import { PersonUpdateEditorModule } from "$lib/modules/person/person-update-editor-module.svelte";
@@ -33,4 +34,11 @@
     deviceHoldingListModule={deviceHoldingListModule}
     bind:selectedDeviceId={deviceContext.selectedDeviceId}
   />
+  {#snippet deleteButton(deleteActionButtonClick: () => null)}
+    <ConfirmButtonAndDialog
+      submitAction={deleteActionButtonClick}
+      buttonText="Delete"
+      bodyMessage="Are you sure you want to delete this person?"
+    />
+  {/snippet}
 </PersonEditor>

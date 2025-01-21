@@ -5,9 +5,11 @@
 
   let {
     children,
+    deleteButton,
     personEditorModule = $bindable(),
   } = $props<{
     children?: Snippet,
+    deleteButton?: Snippet<[() => null]>,
     personEditorModule: IPersonEditorModule
   }>();
 
@@ -15,7 +17,7 @@
   const setAllowEditingPersonType = () => allowEditingPersonType = true;
 
   const saveButtonClick = personEditorModule.getSavePersonAction();
-  const deleteButtonClick = personEditorModule.getDeletePersonAction();
+  const deleteActionButtonClick = personEditorModule.getDeletePersonAction();
 </script>
 {#await personEditorModule.personAsync}
   <Tile>...getting person details</Tile>
@@ -44,8 +46,8 @@
     {/if}
     <br />
     <Button onclick={() => saveButtonClick(person)}>Save</Button>
-    {#if deleteButtonClick !== null}
-      <Button onclick={() => deleteButtonClick(person)}>Delete</Button>
+    {#if deleteButton !== undefined && deleteActionButtonClick !== null}
+      {@render deleteButton(() => deleteActionButtonClick(person))}
     {/if}
   {/if}
 {/await}

@@ -3,6 +3,7 @@
 	import DeviceEditor from "$lib/components/device/DeviceEditor.svelte";
 	import DeviceHistoryList from "$lib/components/persondevice/DeviceHistoryList.svelte";
 	import DeviceHolderEditor from "$lib/components/persondevice/DeviceHolderEditor.svelte";
+	import ConfirmButtonAndDialog from "$lib/components/shared/ConfirmButtonAndDialog.svelte";
 	import { getDeviceContext } from "$lib/contexts/device-context.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
 	import { DeviceUpdateEditorModule } from "$lib/modules/device/device-update-editor-module.svelte";
@@ -42,6 +43,13 @@
 
 <DeviceEditor deviceEditorModule={deviceUpdateEditorModule}>
   <DeviceHolderEditor deviceHolderEditorModule={deviceHolderEditorModule} />
+  {#snippet deleteButton(deleteActionButtonClick: () => null)}
+    <ConfirmButtonAndDialog
+      submitAction={deleteActionButtonClick}
+      buttonText="Delete"
+      bodyMessage="Are you sure you want to delete this device?"
+    />
+  {/snippet}
 </DeviceEditor>
 <br />
 <br />

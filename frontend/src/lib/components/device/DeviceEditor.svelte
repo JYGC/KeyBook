@@ -5,9 +5,11 @@
 
   let {
     children,
+    deleteButton,
     deviceEditorModule = $bindable(),
   } = $props<{
     children?: Snippet,
+    deleteButton?: Snippet<[() => null]>,
     deviceEditorModule: IDeviceEditorModule,
   }>();
 
@@ -15,7 +17,7 @@
   const setShowDefunctReason = () => showDefunctReason = true;
 
   const saveButtonClick = deviceEditorModule.getSaveDeviceAction();
-  const deleteButtonClick = deviceEditorModule.getDeleteDeviceAction();
+  const deleteActionButtonClick = deviceEditorModule.getDeleteDeviceAction();
 </script>
 {#await deviceEditorModule.deviceAsync}
   <Tile>...getting device details</Tile>
@@ -57,8 +59,8 @@
     <br />
     <br />
     <Button onclick={() => saveButtonClick(device)}>Save</Button>
-    {#if deleteButtonClick !== null}
-      <Button onclick={() => deleteButtonClick(device)}>Delete</Button>
+    {#if deleteButton !== undefined && deleteActionButtonClick !== undefined}
+      {@render deleteButton(() => deleteActionButtonClick(device))}
     {/if}
   {/if}
 {/await}

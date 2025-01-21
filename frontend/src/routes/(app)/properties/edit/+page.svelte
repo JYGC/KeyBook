@@ -2,6 +2,7 @@
 	import { goto } from "$app/navigation";
 	import { BackendClient } from "$lib/api/backend-client";
 	import PropertyEditor from "$lib/components/property/PropertyEditor.svelte";
+	import ConfirmButtonAndDialog from "$lib/components/shared/ConfirmButtonAndDialog.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
 	import type { IEditPropertyModel } from "$lib/models/property-models";
 	import { Button, Tile } from "carbon-components-svelte";
@@ -62,7 +63,15 @@
       isAdd={false}
       savePropertyAction={savePropertiesActionAsync}
       deletePropertyAction={deletePersonActionAsync}
-    />
+    >
+      {#snippet deleteButton(deleteActionButtonClick: () => null)}
+        <ConfirmButtonAndDialog
+        submitAction={deleteActionButtonClick}
+        buttonText="Delete"
+        bodyMessage="Are you sure you want to delete this property?"
+        />
+      {/snippet}
+    </PropertyEditor>
   {/if}
 {:catch error}
   {error}
