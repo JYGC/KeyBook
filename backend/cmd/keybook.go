@@ -16,7 +16,9 @@ import (
 func startFrontend() {
 	mux := http.NewServeMux()
 	mux.Handle("/", frontend.SvelteKitHandler("/"))
-	log.Fatal(http.ListenAndServe(":5050", mux))
+	var port = "5050"
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), mux))
+	fmt.Printf("Frontend served on port %s", port)
 }
 
 func startBackend() {
