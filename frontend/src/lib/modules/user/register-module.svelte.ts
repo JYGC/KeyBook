@@ -1,6 +1,6 @@
 import type { IBackendClient, IRegisterApi } from "$lib/interfaces";
 
-export class RegisterApi implements IRegisterApi {
+export class RegisterModule implements IRegisterApi {
   private readonly __backendClient: IBackendClient;
   
   public name = $state<string>("");

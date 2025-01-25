@@ -2,22 +2,22 @@
   import { Link, TextInput, PasswordInput, Button, FluidForm } from "carbon-components-svelte";
 
 	import { BackendClient } from "$lib/api/backend-client";
-  import { LoginApi } from "$lib/api/login-api.svelte";
-  import { RegisterApi } from "$lib/api/register-api.svelte";
+  import { LoginModule } from "$lib/modules/user/login-module.svelte";
+  import { RegisterModule } from "$lib/modules/user/register-module.svelte";
 	import { goto } from "$app/navigation";
 
   const backendClient = new BackendClient();
-  const registerApi = new RegisterApi(backendClient);
-  const loginApi = new LoginApi(backendClient);
+  const registerModule = new RegisterModule(backendClient);
+  const loginModule = new LoginModule(backendClient);
 
   const registerAndLogin = async () => {
-    const isRegistrationSuccessful = await registerApi.callApi();
+    const isRegistrationSuccessful = await registerModule.callApi();
     if (!isRegistrationSuccessful) {
       return;
     }
-    loginApi.email = registerApi.email;
-    loginApi.password = registerApi.password;
-    document.cookie = await loginApi.callApi();
+    loginModule.email = registerModule.email;
+    loginModule.password = registerModule.password;
+    document.cookie = await loginModule.callApi();
     goto("/");
 
   };
@@ -26,18 +26,18 @@
 <h1>Create an Account</h1>
 <br />
 <FluidForm>
-  <TextInput labelText="Name" placeholder="Enter your name..." bind:value={registerApi.name} />
-  <TextInput labelText="Email" placeholder="Enter email..." bind:value={registerApi.email} />
-  <PasswordInput labelText="Password" placeholder="Enter password..." bind:value={registerApi.password} />
-  <PasswordInput labelText="Confirm password" placeholder="Confirm password..." bind:value={registerApi.passwordConfirm} />
+  <TextInput labelText="Name" placeholder="Enter your name..." bind:value={registerModule.name} />
+  <TextInput labelText="Email" placeholder="Enter email..." bind:value={registerModule.email} />
+  <PasswordInput labelText="Password" placeholder="Enter password..." bind:value={registerModule.password} />
+  <PasswordInput labelText="Confirm password" placeholder="Confirm password..." bind:value={registerModule.passwordConfirm} />
 </FluidForm>
 <br />
 <Button
   disabled={
-    registerApi.name.length === 0 ||
-    registerApi.email.length === 0 ||
-    registerApi.password.length < 8 ||
-    registerApi.passwordConfirm !== registerApi.password
+    registerModule.name.length === 0 ||
+    registerModule.email.length === 0 ||
+    registerModule.password.length < 8 ||
+    registerModule.passwordConfirm !== registerModule.password
   }
   onclick={registerAndLogin}
 >Create account!</Button>
@@ -45,8 +45,8 @@
 <br />
 <br />
 
-{#if registerApi.error}
-  <p class="error">{registerApi.error}</p>
+{#if registerModule.error}
+  <p class="error">{registerModule.error}</p>
 {/if}
 
 <div>

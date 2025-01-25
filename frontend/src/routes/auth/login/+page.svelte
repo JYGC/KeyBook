@@ -2,13 +2,13 @@
   import { Button, FluidForm, Link, PasswordInput, TextInput } from "carbon-components-svelte";
 
 	import { BackendClient } from "$lib/api/backend-client";
-	import { LoginApi } from "$lib/api/login-api.svelte";
+	import { LoginModule } from "$lib/modules/user/login-module.svelte";
 	import { goto } from "$app/navigation";
 
   const backendClient = new BackendClient();
-  const loginApi = new LoginApi(backendClient);
+  const loginModule = new LoginModule(backendClient);
   const login = async () => {
-    document.cookie = await loginApi.callApi();
+    document.cookie = await loginModule.callApi();
     goto("/");
   };
 </script>
@@ -16,12 +16,12 @@
 <h1>Log into account</h1>
 <br />
 <FluidForm>
-  <TextInput labelText="Email" placeholder="Enter email..." bind:value={loginApi.email} />
-  <PasswordInput labelText="Password" placeholder="Enter password..." bind:value={loginApi.password} />
+  <TextInput labelText="Email" placeholder="Enter email..." bind:value={loginModule.email} />
+  <PasswordInput labelText="Password" placeholder="Enter password..." bind:value={loginModule.password} />
 </FluidForm>
 <br />
 <Button
-  disabled={loginApi.email.length === 0 || loginApi.password.length < 8}
+  disabled={loginModule.email.length === 0 || loginModule.password.length < 8}
   onclick={login}
 >Log in!</Button>
 <br />
