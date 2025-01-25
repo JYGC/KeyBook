@@ -1,6 +1,6 @@
 import type { IBackendClient, ILoginApi } from "$lib/interfaces";
 
-export class LoginApi implements ILoginApi {
+export class LoginModule implements ILoginApi {
   private readonly __backendClient: IBackendClient;
   
   public email = $state<string>("");
