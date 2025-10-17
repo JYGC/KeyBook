@@ -18,12 +18,7 @@
   };
 </script>
 
-<OverflowMenu size="xl" style="width: auto;">
-  <div slot="menu">
-    <Button>Add Property</Button>
-  </div>
-  <OverflowMenuItem onclick={gotoAddProperty} text="Add One Property" />
-</OverflowMenu>
+<Button onclick={gotoAddProperty}>Add Property</Button>
 <PropertyList
 propertyListModule={propertyListModule}
   bind:selectedPropertyId={selectedProperty.selectedPropertyId}
