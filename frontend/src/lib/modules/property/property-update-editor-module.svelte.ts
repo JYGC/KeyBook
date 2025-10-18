@@ -32,7 +32,7 @@ export class PropertyUpdateEditorModule implements IPropertyEditorModule {
 
   get isAdd() { return false; }
 
-  public savePropertyAction = () => async (changedProperty: IEditPropertyModel) => {
+  public getSavePropertyAction = () => async (changedProperty: IEditPropertyModel) => {
     try {
       await this.__backendClient.collection("properties").update(changedProperty.id, {
         address: changedProperty.address,

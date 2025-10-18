@@ -10,7 +10,7 @@ export interface IPropertyListModule {
 export interface IPropertyEditorModule {
   propertyAsync: Promise<IEditPropertyModel | null>;
   get isAdd(): boolean;
-  savePropertyAction: () => ((changedProperty: IEditPropertyModel) => void);
+  getSavePropertyAction: () => ((changedProperty: IEditPropertyModel) => void);
   getDeletePropertyAction: () => ((property: IEditPropertyModel) => void) | null;
   callBackAction: () => void;
 }

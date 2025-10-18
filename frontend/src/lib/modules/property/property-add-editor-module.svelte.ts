@@ -18,7 +18,7 @@ export class PropertyAddEditorModule implements IPropertyEditorModule {
   
   get isAdd() { return true; }
 
-  public savePropertyAction = () => async (changedProperty: IEditPropertyModel) => {
+  public getSavePropertyAction = () => (async (changedProperty: IEditPropertyModel) => {
     try {
       if (this.__backendClient.authStore.record === null) {
         throw new Error("Cannot find loggedInUser.");
@@ -29,7 +29,7 @@ export class PropertyAddEditorModule implements IPropertyEditorModule {
     } catch (ex) {
       alert(ex);
     }
-  };
+  });
   
   public getDeletePropertyAction = () => null;
 
