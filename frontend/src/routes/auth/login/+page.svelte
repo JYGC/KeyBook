@@ -1,15 +1,15 @@
 <script lang="ts">
   import { Button, FluidForm, Link, PasswordInput, TextInput } from "carbon-components-svelte";
 
-	import { BackendClient } from "$lib/api/backend-client";
+	import { getBackendClient } from "$lib/api/backend-client";
 	import { LoginModule } from "$lib/modules/user/login-module.svelte";
 	import { goto } from "$app/navigation";
 
-  const backendClient = new BackendClient();
+  const backendClient = getBackendClient();
   const loginModule = new LoginModule(backendClient);
   const login = async () => {
     document.cookie = await loginModule.callApi();
-    goto("/");
+    goto("/user");
   };
 </script>
 

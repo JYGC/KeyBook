@@ -13,7 +13,7 @@
 
   const gotoDeviceDetails = (deviceId: string) => {
     selectedDeviceId = deviceId;
-    goto("/devices/edit");
+    goto("/user/devices/edit");
   }
 </script>
 

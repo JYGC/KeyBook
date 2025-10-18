@@ -1,3 +1,3 @@
-import { BackendClient } from "$lib/api/backend-client";
+import { getBackendClient } from "$lib/api/backend-client";
 
-export const backendClient = new BackendClient();
+export const backendClient = getBackendClient();

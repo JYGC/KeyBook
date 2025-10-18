@@ -1,15 +1,16 @@
+import PocketBase from "pocketbase";
 import type { DeviceContext } from "$lib/contexts/device-context.svelte";
 import type { IEditDeviceModel } from "$lib/models/device-models";
-import type { IBackendClient, IDeviceEditorModule } from "$lib/interfaces";
+import type { IDeviceEditorModule } from "$lib/modules/interfaces";
 
 export class DeviceUpdateEditorModule implements IDeviceEditorModule {
-  private readonly __backendClient: IBackendClient;
+  private readonly __backendClient: PocketBase;
   private readonly __deviceContext: DeviceContext;
   private readonly __backAction: () => void;
 
   public deviceAsync = $derived.by<Promise<IEditDeviceModel | null>>(async () => {
     try {
-      return await this.__backendClient.pb.collection("devices").getOne<IEditDeviceModel>(
+      return await this.__backendClient.collection("devices").getOne<IEditDeviceModel>(
         this.__deviceContext.selectedDeviceId,
         { fields: "id,type,name,identifier,defunctreason,property" },
       );
@@ -28,7 +29,7 @@ export class DeviceUpdateEditorModule implements IDeviceEditorModule {
 
   public getSaveDeviceAction = () => (async (changedDevice: IEditDeviceModel) => {
     try {
-      await this.__backendClient.pb.collection("devices").update(changedDevice.id, {
+      await this.__backendClient.collection("devices").update(changedDevice.id, {
         type: changedDevice.type,
         name: changedDevice.name,
         identifier: changedDevice.identifier,
@@ -42,7 +43,7 @@ export class DeviceUpdateEditorModule implements IDeviceEditorModule {
 
   public getDeleteDeviceAction = () => (async (device: IEditDeviceModel) => {
     try {
-      await this.__backendClient.pb.collection("devices").delete(device.id);
+      await this.__backendClient.collection("devices").delete(device.id);
       this.__backAction();
     } catch (ex) {
       alert(ex);
@@ -52,7 +53,7 @@ export class DeviceUpdateEditorModule implements IDeviceEditorModule {
   public callBackAction = () => this.__backAction();
   
   constructor(
-    backendClient: IBackendClient,
+    backendClient: PocketBase,
     deviceContext: DeviceContext,
     actionAfterSaveDeviceAction: () => void,
   ) {

@@ -1,10 +1,11 @@
+import PocketBase from "pocketbase";
 import type { PropertyContext } from "$lib/contexts/property-context.svelte";
 import type { IPersonDeviceModel } from "$lib/models/person-device-models";
 import type { IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "$lib/models/person-models";
-import type { IBackendClient, IDeviceEditorModule, IDeviceHistoryListUpdaterModule, IDeviceHolderEditorModule } from "$lib/interfaces";
+import type { IDeviceEditorModule, IDeviceHistoryListUpdaterModule, IDeviceHolderEditorModule } from "$lib/modules/interfaces";
 
 export class DeviceHolderEditorModule implements IDeviceHolderEditorModule, IDeviceHistoryListUpdaterModule {
-  private readonly __backendClient: IBackendClient;
+  private readonly __backendClient: PocketBase;
   private readonly __deviceEditorModule: IDeviceEditorModule;
   private readonly __propertyContext: PropertyContext;
 
@@ -14,7 +15,7 @@ export class DeviceHolderEditorModule implements IDeviceHolderEditorModule, IDev
       if (deviceId === undefined || deviceId === null) {
         return null;
       }
-      return (await this.__backendClient.pb.collection("persondevices").getFirstListItem<IPersonDeviceExpandPersonDevicePersonEditModel>(`device = "${deviceId}"`, {
+      return (await this.__backendClient.collection("persondevices").getFirstListItem<IPersonDeviceExpandPersonDevicePersonEditModel>(`device = "${deviceId}"`, {
         expand: "person",
         fields: "id,expand.person.id,expand.person.name,expand.person.type",
       }));
@@ -33,11 +34,11 @@ export class DeviceHolderEditorModule implements IDeviceHolderEditorModule, IDev
 
   public availablePersonsAsync = $derived.by<Promise<IPersonIdNameTypeModel[]>>(async () => {
     try {
-      if (this.__backendClient.loggedInUser === null) {
+      if (this.__backendClient.authStore.record === null) {
         throw new Error("Cannot find loggedInUser.");
       }
-      return (await this.__backendClient.pb.collection("persons").getFullList<IPersonIdNameTypeModel>({
-        filter: `property.id = "${this.__propertyContext.selectedPropertyId}" && property.owners.id ?~ "${this.__backendClient.loggedInUser.id}"`,
+      return (await this.__backendClient.collection("persons").getFullList<IPersonIdNameTypeModel>({
+        filter: `property.id = "${this.__propertyContext.selectedPropertyId}" && property.owners.id ?~ "${this.__backendClient.authStore.record.id}"`,
         fields: "id,name,type"
       }));
     } catch {
@@ -53,11 +54,11 @@ export class DeviceHolderEditorModule implements IDeviceHolderEditorModule, IDev
       }
       const personDeviceId = (await this.personDeviceExpandPersonDevicePersonAsync)?.id;
       if (personDeviceId !== undefined) {
-        await this.__backendClient.pb.collection("persondevices").delete(personDeviceId);
+        await this.__backendClient.collection("persondevices").delete(personDeviceId);
       }
 
       if (this.selectedDeviceHolderId !== "") {
-        await this.__backendClient.pb.collection("persondevices").create<IPersonDeviceModel>({
+        await this.__backendClient.collection("persondevices").create<IPersonDeviceModel>({
           person: this.selectedDeviceHolderId,
           device: deviceId,
           property: this.__propertyContext.selectedPropertyId,
@@ -75,7 +76,7 @@ export class DeviceHolderEditorModule implements IDeviceHolderEditorModule, IDev
   public selectedDeviceHolderId = $state<string>("");
 
   constructor(
-    backendClient: IBackendClient,
+    backendClient: PocketBase,
     deviceEditorModule: IDeviceEditorModule,
     propertyContext: PropertyContext,
   ) {

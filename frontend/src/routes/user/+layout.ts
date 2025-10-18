@@ -4,7 +4,11 @@ import { getBackendClient } from "$lib/api/backend-client";
 
 export const load: LayoutLoad = async () => {
   const backendClient = getBackendClient();
-  if (backendClient.authStore.isValid) {
-    return redirect(303, "/user");
+  if (!backendClient.authStore.isValid) {
+    return redirect(303, "/auth");
   }
+
+  return {
+    backendClient
+  };
 };

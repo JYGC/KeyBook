@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { IDeviceEditorModule } from "$lib/interfaces";
+	import type { IDeviceEditorModule } from "$lib/modules/interfaces";
 	import { Button, ClickableTile, Select, SelectItem, TextInput, Tile } from "carbon-components-svelte";
 	import type { Snippet } from "svelte";
 

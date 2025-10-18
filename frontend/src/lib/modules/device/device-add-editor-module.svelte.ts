@@ -1,9 +1,10 @@
+import PocketBase from "pocketbase";
 import type { PropertyContext } from "$lib/contexts/property-context.svelte";
 import type { IEditDeviceModel } from "$lib/models/device-models";
-import type { IBackendClient, IDeviceEditorModule } from "$lib/interfaces";
+import type { IDeviceEditorModule } from "$lib/modules/interfaces";
 
 export class DeviceAddEditorModule implements IDeviceEditorModule {
-  private readonly __backendClient: IBackendClient;
+  private readonly __backendClient: PocketBase;
   private readonly __propertyContext: PropertyContext;
   private readonly __backAction: () => void;
 
@@ -16,7 +17,7 @@ export class DeviceAddEditorModule implements IDeviceEditorModule {
   public getSaveDeviceAction = () => (async (changedDevice: IEditDeviceModel) => {
     try {
       changedDevice.property = this.__propertyContext.selectedPropertyId;
-      await this.__backendClient.pb.collection("devices").create<IEditDeviceModel>(changedDevice);
+      await this.__backendClient.collection("devices").create<IEditDeviceModel>(changedDevice);
       this.__backAction();
     } catch (ex) {
       alert(ex);
@@ -28,7 +29,7 @@ export class DeviceAddEditorModule implements IDeviceEditorModule {
   public callBackAction = () => this.__backAction();
   
   constructor(
-    backendClient: IBackendClient,
+    backendClient: PocketBase,
     propertyContext: PropertyContext,
     actionAfterSaveDeviceAction: () => void,
   ) {

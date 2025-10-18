@@ -1,14 +1,15 @@
+import PocketBase from "pocketbase";
 import type { PropertyContext } from "$lib/contexts/property-context.svelte";
-import type { IBackendClient, IPersonListModule } from "$lib/interfaces";
+import type { IPersonListModule } from "$lib/modules/interfaces";
 import type { IPersonListItemModel } from "$lib/models/person-device-models";
 
 export class PersonListModule implements IPersonListModule {
-  private readonly __backendClient: IBackendClient;
+  private readonly __backendClient: PocketBase;
   private readonly __propertyContext: PropertyContext;
 
   public personListAsync = $derived.by<Promise<IPersonListItemModel[]>>(async () => {
 		try {
-			const items = await this.__backendClient.pb.collection("personlistview").getFullList<IPersonListItemModel>({
+			const items = await this.__backendClient.collection("personlistview").getFullList<IPersonListItemModel>({
 				filter: `propertyid = "${this.__propertyContext.selectedPropertyId}"`,
 				fields: "id,personid,personname,persontype,holdingdevicejsons",
 			})
@@ -19,7 +20,7 @@ export class PersonListModule implements IPersonListModule {
 		}
 	});
 
-  constructor(backendClient: IBackendClient, propertyContext: PropertyContext) {
+  constructor(backendClient: PocketBase, propertyContext: PropertyContext) {
     this.__backendClient = backendClient;
     this.__propertyContext = propertyContext;
   }

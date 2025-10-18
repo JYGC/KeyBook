@@ -1,17 +1,18 @@
-import type { IBackendClient, ILoginApi } from "$lib/interfaces";
+import PocketBase from "pocketbase";
+import type { ILoginModule } from "$lib/modules/interfaces";
 
-export class LoginModule implements ILoginApi {
-  private readonly __backendClient: IBackendClient;
+export class LoginModule implements ILoginModule {
+  private readonly __backendClient: PocketBase;
   
   public email = $state<string>("");
   public password = $state<string>("");
 
-  constructor(backendClient: IBackendClient) {
+  constructor(backendClient: PocketBase) {
     this.__backendClient = backendClient;
   }
 
   public callApi = async (): Promise<string> => {
-    await this.__backendClient.pb.collection("users").authWithPassword(this.email, this.password);
-    return this.__backendClient.pb.authStore.exportToCookie({ httpOnly: false });
+    await this.__backendClient.collection("users").authWithPassword(this.email, this.password);
+    return this.__backendClient.authStore.exportToCookie({ httpOnly: false });
   };
 }

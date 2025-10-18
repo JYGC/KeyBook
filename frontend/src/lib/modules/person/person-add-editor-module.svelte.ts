@@ -1,9 +1,10 @@
+import PocketBase from "pocketbase";
 import type { PropertyContext } from "$lib/contexts/property-context.svelte";
-import type { IBackendClient, IPersonEditorModule } from "$lib/interfaces";
+import type { IPersonEditorModule } from "$lib/modules/interfaces";
 import type { IEditPersonModel } from "$lib/models/person-models";
 
 export class PersonAddEditorModule implements IPersonEditorModule {
-  private readonly __backendClient: IBackendClient;
+  private readonly __backendClient: PocketBase;
   private readonly __propertyContext: PropertyContext;
   private readonly __backAction: () => void;
 
@@ -14,7 +15,7 @@ export class PersonAddEditorModule implements IPersonEditorModule {
   public getSavePersonAction = () => (async (changedPerson: IEditPersonModel) => {
     try {
       changedPerson.property = this.__propertyContext.selectedPropertyId;
-      await this.__backendClient.pb.collection("persons").create<IEditPersonModel>(changedPerson);
+      await this.__backendClient.collection("persons").create<IEditPersonModel>(changedPerson);
       this.__backAction();
     } catch (ex) {
       alert(ex);
@@ -24,7 +25,7 @@ export class PersonAddEditorModule implements IPersonEditorModule {
   public callBackAction = () => this.__backAction();
 
   constructor(
-    backendClient: IBackendClient,
+    backendClient: PocketBase,
     personContext: PropertyContext,
     actionAfterSavePersonAction: () => void,
   ) {
