@@ -11,9 +11,9 @@ export class BackendClient implements IBackendClient {
     this.__pb.authStore.onChange(() => {
       document.cookie = this.__pb.authStore.exportToCookie({
         httpOnly: false,
-        secure: PUBLIC_UNSECURE_COOKIE !== undefined &&
-          PUBLIC_UNSECURE_COOKIE !== null &&
-          PUBLIC_UNSECURE_COOKIE === 'true'
+        secure: PUBLIC_UNSECURE_COOKIE === undefined ||
+          PUBLIC_UNSECURE_COOKIE === null ||
+          PUBLIC_UNSECURE_COOKIE !== 'true'
       });
     });
   }
