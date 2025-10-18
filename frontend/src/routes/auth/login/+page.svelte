@@ -9,7 +9,7 @@
   const loginModule = new LoginModule(backendClient);
   const login = async () => {
     document.cookie = await loginModule.callApi();
-    goto("/");
+    goto("/user");
   };
 </script>
 

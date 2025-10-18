@@ -12,7 +12,7 @@
     propertyContext.selectedPropertyId === null ||
     propertyContext.selectedPropertyId.trim() === ""
   ) {
-    goto("/");
+    goto("/user");
   }
 
   const deviceContext = getDeviceContext();

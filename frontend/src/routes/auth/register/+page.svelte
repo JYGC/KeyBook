@@ -18,7 +18,7 @@
     loginModule.email = registerModule.email;
     loginModule.password = registerModule.password;
     document.cookie = await loginModule.callApi();
-    goto("/");
+    goto("/user");
 
   };
 </script>
