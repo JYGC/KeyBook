@@ -1,10 +1,5 @@
 <script lang="ts">
-	import { DeviceListDataService } from "$lib/modules/device-list-data-service.svelte";
+	import { goto } from "$app/navigation";
 
-  const deviceListDataService = new DeviceListDataService();
+  goto('/user/devices/list/property');
 </script>
-<button onclick={deviceListDataService.add}>Add</button>
-
-{#each deviceListDataService.devices as device}
-  <div>{device}</div>
-{/each}

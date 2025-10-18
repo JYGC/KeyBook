@@ -1,15 +1,16 @@
+import PocketBase from "pocketbase";
 import type { PersonContext } from "$lib/contexts/person-context.svelte";
-import type { IBackendClient, IPersonEditorModule } from "$lib/interfaces";
+import type { IPersonEditorModule } from "$lib/interfaces";
 import type { IEditPersonModel } from "$lib/models/person-models";
 
 export class PersonUpdateEditorModule implements IPersonEditorModule {
-  private readonly __backendClient: IBackendClient;
+  private readonly __backendClient: PocketBase;
   private readonly __personContext: PersonContext;
   private readonly __backAction: () => void;
 
   public personAsync = $derived.by<Promise<IEditPersonModel | null>>(async () => {
     try {
-      return await this.__backendClient.pb.collection("persons").getOne<IEditPersonModel>(
+      return await this.__backendClient.collection("persons").getOne<IEditPersonModel>(
         this.__personContext.selectedPersonId,
         { fields: "id,name,type,property" },
       );
@@ -23,7 +24,7 @@ export class PersonUpdateEditorModule implements IPersonEditorModule {
 
   public getSavePersonAction = () => (async (changedPerson: IEditPersonModel) => {
     try {
-      await this.__backendClient.pb.collection("persons").update(changedPerson.id, {
+      await this.__backendClient.collection("persons").update(changedPerson.id, {
         type: changedPerson.type,
         name: changedPerson.name,
       });
@@ -35,7 +36,7 @@ export class PersonUpdateEditorModule implements IPersonEditorModule {
   
   public getDeletePersonAction = () => (async (person: IEditPersonModel) => {
     try {
-      await this.__backendClient.pb.collection("persons").delete(person.id);
+      await this.__backendClient.collection("persons").delete(person.id);
       this.__backAction();
     } catch (ex) {
       alert(ex);
@@ -45,7 +46,7 @@ export class PersonUpdateEditorModule implements IPersonEditorModule {
   public callBackAction = () => this.__backAction();
 
   constructor(
-    backendClient: IBackendClient,
+    backendClient: PocketBase,
     personContext: PersonContext,
     actionAfterSavePersonAction: () => void,
   ) {

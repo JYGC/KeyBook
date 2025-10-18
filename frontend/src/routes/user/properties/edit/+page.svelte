@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import { BackendClient } from "$lib/api/backend-client";
+	import { getBackendClient } from "$lib/api/backend-client";
 	import PropertyEditor from "$lib/components/property/PropertyEditor.svelte";
 	import ConfirmButtonAndDialog from "$lib/components/shared/ConfirmButtonAndDialog.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
@@ -9,11 +9,11 @@
 
   const propertyContext = getPropertyContext();
 
-  const backendClient = new BackendClient();
+  const backendClient = getBackendClient();
 
   let propertyAsync = $derived.by<Promise<IEditPropertyModel | null>>(async () => {
     try {
-      return await backendClient.pb.collection("properties").getOne<IEditPropertyModel>(
+      return await backendClient.collection("properties").getOne<IEditPropertyModel>(
         propertyContext.selectedPropertyId,
         { fields: "id,address,owners,managers" },
       );
@@ -29,7 +29,7 @@
 
   const savePropertiesActionAsync = async (changedProperty: IEditPropertyModel) => {
     try {
-      await backendClient.pb.collection("properties").update(changedProperty.id, {
+      await backendClient.collection("properties").update(changedProperty.id, {
         address: changedProperty.address,
         owners: changedProperty.owners,
         managers: changedProperty.managers,
@@ -42,7 +42,7 @@
 
   const deletePersonActionAsync = async (property: IEditPropertyModel) => {
     try {
-      await backendClient.pb.collection("properties").delete(property.id);
+      await backendClient.collection("properties").delete(property.id);
       gotoPropertyList();
     } catch (ex) {
       alert(ex);

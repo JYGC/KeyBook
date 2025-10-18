@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import { BackendClient } from "$lib/api/backend-client";
+	import { getBackendClient } from "$lib/api/backend-client";
 	import PersonEditor from "$lib/components/person/PersonEditor.svelte";
 	import DeviceHoldingList from "$lib/components/persondevice/DeviceHoldingList.svelte";
 	import ConfirmButtonAndDialog from "$lib/components/shared/ConfirmButtonAndDialog.svelte";
@@ -13,7 +13,7 @@
   const personContext = getPersonContext();
   const deviceContext = getDeviceContext();
 
-  const backendClient = new BackendClient();
+  const backendClient = getBackendClient();
 
   const gotoPropertyPersonList = () => {
     goto("/user/persons/list/property");

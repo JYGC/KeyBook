@@ -1,12 +1,12 @@
 <script lang="ts">
   import { Link, TextInput, PasswordInput, Button, FluidForm } from "carbon-components-svelte";
 
-	import { BackendClient } from "$lib/api/backend-client";
+	import { getBackendClient } from "$lib/api/backend-client";
   import { LoginModule } from "$lib/modules/user/login-module.svelte";
   import { RegisterModule } from "$lib/modules/user/register-module.svelte";
 	import { goto } from "$app/navigation";
 
-  const backendClient = new BackendClient();
+  const backendClient = getBackendClient();
   const registerModule = new RegisterModule(backendClient);
   const loginModule = new LoginModule(backendClient);
 

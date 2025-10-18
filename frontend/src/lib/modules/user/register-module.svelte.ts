@@ -1,14 +1,15 @@
-import type { IBackendClient, IRegisterApi } from "$lib/interfaces";
+import PocketBase from "pocketbase";
+import type { IRegisterApi } from "$lib/interfaces";
 
 export class RegisterModule implements IRegisterApi {
-  private readonly __backendClient: IBackendClient;
+  private readonly __backendClient: PocketBase;
   
   public name = $state<string>("");
   public email = $state<string>("");
   public password = $state<string>("");
   public passwordConfirm = $state<string>("");
 
-  constructor(backendClient: IBackendClient) {
+  constructor(backendClient: PocketBase) {
     this.__backendClient = backendClient;
   }
 
@@ -16,7 +17,7 @@ export class RegisterModule implements IRegisterApi {
 
   public callApi = async (): Promise<boolean> => {
     try {
-      await this.__backendClient.pb.collection("users").create({
+      await this.__backendClient.collection("users").create({
         name: this.name,
         password: this.password,
         passwordConfirm: this.passwordConfirm,

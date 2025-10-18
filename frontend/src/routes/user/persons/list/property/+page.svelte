@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import { BackendClient } from "$lib/api/backend-client";
+	import { getBackendClient } from "$lib/api/backend-client";
 	import PersonList from "$lib/components/person/PersonList.svelte";
 	import { getPersonContext } from "$lib/contexts/person-context.svelte";
 	import { getPropertyContext } from "$lib/contexts/property-context.svelte";
@@ -17,7 +17,7 @@
 
 	const personContext = getPersonContext();
 
-  const backendClient = new BackendClient();
+  const backendClient = getBackendClient();
 	const personListModule = new PersonListModule(backendClient, propertyContext);
 
 const gotoPropertyList = () => {

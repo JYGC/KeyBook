@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BackendClient } from "$lib/api/backend-client";
+	import { getBackendClient } from "$lib/api/backend-client";
 	import DeviceEditor from "$lib/components/device/DeviceEditor.svelte";
 	import DeviceHistoryList from "$lib/components/persondevice/DeviceHistoryList.svelte";
 	import DeviceHolderEditor from "$lib/components/persondevice/DeviceHolderEditor.svelte";
@@ -14,7 +14,7 @@
   const propertyContext = getPropertyContext();
   const deviceContext = getDeviceContext();
 
-  const backendClient = new BackendClient();
+  const backendClient = getBackendClient();
 
   const goBack = () => {
     history.back();

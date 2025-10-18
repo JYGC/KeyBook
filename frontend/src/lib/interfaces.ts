@@ -1,17 +1,8 @@
-import PocketBase, { type AuthModel } from "pocketbase";
 import type { AddPropertyDeviceAndHistoriesModel } from "./models/data-import-models";
 import type { IEditDeviceModel } from "./models/device-models";
 import type { IEditPersonModel, IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "./models/person-models";
 import type { IPropertyListItemModel } from "./models/property-models";
 import type { IDeviceHistoryListItem, IDeviceListItemModel, IPersonListItemModel } from "./models/person-device-models";
-
-export interface IBackendClient {
-  isTokenValid: boolean;
-  logoutAsync: () => void;
-  authRefresh: () => void;
-  get pb(): PocketBase;
-  get loggedInUser(): AuthModel;
-}
 
 export interface ILoginApi {
   email: string;
