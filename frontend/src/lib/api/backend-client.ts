@@ -37,3 +37,17 @@ export class BackendClient implements IBackendClient {
     return this.__pb.authStore.model;
   };
 }
+
+export const getBackendClient = () => {
+  const pb = new PocketBase();
+  pb.authStore.loadFromCookie(document.cookie);
+  pb.authStore.onChange(() => {
+    document.cookie = pb.authStore.exportToCookie({
+      httpOnly: false,
+      secure: PUBLIC_UNSECURE_COOKIE === undefined ||
+        PUBLIC_UNSECURE_COOKIE === null ||
+        PUBLIC_UNSECURE_COOKIE !== 'true'
+    });
+  });
+  return pb;
+}

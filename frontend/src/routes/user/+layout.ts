@@ -1,10 +1,11 @@
 import { redirect } from "@sveltejs/kit";
 import type { LayoutLoad } from "./$types";
-import { BackendClient } from "$lib/api/backend-client";
+import { getBackendClient } from "$lib/api/backend-client";
+import { AuthService } from "$lib/services/auth-service";
 
 export const load: LayoutLoad = async () => {
-  const authManager = new BackendClient();
-  if (!authManager.isTokenValid) {
+  const authService = new AuthService(getBackendClient());
+  if (!authService.isTokenValid) {
     return redirect(303, "/auth");
   }
 };
