@@ -7,19 +7,31 @@
 	import { Button, Content, Header, HeaderUtilities } from 'carbon-components-svelte';
 	import { Logout } from 'carbon-icons-svelte';
 	import { AuthService } from '$lib/services/auth-service';
+	import type { Snippet } from 'svelte';
 
-  const { children } = $props();
+  const {
+    data,
+    children
+  }: {
+    data: { authService: AuthService },
+    children: Snippet<[]>
+  } = $props();
 
   setPropertyContext();
   setPersonContext();
   setDeviceContext();
 
+  const authService = data.authService as AuthService;
+
   const logoutAndRedirect = async () => {
-    const authService = new AuthService(getBackendClient());
     await authService.logoutAsync();
     if (!authService.isTokenValid) {
       goto("/auth");
     }
+
+    return {
+      authService
+    };
   }
 </script>
 <Header company="SnailLabs" platformName="KeyBook">

@@ -8,4 +8,8 @@ export const load: LayoutLoad = async () => {
   if (!authService.isTokenValid) {
     return redirect(303, "/auth");
   }
+
+  return {
+    authService
+  };
 };

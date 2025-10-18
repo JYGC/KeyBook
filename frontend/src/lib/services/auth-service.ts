@@ -13,13 +13,12 @@ export class AuthService implements IAuthService {
   }
 
   public logoutAsync = async () => {
-    await this.__pocketbase.collection('users').authRefresh();
     this.__pocketbase.authStore.clear();
   };
 
   public authRefresh = async () => await this.__pocketbase.collection('users').authRefresh();
 
   get loggedInUser(): AuthRecord {
-    return this.__pocketbase.authStore.model;
+    return this.__pocketbase.authStore.record;
   }
 }
