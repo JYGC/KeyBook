@@ -1,4 +1,4 @@
-import type { IAuthService } from "$lib/interfaces";
+import type { IAuthService } from "$lib/services/interfaces";
 import PocketBase, { type AuthRecord } from "pocketbase";
 
 export class AuthService implements IAuthService {

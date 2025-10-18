@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { DeviceListModule } from '$lib/modules/device/device-list-module.svelte';
   import DevlceList from '$lib/components/device/DevlceList.svelte';
-  import { BackendClient } from '$lib/api/backend-client';
+  import { getBackendClient } from '$lib/api/backend-client';
 	import { getPropertyContext } from '$lib/contexts/property-context.svelte';
 	import { getDeviceContext } from '$lib/contexts/device-context.svelte';
 	import { goto } from '$app/navigation';
 	import { Button } from 'carbon-components-svelte';
+	import { DeviceListViewService } from '$lib/services/device-list-view-service';
 
   const propertyContext = getPropertyContext();
   if (
@@ -17,8 +18,9 @@
 
   const deviceContext = getDeviceContext();
 
-  const backendClient = new BackendClient();
-  const deviceListModule = new DeviceListModule(backendClient, propertyContext);
+  const backendClient = getBackendClient();
+  const deviceListViewService = new DeviceListViewService(backendClient);
+  const deviceListModule = new DeviceListModule(deviceListViewService, propertyContext);
 
   const gotoPropertyList = () => {
     goto("/user/properties/list");

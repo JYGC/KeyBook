@@ -1,26 +1,23 @@
 import type { PropertyContext } from "$lib/contexts/property-context.svelte";
-import type { IBackendClient, IDeviceListModule } from "$lib/interfaces";
+import type { IDeviceListModule } from "$lib/interfaces";
 import type { IDeviceListItemModel } from "$lib/models/person-device-models";
+import type { IDeviceListViewService } from "$lib/services/interfaces";
 
 export class DeviceListModule implements IDeviceListModule {
-  private readonly __backendClient: IBackendClient;
+  private readonly __deviceListViewService: IDeviceListViewService;
   private readonly __propertyContext: PropertyContext;
 
   public deviceListAsync = $derived.by<Promise<IDeviceListItemModel[]>>(async () => {
     try {
-      const items = await this.__backendClient.pb.collection("devicelistview").getFullList<IDeviceListItemModel>({
-        filter: `propertyid = "${this.__propertyContext.selectedPropertyId}"`,
-        fields: "id,deviceid,devicename,deviceidentifier,devicetype,personname",
-      });
-      return items;
+      return await this.__deviceListViewService.getForDeviceListAsync(this.__propertyContext.selectedPropertyId);
     } catch (ex) {
       alert(ex);
       return [];
     }
   });
   
-  constructor(backendClient: IBackendClient, propertyContext: PropertyContext) {
-    this.__backendClient = backendClient;
+  constructor(deviceListViewService: IDeviceListViewService, propertyContext: PropertyContext) {
+    this.__deviceListViewService = deviceListViewService;
     this.__propertyContext = propertyContext;
   }
 }

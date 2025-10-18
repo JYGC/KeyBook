@@ -13,13 +13,6 @@ export interface IBackendClient {
   get loggedInUser(): AuthModel;
 }
 
-export interface IAuthService {
-  get isTokenValid(): boolean;
-  logoutAsync: () => void;
-  authRefresh: () => void;
-  get loggedInUser(): AuthModel;
-}
-
 export interface ILoginApi {
   email: string;
   password: string;

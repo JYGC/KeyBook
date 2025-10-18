@@ -39,7 +39,7 @@ export class BackendClient implements IBackendClient {
 }
 
 export const getBackendClient = () => {
-  const pb = new PocketBase();
+  const pb = new PocketBase(PUBLIC_POCKETBASE_URL);
   pb.authStore.loadFromCookie(document.cookie);
   pb.authStore.onChange(() => {
     document.cookie = pb.authStore.exportToCookie({
