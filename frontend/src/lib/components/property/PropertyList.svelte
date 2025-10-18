@@ -13,15 +13,15 @@
 
   const goToDevicesOfProperty = (propertyId: string) => {
     selectedPropertyId = propertyId;
-    goto("/devices/list/property");
+    goto("/user/devices/list/property");
   };
   const goToPersonsOfProperty = (propertyId: string) => {
     selectedPropertyId = propertyId;
-    goto("/persons/list/property");
+    goto("/user/persons/list/property");
   };
   const goToEditProperty = (propertyId: string) => {
     selectedPropertyId = propertyId;
-    goto("/properties/edit");
+    goto("/user/properties/edit");
   };
 </script>
 {#await propertyListModule.propertyListAsync}

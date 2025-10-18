@@ -6,7 +6,7 @@
 	import { Button } from "carbon-components-svelte";
 
   const gotoPropertyList = () => {
-    goto("/properties/list");
+    goto("/user/properties/list");
   }
 
   const savePropertyActionAsync = async (changedProperty: IEditPropertyModel) => {

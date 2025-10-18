@@ -15,7 +15,7 @@
 
   const gotoPersonDetails = (personId: string) => {
     selectedPersonId = personId;
-    goto("/persons/edit");
+    goto("/user/persons/edit");
   };
 </script>
 

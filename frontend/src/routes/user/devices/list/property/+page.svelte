@@ -21,11 +21,11 @@
   const deviceListModule = new DeviceListModule(backendClient, propertyContext);
 
   const gotoPropertyList = () => {
-    goto("/properties/list");
+    goto("/user/properties/list");
   };
 
 const gotoAddNewDevice = () => {
-  goto("/devices/add");
+  goto("/user/devices/add");
 };
 </script>
 

@@ -11,7 +11,7 @@
   const backendClient = new BackendClient();
 
   const gotoPropertyList = () => {
-    goto("/devices/list/property");
+    goto("/user/devices/list/property");
   }
 
   const deviceAddEditorModule = new DeviceAddEditorModule(

@@ -16,7 +16,7 @@
   const backendClient = new BackendClient();
 
   const gotoPropertyPersonList = () => {
-    goto("/persons/list/property");
+    goto("/user/persons/list/property");
   };
 
   const personEditorModule = new PersonUpdateEditorModule(

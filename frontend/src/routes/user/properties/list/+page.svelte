@@ -14,7 +14,7 @@
   const selectedProperty = getPropertyContext();
 
   const gotoAddProperty = () => {
-    goto("/properties/add");
+    goto("/user/properties/add");
   };
 </script>
 

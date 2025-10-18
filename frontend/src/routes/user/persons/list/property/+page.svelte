@@ -21,11 +21,11 @@
 	const personListModule = new PersonListModule(backendClient, propertyContext);
 
 const gotoPropertyList = () => {
-	goto("/properties/list");
+	goto("/user/properties/list");
 };
 
 const gotoAddNewProperty = () => {
-	goto("/persons/add");
+	goto("/user/persons/add");
 };
 </script>
 

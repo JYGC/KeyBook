@@ -24,7 +24,7 @@
   });
 
   const gotoPropertyList = () => {
-    goto("/properties/list");
+    goto("/user/properties/list");
   }
 
   const savePropertiesActionAsync = async (changedProperty: IEditPropertyModel) => {
