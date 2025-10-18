@@ -1,7 +1,7 @@
 import PocketBase from "pocketbase";
-import type { IRegisterApi } from "$lib/interfaces";
+import type { IRegisterModule } from "$lib/modules/interfaces";
 
-export class RegisterModule implements IRegisterApi {
+export class RegisterModule implements IRegisterModule {
   private readonly __backendClient: PocketBase;
   
   public name = $state<string>("");

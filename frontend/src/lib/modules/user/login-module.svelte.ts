@@ -1,7 +1,7 @@
 import PocketBase from "pocketbase";
-import type { ILoginApi } from "$lib/interfaces";
+import type { ILoginModule } from "$lib/modules/interfaces";
 
-export class LoginModule implements ILoginApi {
+export class LoginModule implements ILoginModule {
   private readonly __backendClient: PocketBase;
   
   public email = $state<string>("");

@@ -1,6 +1,6 @@
 import PocketBase from "pocketbase";
 import type { PersonContext } from "$lib/contexts/person-context.svelte";
-import type { IPersonEditorModule } from "$lib/interfaces";
+import type { IPersonEditorModule } from "$lib/modules/interfaces";
 import type { IEditPersonModel } from "$lib/models/person-models";
 
 export class PersonUpdateEditorModule implements IPersonEditorModule {

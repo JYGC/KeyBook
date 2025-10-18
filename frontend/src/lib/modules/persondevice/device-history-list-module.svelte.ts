@@ -1,6 +1,6 @@
 import PocketBase from "pocketbase";
 import type { DeviceContext } from "$lib/contexts/device-context.svelte";
-import type { IDeviceHistoryListModule, IDeviceHistoryListUpdaterModule } from "$lib/interfaces";
+import type { IDeviceHistoryListModule, IDeviceHistoryListUpdaterModule } from "$lib/modules/nterfaces";
 import type { IDeviceHistoryListItem as IDeviceHistoryListItemModel } from "$lib/models/person-device-models";
 
 export class DeviceHistoryListModule implements IDeviceHistoryListModule {

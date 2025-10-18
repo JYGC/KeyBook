@@ -1,26 +1,18 @@
-import type { AddPropertyDeviceAndHistoriesModel } from "./models/data-import-models";
-import type { IEditDeviceModel } from "./models/device-models";
-import type { IEditPersonModel, IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "./models/person-models";
-import type { IPropertyListItemModel } from "./models/property-models";
-import type { IDeviceHistoryListItem, IDeviceListItemModel, IPersonListItemModel } from "./models/person-device-models";
-
-export interface ILoginApi {
-  email: string;
-  password: string;
-  callApi: () => Promise<string>;
-}
-
-export interface IRegisterApi {
-  name: string;
-  email: string;
-  password: string;
-  passwordConfirm: string;
-  callApi: () => Promise<boolean>;
-  get error(): string;
-}
+import type { IEditDeviceModel } from "$lib/models/device-models";
+import type { IDeviceHistoryListItem, IDeviceListItemModel, IPersonListItemModel } from "$lib/models/person-device-models";
+import type { IEditPersonModel, IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "$lib/models/person-models";
+import type { IEditPropertyModel, IPropertyListItemModel } from "$lib/models/property-models";
 
 export interface IPropertyListModule {
   propertyListAsync: Promise<IPropertyListItemModel[]>;
+}
+
+export interface IPropertyEditorModule {
+  propertyAsync: Promise<IEditPropertyModel | null>;
+  get isAdd(): boolean;
+  savePropertyAction: () => ((changedProperty: IEditPropertyModel) => void);
+  getDeletePropertyAction: () => ((property: IEditPropertyModel) => void) | null;
+  callBackAction: () => void;
 }
 
 export interface IDeviceEditorModule {
@@ -61,23 +53,25 @@ export interface IDeviceHoldingListModule {
   deviceHoldingListOfPersonAsync: Promise<IDeviceListItemModel[]>;
 }
 
-export interface IUploadCsvApi {
-  callApi: () => void;
-}
-
-export interface ICsvFileToObjectConverter {
-  input: FileList | null;
-  outputAsync: Promise<AddPropertyDeviceAndHistoriesModel | null>;
-}
-
-export interface IDeviceListDataService {
-  add: () => void;
-}
-
 export interface IDeviceHistoryListModule {
   deviceHistoryListAsync: Promise<IDeviceHistoryListItem[] | null>;
 }
 
 export interface IDeviceHistoryListUpdaterModule {
   updateTriggerState: unknown;
+}
+
+export interface ILoginModule {
+  email: string;
+  password: string;
+  callApi: () => Promise<string>;
+}
+
+export interface IRegisterModule {
+  name: string;
+  email: string;
+  password: string;
+  passwordConfirm: string;
+  callApi: () => Promise<boolean>;
+  get error(): string;
 }

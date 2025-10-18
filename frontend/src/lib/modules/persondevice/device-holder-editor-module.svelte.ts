@@ -2,7 +2,7 @@ import PocketBase from "pocketbase";
 import type { PropertyContext } from "$lib/contexts/property-context.svelte";
 import type { IPersonDeviceModel } from "$lib/models/person-device-models";
 import type { IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "$lib/models/person-models";
-import type { IDeviceEditorModule, IDeviceHistoryListUpdaterModule, IDeviceHolderEditorModule } from "$lib/interfaces";
+import type { IDeviceEditorModule, IDeviceHistoryListUpdaterModule, IDeviceHolderEditorModule } from "$lib/modules/interfaces";
 
 export class DeviceHolderEditorModule implements IDeviceHolderEditorModule, IDeviceHistoryListUpdaterModule {
   private readonly __backendClient: PocketBase;

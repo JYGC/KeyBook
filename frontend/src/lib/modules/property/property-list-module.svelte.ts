@@ -1,5 +1,5 @@
 import PocketBase from "pocketbase";
-import type { IPropertyListModule } from "$lib/interfaces";
+import type { IPropertyListModule } from "$lib/modules/interfaces";
 import type { IPropertyListItemModel } from "$lib/models/property-models";
 
 export class PropertyListModule implements IPropertyListModule {

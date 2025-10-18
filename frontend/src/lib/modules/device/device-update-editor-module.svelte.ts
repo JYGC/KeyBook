@@ -1,7 +1,7 @@
 import PocketBase from "pocketbase";
 import type { DeviceContext } from "$lib/contexts/device-context.svelte";
 import type { IEditDeviceModel } from "$lib/models/device-models";
-import type { IDeviceEditorModule } from "$lib/interfaces";
+import type { IDeviceEditorModule } from "$lib/modules/interfaces";
 
 export class DeviceUpdateEditorModule implements IDeviceEditorModule {
   private readonly __backendClient: PocketBase;

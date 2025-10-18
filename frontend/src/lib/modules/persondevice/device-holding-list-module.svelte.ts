@@ -1,6 +1,6 @@
 import PocketBase from "pocketbase";
 import type { PersonContext } from "$lib/contexts/person-context.svelte";
-import type { IDeviceHoldingListModule } from "$lib/interfaces";
+import type { IDeviceHoldingListModule } from "$lib/modules/interfaces";
 import type { IDeviceHeldExpandDeviceModel, IDeviceListItemModel } from "$lib/models/person-device-models";
 
 export class DeviceHoldingListModule implements IDeviceHoldingListModule {
