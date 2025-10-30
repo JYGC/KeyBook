@@ -95,7 +95,7 @@
       {
         "system": false,
         "id": "o4iqhp3l",
-        "name": "stateddatetime",
+        "name": "statedDateTime",
         "type": "date",
         "required": false,
         "presentable": false,
@@ -181,7 +181,7 @@
       {
         "system": false,
         "id": "zxlzlnwp",
-        "name": "defunctreason",
+        "name": "defunctReason",
         "type": "select",
         "required": true,
         "presentable": false,
@@ -284,7 +284,7 @@
       {
         "system": false,
         "id": "gtpgadpx",
-        "name": "persondevice",
+        "name": "personDevice",
         "type": "json",
         "required": true,
         "presentable": false,
@@ -296,7 +296,7 @@
       {
         "system": false,
         "id": "1chuwzqo",
-        "name": "stateddatetime",
+        "name": "statedDateTime",
         "type": "date",
         "required": false,
         "presentable": false,
@@ -471,7 +471,7 @@
       {
         "system": false,
         "id": "xolkmvl0",
-        "name": "stateddatetime",
+        "name": "statedDateTime",
         "type": "date",
         "required": false,
         "presentable": false,
@@ -577,7 +577,7 @@
       {
         "system": false,
         "id": "nrdwo9yc",
-        "name": "profileimage",
+        "name": "profileImage",
         "type": "file",
         "required": false,
         "presentable": false,
@@ -699,7 +699,7 @@
       {
         "system": false,
         "id": "c8weloon",
-        "name": "stateddatetime",
+        "name": "statedDateTime",
         "type": "date",
         "required": false,
         "presentable": false,
