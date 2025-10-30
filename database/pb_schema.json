@@ -108,7 +108,7 @@
       {
         "system": false,
         "id": "ym9ag6zc",
-        "name": "deviceid",
+        "name": "deviceId",
         "type": "text",
         "required": true,
         "presentable": false,
@@ -309,7 +309,7 @@
       {
         "system": false,
         "id": "ooypmw2o",
-        "name": "persondeviceid",
+        "name": "personDeviceId",
         "type": "text",
         "required": true,
         "presentable": false,
@@ -339,7 +339,7 @@
       {
         "system": false,
         "id": "ju9kevo2",
-        "name": "deviceid",
+        "name": "deviceId",
         "type": "text",
         "required": true,
         "presentable": false,
@@ -353,7 +353,7 @@
       {
         "system": false,
         "id": "0maseubl",
-        "name": "personid",
+        "name": "personId",
         "type": "text",
         "required": true,
         "presentable": false,
@@ -484,7 +484,7 @@
       {
         "system": false,
         "id": "k7ollxfy",
-        "name": "personid",
+        "name": "personId",
         "type": "text",
         "required": true,
         "presentable": false,
@@ -712,7 +712,7 @@
       {
         "system": false,
         "id": "ryoftjvh",
-        "name": "propertyid",
+        "name": "propertyId",
         "type": "text",
         "required": true,
         "presentable": false,
@@ -741,7 +741,7 @@
       {
         "system": false,
         "id": "ce4gxdxs",
-        "name": "deviceid",
+        "name": "deviceId",
         "type": "json",
         "required": false,
         "presentable": false,
@@ -786,7 +786,7 @@
     "updateRule": null,
     "deleteRule": null,
     "options": {
-      "query": "SELECT\n  (ROW_NUMBER() OVER()) AS id,\n  dhlv.deviceid,\n  dhlv.created,\n  dhlv.description,\n  p.id AS property\nFROM (\n  SELECT\n  dh.deviceid,\n  dh.created,\n  dh.description,\n  dh.property\n  FROM deviceHistory dh\n  UNION\n  SELECT\n  pdh.deviceid,\n  pdh.created,\n  pdh.description,\n  pdh.property\n  FROM personDeviceHistory pdh\n) dhlv\nINNER JOIN properties p ON dhlv.property = p.id"
+      "query": "SELECT\n  (ROW_NUMBER() OVER()) AS id,\n  dhlv.deviceId,\n  dhlv.created,\n  dhlv.description,\n  p.id AS property\nFROM (\n  SELECT\n  dh.deviceId,\n  dh.created,\n  dh.description,\n  dh.property\n  FROM deviceHistory dh\n  UNION\n  SELECT\n  pdh.deviceId,\n  pdh.created,\n  pdh.description,\n  pdh.property\n  FROM personDeviceHistory pdh\n) dhlv\nINNER JOIN properties p ON dhlv.property = p.id"
     }
   },
   {
@@ -798,7 +798,7 @@
       {
         "system": false,
         "id": "sdavwmqx",
-        "name": "propertyid",
+        "name": "propertyId",
         "type": "relation",
         "required": true,
         "presentable": false,
@@ -814,7 +814,7 @@
       {
         "system": false,
         "id": "zyp9pw8n",
-        "name": "deviceid",
+        "name": "deviceId",
         "type": "relation",
         "required": false,
         "presentable": false,
@@ -830,7 +830,7 @@
       {
         "system": false,
         "id": "nyk8ll9x",
-        "name": "devicename",
+        "name": "deviceName",
         "type": "text",
         "required": true,
         "presentable": false,
@@ -844,7 +844,7 @@
       {
         "system": false,
         "id": "krg5lxrt",
-        "name": "deviceidentifier",
+        "name": "deviceIdentifier",
         "type": "text",
         "required": true,
         "presentable": false,
@@ -858,7 +858,7 @@
       {
         "system": false,
         "id": "yyui9uce",
-        "name": "devicetype",
+        "name": "deviceType",
         "type": "select",
         "required": true,
         "presentable": false,
@@ -877,7 +877,7 @@
       {
         "system": false,
         "id": "cwhlsa6s",
-        "name": "personname",
+        "name": "personName",
         "type": "text",
         "required": true,
         "presentable": false,
@@ -890,13 +890,13 @@
       }
     ],
     "indexes": [],
-    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= propertyid.owners.id",
-    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= propertyid.owners.id",
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= propertyId.owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= propertyId.owners.id",
     "createRule": null,
     "updateRule": null,
     "deleteRule": null,
     "options": {
-      "query": "SELECT\n  d.id as id,\n  d.property as propertyid,\n  d.id as deviceid,\n  d.name as devicename,\n  d.identifier as deviceidentifier,\n  d.type as devicetype,\n  p.name as personname\nFROM devices d\nLEFT JOIN personDevices pd ON d.id = pd.device\nLEFT JOIN persons p ON pd.person = p.id"
+      "query": "SELECT\n  d.id as id,\n  d.property as propertyId,\n  d.id as deviceId,\n  d.name as deviceName,\n  d.identifier as deviceIdentifier,\n  d.type as deviceType,\n  p.name as personName\nFROM devices d\nLEFT JOIN personDevices pd ON d.id = pd.device\nLEFT JOIN persons p ON pd.person = p.id"
     }
   },
   {
@@ -908,7 +908,7 @@
       {
         "system": false,
         "id": "en2a161v",
-        "name": "propertyid",
+        "name": "propertyId",
         "type": "relation",
         "required": true,
         "presentable": false,
@@ -924,7 +924,7 @@
       {
         "system": false,
         "id": "mnqgdf0f",
-        "name": "personid",
+        "name": "personId",
         "type": "relation",
         "required": false,
         "presentable": false,
@@ -940,7 +940,7 @@
       {
         "system": false,
         "id": "sk3hw0lu",
-        "name": "personname",
+        "name": "personName",
         "type": "text",
         "required": true,
         "presentable": false,
@@ -954,7 +954,7 @@
       {
         "system": false,
         "id": "rngvehsm",
-        "name": "persontype",
+        "name": "personType",
         "type": "select",
         "required": true,
         "presentable": false,
@@ -972,7 +972,7 @@
       {
         "system": false,
         "id": "hnknkc9t",
-        "name": "holdingdevicejsons",
+        "name": "holdingDeviceJsons",
         "type": "json",
         "required": false,
         "presentable": false,
@@ -983,13 +983,13 @@
       }
     ],
     "indexes": [],
-    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= propertyid.owners.id",
-    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= propertyid.owners.id",
+    "listRule": "@request.auth.id != \"\" && @request.auth.id ?= propertyId.owners.id",
+    "viewRule": "@request.auth.id != \"\" && @request.auth.id ?= propertyId.owners.id",
     "createRule": null,
     "updateRule": null,
     "deleteRule": null,
     "options": {
-      "query": "WITH device_assignments AS (\n  SELECT\n  pd.person,\n  json_group_array(\n    json_object(\n      'deviceid', d.id,\n      'devicename', d.name\n    )\n  ) holdingdevicejsons\n  FROM personDevices pd\n  INNER JOIN devices d ON pd.device = d.id\n  GROUP BY pd.person\n)\nSELECT\n  p.id,\n  p.property propertyid,\n  p.id personid,\n  p.name personname,\n  p.type persontype,\n  da.holdingdevicejsons\nFROM persons p\nLEFT JOIN\n  device_assignments da ON p.id = da.person"
+      "query": "WITH device_assignments AS (\n  SELECT\n  pd.person,\n  json_group_array(\n    json_object(\n      'deviceId', d.id,\n      'deviceName', d.name\n    )\n  ) holdingDeviceJsons\n  FROM personDevices pd\n  INNER JOIN devices d ON pd.device = d.id\n  GROUP BY pd.person\n)\nSELECT\n  p.id,\n  p.property propertyId,\n  p.id personId,\n  p.name personName,\n  p.type personType,\n  da.holdingDeviceJsons\nFROM persons p\nLEFT JOIN\n  device_assignments da ON p.id = da.person"
     }
   }
 ]
