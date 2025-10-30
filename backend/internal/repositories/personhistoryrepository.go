@@ -44,8 +44,8 @@ func (ph PersonHistoryRepository) AddNewPersonHistoryFromModel(
 	newPersonHistory := models.NewRecord(personHistoryCollection)
 	newPersonHistory.Set("description", description)
 	newPersonHistory.Set("person", string(personJson))
-	newPersonHistory.Set("stateddatetime", statedDateTime)
-	newPersonHistory.Set("personid", personModel.GetId())
+	newPersonHistory.Set("statedDateTime", statedDateTime)
+	newPersonHistory.Set("personId", personModel.GetId())
 	newPersonHistory.Set("property", propertyIdDto.Property)
 
 	if saveHistoryErr := ph.app.Dao().SaveRecord(newPersonHistory); saveHistoryErr != nil {

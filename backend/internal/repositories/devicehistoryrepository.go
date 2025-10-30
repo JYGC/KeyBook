@@ -26,7 +26,7 @@ func (dh DeviceHistoryRepository) AddNewDeviceHistoryFromModel(
 	description string,
 	statedDateTime time.Time,
 ) error {
-	deviceHistoryCollection, findHistoryCollectionErr := dh.app.Dao().FindCollectionByNameOrId("devicehistory")
+	deviceHistoryCollection, findHistoryCollectionErr := dh.app.Dao().FindCollectionByNameOrId("deviceHistory")
 	if findHistoryCollectionErr != nil {
 		return findHistoryCollectionErr
 	}
@@ -44,8 +44,8 @@ func (dh DeviceHistoryRepository) AddNewDeviceHistoryFromModel(
 	newDeviceHistory := models.NewRecord(deviceHistoryCollection)
 	newDeviceHistory.Set("description", description)
 	newDeviceHistory.Set("device", string(deviceJson))
-	newDeviceHistory.Set("stateddatetime", statedDateTime)
-	newDeviceHistory.Set("deviceid", deviceModel.GetId())
+	newDeviceHistory.Set("statedDateTime", statedDateTime)
+	newDeviceHistory.Set("deviceId", deviceModel.GetId())
 	newDeviceHistory.Set("property", propertyIdDto.Property)
 
 	if saveHistoryErr := dh.app.Dao().SaveRecord(newDeviceHistory); saveHistoryErr != nil {

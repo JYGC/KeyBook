@@ -27,7 +27,7 @@ func (d DeviceRepository) GetDeviceById(deviceId string) (
 		"d.name",
 		"d.identifier",
 		"d.type",
-		"d.defunctreason",
+		"d.defunctReason",
 		"d.property",
 	).From(
 		"devices d",
