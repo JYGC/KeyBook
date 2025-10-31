@@ -25,7 +25,7 @@ func (phr PropertyHistoryRepository) AddPropertyHistoryFromModel(
 	description string,
 	statedDateTime time.Time,
 ) error {
-	propertyHistoryCollection, findHistoryCollectionErr := phr.app.Dao().FindCollectionByNameOrId("propertyhistory")
+	propertyHistoryCollection, findHistoryCollectionErr := phr.app.Dao().FindCollectionByNameOrId("propertyHistory")
 	if findHistoryCollectionErr != nil {
 		return findHistoryCollectionErr
 	}
@@ -36,8 +36,8 @@ func (phr PropertyHistoryRepository) AddPropertyHistoryFromModel(
 	newPropertyHistory := models.NewRecord(propertyHistoryCollection)
 	newPropertyHistory.Set("description", description)
 	newPropertyHistory.Set("property", string(propertyJson))
-	newPropertyHistory.Set("stateddatetime", statedDateTime)
-	newPropertyHistory.Set("propertyid", propertyModel.GetId())
+	newPropertyHistory.Set("statedDateTime", statedDateTime)
+	newPropertyHistory.Set("propertyId", propertyModel.GetId())
 	if saveHistoryErr := phr.app.Dao().SaveRecord(newPropertyHistory); saveHistoryErr != nil {
 		return saveHistoryErr
 	}

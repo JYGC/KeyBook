@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import type { IDeviceHoldingListModule } from "$lib/interfaces";
+	import type { IDeviceHoldingListModule } from "$lib/modules/interfaces";
 	import { Button, DataTable } from "carbon-components-svelte";
 
   let {

@@ -2,24 +2,14 @@ package main
 
 import (
 	"fmt"
-	"keybook/backend/internal/frontend"
 	"keybook/backend/internal/repositories"
 	"keybook/backend/internal/services"
 	"log"
-	"net/http"
 
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
 	"go.uber.org/dig"
 )
-
-func startFrontend() {
-	mux := http.NewServeMux()
-	mux.Handle("/", frontend.SvelteKitHandler("/"))
-	var port = "5050"
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), mux))
-	fmt.Printf("Frontend served on port %s", port)
-}
 
 func startBackend() {
 	container := dig.New()
@@ -117,6 +107,5 @@ func startBackend() {
 }
 
 func main() {
-	go startFrontend()
 	startBackend()
 }

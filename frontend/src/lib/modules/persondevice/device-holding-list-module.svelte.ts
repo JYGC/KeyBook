@@ -12,7 +12,7 @@ export class DeviceHoldingListModule implements IDeviceHoldingListModule {
       if (this.__backendClient.authStore.record === null) {
         throw new Error("Cannot find loggedInUser.");
       }
-      const items = await this.__backendClient.collection("persondevices").getFullList<IDeviceHeldExpandDeviceModel>({
+      const items = await this.__backendClient.collection("personDevices").getFullList<IDeviceHeldExpandDeviceModel>({
         filter: `person.id = "${this.__personContext.selectedPersonId}"`,
         expand: "device",
         fields: "id,expand.device.id,expand.device.name,expand.device.identifier,expand.device.type",

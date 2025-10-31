@@ -20,6 +20,6 @@ type DeviceDto struct {
 	Name          string `db:"name" json:"name"`
 	Identifier    string `db:"identifier" json:"identifier"`
 	Type          string `db:"type" json:"type"`
-	DefunctReason string `db:"defunctreason" json:"defunctReason"`
+	DefunctReason string `db:"defunctReason" json:"defunctReason"`
 	Property      string `db:"property" json:"property"`
 }

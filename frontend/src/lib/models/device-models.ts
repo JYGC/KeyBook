@@ -3,6 +3,6 @@ export interface IEditDeviceModel {
   type: string;
   name: string;
   identifier: string;
-  defunctreason: string;
+  defunctReason: string;
   property: string;
 }

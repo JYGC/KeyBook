@@ -12,7 +12,7 @@ export class DeviceUpdateEditorModule implements IDeviceEditorModule {
     try {
       return await this.__backendClient.collection("devices").getOne<IEditDeviceModel>(
         this.__deviceContext.selectedDeviceId,
-        { fields: "id,type,name,identifier,defunctreason,property" },
+        { fields: "id,type,name,identifier,defunctReason,property" },
       );
     } catch (ex) {
       alert(ex);
@@ -24,7 +24,7 @@ export class DeviceUpdateEditorModule implements IDeviceEditorModule {
 
   public deviceStatusTextAsync = $derived.by<Promise<string>>(async () => {
     const device = await this.deviceAsync;
-    return (device === null || device.defunctreason === "None") ? "Usable" : device.defunctreason;
+    return (device === null || device.defunctReason === "None") ? "Usable" : device.defunctReason;
   });
 
   public getSaveDeviceAction = () => (async (changedDevice: IEditDeviceModel) => {
@@ -33,7 +33,7 @@ export class DeviceUpdateEditorModule implements IDeviceEditorModule {
         type: changedDevice.type,
         name: changedDevice.name,
         identifier: changedDevice.identifier,
-        defunctreason: changedDevice.defunctreason,
+        defunctReason: changedDevice.defunctReason,
       });
       this.__backAction();
     } catch (ex) {

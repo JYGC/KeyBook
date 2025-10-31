@@ -26,7 +26,7 @@ func (pdhr PersonDeviceHistoryRepository) AddNewPersonDeviceHistoryFromModel(
 	description string,
 	statedDateTime time.Time,
 ) error {
-	personDeviceHistoryCollection, findHistoryCollectionErr := pdhr.app.Dao().FindCollectionByNameOrId("persondevicehistory")
+	personDeviceHistoryCollection, findHistoryCollectionErr := pdhr.app.Dao().FindCollectionByNameOrId("personDeviceHistory")
 	if findHistoryCollectionErr != nil {
 		return findHistoryCollectionErr
 	}
@@ -43,12 +43,12 @@ func (pdhr PersonDeviceHistoryRepository) AddNewPersonDeviceHistoryFromModel(
 
 	newPersonDeviceHistory := models.NewRecord(personDeviceHistoryCollection)
 	newPersonDeviceHistory.Set("description", description)
-	newPersonDeviceHistory.Set("persondevice", string(personDeviceJson))
-	newPersonDeviceHistory.Set("stateddatetime", statedDateTime)
-	newPersonDeviceHistory.Set("persondeviceid", personDeviceModel.GetId())
+	newPersonDeviceHistory.Set("personDevice", string(personDeviceJson))
+	newPersonDeviceHistory.Set("statedDateTime", statedDateTime)
+	newPersonDeviceHistory.Set("personDeviceId", personDeviceModel.GetId())
 	newPersonDeviceHistory.Set("property", propertyIdDto.Property)
-	newPersonDeviceHistory.Set("deviceid", propertyIdDto.Device)
-	newPersonDeviceHistory.Set("personid", propertyIdDto.Person)
+	newPersonDeviceHistory.Set("deviceId", propertyIdDto.Device)
+	newPersonDeviceHistory.Set("personId", propertyIdDto.Person)
 
 	if saveHistoryErr := pdhr.app.Dao().SaveRecord(newPersonDeviceHistory); saveHistoryErr != nil {
 		return saveHistoryErr

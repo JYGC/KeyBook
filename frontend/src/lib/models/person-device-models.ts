@@ -12,29 +12,29 @@ export interface IDeviceHeldExpandDeviceModel {
 }
 
 export interface IHoldingDeviceIdName {
-  deviceid: string;
-  devicename: string;
+  deviceId: string;
+  deviceName: string;
 }
 
 export interface IPersonListItemModel {
   id: string;
-  personid: string;
-  personname: string;
-  persontype: string;
-  holdingdevicejsons: IHoldingDeviceIdName[];
+  personId: string;
+  personName: string;
+  personType: string;
+  holdingDeviceJsons: IHoldingDeviceIdName[];
 }
 export interface IDeviceListItemModel {
   id: string;
-  deviceid: string;
-  devicename: string;
-  deviceidentifier: string;
-  devicetype: string;
-  personname: string;
+  deviceId: string;
+  deviceName: string;
+  deviceIdentifier: string;
+  deviceType: string;
+  personName: string;
 }
 
 export interface IDeviceHistoryListItem {
   id: string;
-  deviceid: string;
+  deviceId: string;
   description: string;
   created: string;
 }

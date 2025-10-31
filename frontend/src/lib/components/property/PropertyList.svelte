@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import type { IPropertyListModule } from "$lib/interfaces";
+	import type { IPropertyListModule } from "$lib/modules/interfaces";
 	import { Button, ButtonSet, DataTable, Tile } from "carbon-components-svelte";
 
   let {

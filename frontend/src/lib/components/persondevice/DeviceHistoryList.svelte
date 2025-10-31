@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { IDeviceHistoryListModule } from "$lib/interfaces";
+	import type { IDeviceHistoryListModule } from "$lib/modules/interfaces";
 	import { DataTable } from "carbon-components-svelte";
 
   let { 
