@@ -30,7 +30,7 @@
     <TextInput labelText="Device Identifier" bind:value={device.identifier} />
     <br />
     {#if showDefunctReason}
-      <Select labelText="Device Defunct Reason" bind:selected={device.defunctreason}>
+      <Select labelText="Device Defunct Reason" bind:selected={device.defunctReason}>
         <SelectItem value="None" />
         <SelectItem value="Lost" />
         <SelectItem value="Damaged" />

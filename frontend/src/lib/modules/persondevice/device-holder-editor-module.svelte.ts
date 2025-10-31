@@ -15,7 +15,7 @@ export class DeviceHolderEditorModule implements IDeviceHolderEditorModule, IDev
       if (deviceId === undefined || deviceId === null) {
         return null;
       }
-      return (await this.__backendClient.collection("persondevices").getFirstListItem<IPersonDeviceExpandPersonDevicePersonEditModel>(`device = "${deviceId}"`, {
+      return (await this.__backendClient.collection("personDevices").getFirstListItem<IPersonDeviceExpandPersonDevicePersonEditModel>(`device = "${deviceId}"`, {
         expand: "person",
         fields: "id,expand.person.id,expand.person.name,expand.person.type",
       }));
@@ -54,11 +54,11 @@ export class DeviceHolderEditorModule implements IDeviceHolderEditorModule, IDev
       }
       const personDeviceId = (await this.personDeviceExpandPersonDevicePersonAsync)?.id;
       if (personDeviceId !== undefined) {
-        await this.__backendClient.collection("persondevices").delete(personDeviceId);
+        await this.__backendClient.collection("personDevices").delete(personDeviceId);
       }
 
       if (this.selectedDeviceHolderId !== "") {
-        await this.__backendClient.collection("persondevices").create<IPersonDeviceModel>({
+        await this.__backendClient.collection("personDevices").create<IPersonDeviceModel>({
           person: this.selectedDeviceHolderId,
           device: deviceId,
           property: this.__propertyContext.selectedPropertyId,

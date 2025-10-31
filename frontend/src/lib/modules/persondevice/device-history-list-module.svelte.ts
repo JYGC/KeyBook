@@ -15,9 +15,9 @@ export class DeviceHistoryListModule implements IDeviceHistoryListModule {
       if (this.__deviceHistoryListUpdaterModule !== null && this.previousUpdateTriggerState !== this.__deviceHistoryListUpdaterModule.updateTriggerState) {
         this.previousUpdateTriggerState = this.__deviceHistoryListUpdaterModule.updateTriggerState;
       }
-      return (await this.__backendClient.collection("devicehistorylistview").getFullList<IDeviceHistoryListItemModel>({
-        filter: `deviceid = "${this.__deviceContext.selectedDeviceId}"`,
-        fields: "id,deviceid,description,created",
+      return (await this.__backendClient.collection("deviceHistoryListView").getFullList<IDeviceHistoryListItemModel>({
+        filter: `deviceId = "${this.__deviceContext.selectedDeviceId}"`,
+        fields: "id,deviceId,description,created",
       })).sort((a, b) => new Date(b.created) - new Date(a.created));
     } catch (ex) {
       alert(ex);

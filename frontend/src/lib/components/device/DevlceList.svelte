@@ -24,17 +24,17 @@
 {:then deviceList}
   <DataTable
     headers={[
-      { key: "devicename", value: "Device Name"},
-      { key: "deviceidentifier", value: "Indentification"},
-      { key: "devicetype", value: "Type"},
-      { key: "personname", value: "Current Device Holder"},
-      { key: "deviceid", empty: true },
+      { key: "deviceName", value: "Device Name"},
+      { key: "deviceIdentifier", value: "Identification"},
+      { key: "deviceType", value: "Type"},
+      { key: "personName", value: "Current Device Holder"},
+      { key: "deviceId", empty: true },
     ]}
     rows={deviceList}
   >
     <strong slot="title">Devices for PropertyId: {propertyId} <!--TODO: Get property name--></strong>
     <svelte:fragment slot="cell" let:cell>
-      {#if cell.key === "deviceid"}
+      {#if cell.key === "deviceId"}
         <Button onclick={() => gotoDeviceDetails(cell.value)}>Device Details</Button>
       {:else}
         {cell.value}

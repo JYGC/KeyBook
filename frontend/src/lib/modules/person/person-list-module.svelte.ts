@@ -9,9 +9,9 @@ export class PersonListModule implements IPersonListModule {
 
   public personListAsync = $derived.by<Promise<IPersonListItemModel[]>>(async () => {
 		try {
-			const items = await this.__backendClient.collection("personlistview").getFullList<IPersonListItemModel>({
-				filter: `propertyid = "${this.__propertyContext.selectedPropertyId}"`,
-				fields: "id,personid,personname,persontype,holdingdevicejsons",
+			const items = await this.__backendClient.collection("personListView").getFullList<IPersonListItemModel>({
+				filter: `propertyId = "${this.__propertyContext.selectedPropertyId}"`,
+				fields: "id,personId,personName,personType,holdingDeviceJsons",
 			})
 			return items;
 		} catch (ex) {

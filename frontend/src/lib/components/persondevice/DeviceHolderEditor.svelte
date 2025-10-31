@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { IDeviceHolderEditorModule } from "$lib/interfaces";
+	import type { IDeviceHolderEditorModule } from "$lib/modules/interfaces";
 	import { ClickableTile, Modal, Select, SelectItem } from "carbon-components-svelte";
 
   let { deviceHolderEditorModule } = $props<{ deviceHolderEditorModule: IDeviceHolderEditorModule }>();
