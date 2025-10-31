@@ -4,6 +4,7 @@
 	import { getBackendClient } from "$lib/api/backend-client";
 	import { LoginModule } from "$lib/modules/user/login-module.svelte";
 	import { goto } from "$app/navigation";
+	import LoginForm from "$lib/components/user/LoginForm.svelte";
 
   const backendClient = getBackendClient();
   const loginModule = new LoginModule(backendClient);
@@ -13,17 +14,7 @@
   };
 </script>
 
-<h1>Log into account</h1>
-<br />
-<FluidForm>
-  <TextInput labelText="Email" placeholder="Enter email..." bind:value={loginModule.email} />
-  <PasswordInput labelText="Password" placeholder="Enter password..." bind:value={loginModule.password} />
-</FluidForm>
-<br />
-<Button
-  disabled={loginModule.email.length === 0 || loginModule.password.length < 8}
-  onclick={login}
->Log in!</Button>
+<LoginForm {login} {loginModule} />
 <br />
 <br />
 <br />
