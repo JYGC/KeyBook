@@ -18,7 +18,6 @@ export class DeviceHistoryListModule implements IDeviceHistoryListModule {
       return (await this.__backendClient.collection("deviceHistoryListView").getFullList<IDeviceHistoryListItemModel>({
         filter: `deviceId = "${this.__deviceContext.selectedDeviceId}"`,
         fields: "id,deviceId,description,created",
-
       })).sort((a, b) => new Date(b.created) - new Date(a.created));
     } catch (ex) {
       alert(ex);
