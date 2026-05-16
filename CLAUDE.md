@@ -62,7 +62,7 @@ Before starting any non-trivial feature, refactor, or bug fix, check `.claude/ch
 
 ## What is KeyBook
 
-KeyBook is a web app for managing devices, persons, and properties, with automatic audit history for all changes. The frontend is a SvelteKit static site; the backend is a Go binary that embeds PocketBase (SQLite + REST API). The compiled frontend is served by the backend from `backend/internal/frontend/build/`.
+KeyBook is a web app for managing devices, persons, and properties, with automatic audit history for all changes. The frontend is a SvelteKit static site served independently; the backend is a Go binary that embeds PocketBase (SQLite + REST API).
 
 ## Architecture
 
@@ -83,7 +83,6 @@ backend/
     repositories/   Repository layer — PocketBase DAO queries
     dtos/           DTO layer — data transfer objects at layer boundaries
     helpers/        PocketBase DAO error utilities
-    frontend/build/ Gitignored — populated from frontend build output
 ```
 
 ### Key patterns
