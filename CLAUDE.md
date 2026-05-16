@@ -82,33 +82,48 @@ database/
 
 ### Key patterns
 
-**Frontend:** Business logic lives in `.svelte.ts` module files under `src/lib/modules/` (one per entity: device, person, property, persondevice, user). These implement typed interfaces and use Svelte 5 reactive primitives (`$state`, `$derived.by`). Shared state is distributed via Svelte's context API (set in the user layout, consumed via `getContext()`), not stores.
+The codebase is being migrated toward the standard layered architecture defined in [Layered Architecture](#layered-architecture) below. New code must follow the target patterns; existing code is updated incrementally.
 
-**Backend:** Dependency injection via `go.uber.org/dig`. Repository pattern for data access; service layer for business logic. Audit history is recorded automatically — PocketBase `OnModelAfterCreate` and `OnModelBeforeUpdate` hooks call history services for every entity type.
+**Frontend (target):** Components (`.svelte`) handle UI and user interaction only — no business logic. Application modules (`.svelte.ts` in `src/lib/modules/`) orchestrate use cases and hold reactive state via Svelte 5 primitives (`$state`, `$derived.by`). Service layer (`src/lib/services/`) contains business logic. Repository layer (`src/lib/repositories/`) abstracts all PocketBase SDK calls. State is distributed via Svelte's context API (set in the user layout, consumed via `getContext()`), not stores.
 
-**Frontend → backend:** The PocketBase JS SDK (`pocketbase` npm package) is the only HTTP client. Base URL comes from the `PUBLIC_POCKETBASE_URL` env var. Auth state is persisted in cookies via `src/lib/api/backend-client.ts`. The user layout (`src/routes/user/+layout.ts`) guards all `/user/*` routes and redirects to `/auth` if unauthenticated.
+**Backend (target):** Dependency injection via `go.uber.org/dig`. Hook handlers (`cmd/keybook.go`) are the API layer — they receive PocketBase events and delegate to the application layer. Application layer (`internal/application/`) orchestrates services per use case without containing business logic. Service layer (`internal/services/`) contains business logic and audit history recording. Repository layer (`internal/repositories/`) abstracts all PocketBase DAO access. DTOs (`internal/dtos/`) cross layer boundaries.
+
+**Frontend → backend:** The PocketBase JS SDK (`pocketbase` npm package) is the only HTTP client (Store layer). Base URL comes from the `PUBLIC_POCKETBASE_URL` env var. Auth state is persisted in cookies via `src/lib/api/backend-client.ts`. The user layout (`src/routes/user/+layout.ts`) guards all `/user/*` routes and redirects to `/auth` if unauthenticated.
 
 ## Layered Architecture
 
 All code must follow a layered architecture with clear separation of concerns. Each layer may only depend on the layer directly below it.
 
-**Backend:**
-
-| Layer | KeyBook implementation |
+| Layer | Responsibility |
 |---|---|
-| **Hooks** | PocketBase event handlers in `cmd/keybook.go` — route events to services |
-| **Services** | Business logic and audit history recording (`internal/services/`) |
-| **Repositories** | PocketBase DAO queries (`internal/repositories/`) |
+| **API** | HTTP handlers, request/response mapping, input validation |
+| **Application** | Use-case orchestration; coordinates services without containing business logic |
+| **Service** | Business logic and domain rules |
+| **Repository** | Data access abstraction; hides persistence details from services |
+| **Store** | Persistence (database queries, external API calls) |
 
-**Frontend:**
+Optional: **Domain** (pure entities and value objects, no dependencies), **DTO/Schema** (typed data transfer objects at layer boundaries).
 
-| Layer | KeyBook implementation |
+**Backend target mapping:**
+
+| Layer | KeyBook target |
 |---|---|
-| **Components** | `.svelte` files — UI and user interaction |
-| **Modules** | `.svelte.ts` files in `src/lib/modules/` — application state and business logic |
-| **SDK** | PocketBase JS SDK — all HTTP and data access |
+| **API** | PocketBase hook handlers in `cmd/keybook.go` |
+| **Application** | `internal/application/` — to be introduced |
+| **Service** | `internal/services/` |
+| **Repository** | `internal/repositories/` |
+| **Store** | PocketBase DAO |
+| **DTO** | `internal/dtos/` |
 
-Components call module methods; modules call the SDK directly. No component accesses the SDK directly.
+**Frontend target mapping:**
+
+| Layer | KeyBook target |
+|---|---|
+| **API** | N/A — frontend consumes the PocketBase REST API via the SDK |
+| **Application** | `.svelte.ts` modules in `src/lib/modules/` |
+| **Service** | `src/lib/services/` — to be introduced |
+| **Repository** | `src/lib/repositories/` — to be introduced |
+| **Store** | PocketBase JS SDK |
 
 ### References
 
