@@ -238,9 +238,20 @@ One repository per new collection following the existing pattern:
 - `PropertyRepository` — remove `owners`/`managers` field references.
 - Delete `DeviceRepository`, `PersonDeviceRepository`.
 
-### 4.3 New application services (`internal/application/`)
+### 4.3 New services (`internal/services/`)
 
-One application service per entity group, coordinating repository calls without containing business logic. Each is injected with its required repositories via the `dig` container.
+One service per entity group, containing business logic and validation. Application services call these; services call repositories directly.
+
+- `ItemService` — item validation, entry device state transitions, defunct reason enforcement
+- `CobrandService` — cobrand validation, admin uniqueness
+- `AgentService` — agent registration rules, duplicate assignment prevention
+- `PropertyOwnerService` — ownership validation, duplicate person/cobrand owner prevention
+- `PersonService` — person validation
+- `PropertyService` — property validation, ownership chain resolution
+
+### 4.4 New application services (`internal/application/`)
+
+One application service per entity group, coordinating service calls without containing business logic. Each is injected with its required services via the `dig` container.
 
 - `ItemApplicationService` — orchestrates item CRUD, entry device designation, and person/property item associations
 - `CobrandApplicationService` — orchestrates cobrand CRUD, admin assignment, and property manager assignment
@@ -251,11 +262,11 @@ One application service per entity group, coordinating repository calls without 
 
 Hook handlers in `cmd/keybook.go` call application services; application services call service-layer functions; services call repositories.
 
-### 4.4 Services and hooks
+### 4.5 History services and hooks
 
 No new history services are required for the relation collections. The existing `PersonHistoryServices` and `PropertyHistoryServices` hooks continue to apply. Remove `DeviceHistoryServices` and `PersonDeviceHistoryServices` after migration.
 
-### 4.5 DTOs (`internal/dtos/`)
+### 4.6 DTOs (`internal/dtos/`)
 
 Add DTOs for each new collection. Update `PersonDtos` and `PropertyDtos` to reflect field changes.
 
@@ -282,8 +293,8 @@ Modules are the Application layer: they orchestrate use cases and hold reactive 
 
 ### 5.3 Updated modules
 
-- `person/` — remove type/property handling; add user-link, DOB, role derivation via relation collections.
-- `property/` — remove direct owners/managers; derive ownership from new collections.
+- `person/` — remove type/property handling; add user-link, DOB. Role derivation (owner/tenant/agent/household) is delegated to `PersonService` — modules do not query relation collections directly.
+- `property/` — remove direct owners/managers. Ownership chain resolution is delegated to `PropertyService` — modules do not query ownership collections directly.
 
 ### 5.4 New contexts
 
