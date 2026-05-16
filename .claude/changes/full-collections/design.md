@@ -64,10 +64,10 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 
 ---
 
-**`cobrandAdmins`**
+**`cobrandAdmins`** *(unique on `user` + `cobrand`)*
 | Field | Type | Notes |
 |---|---|---|
-| `userId` | relation → users, required | |
+| `user` | relation → users, required | |
 | `cobrand` | relation → cobrands, required | |
 
 ---
@@ -198,7 +198,7 @@ OR
 ```
 cobrandPropertyOwners.propertyOwner
 → cobrand
-→ cobrandAdmins.userId = @request.auth.id
+→ cobrandAdmins.user = @request.auth.id
 ```
 Access rules on all collections will need updating to use the new ownership chain.
 
