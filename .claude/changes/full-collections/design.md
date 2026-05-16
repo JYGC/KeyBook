@@ -130,7 +130,7 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 
 ---
 
-**`entryDevices`**
+**`entryDevices`** *(unique on `item`)*
 | Field | Type | Notes |
 |---|---|---|
 | `item` | relation → items, required | |
@@ -140,7 +140,7 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 
 ---
 
-**`propertyItems`**
+**`propertyItems`** *(unique on `item` + `property`)*
 | Field | Type | Notes |
 |---|---|---|
 | `item` | relation → items, required | |
@@ -148,7 +148,7 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 
 ---
 
-**`personItems`**
+**`personItems`** *(unique on `person` + `item`)*
 | Field | Type | Notes |
 |---|---|---|
 | `person` | relation → persons, required | |
