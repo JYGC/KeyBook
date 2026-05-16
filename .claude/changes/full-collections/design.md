@@ -29,7 +29,7 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 |---|---|---|
 | `name` | text, required | |
 | `DOB` | date | |
-| `user` | relation → users | optional |
+| `user` | relation → users, unique | optional (null allowed; non-null values must be unique) |
 | `profileImage` | file | *(carried over)* |
 
 ---
@@ -48,7 +48,7 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 
 ---
 
-**`personPropertyOwners`**
+**`personPropertyOwners`** *(unique on `person` + `propertyOwner`)*
 | Field | Type | Notes |
 |---|---|---|
 | `person` | relation → persons, required | |
@@ -80,7 +80,7 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 
 ---
 
-**`cobrandPropertyOwners`**
+**`cobrandPropertyOwners`** *(unique on `cobrand` + `propertyOwner`)*
 | Field | Type | Notes |
 |---|---|---|
 | `cobrand` | relation → cobrands, required | |
