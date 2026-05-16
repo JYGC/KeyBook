@@ -4,7 +4,7 @@
 
 This change restructures the data model from a flat, property-centric design to a normalised multi-role design. Persons become first-class entities (not property-scoped). Ownership, tenancy, and management are expressed through dedicated relation collections rather than embedded fields. A new item registry supports physical household items and entry devices. Firm (cobrand) ownership and agent management are introduced as first-class concepts.
 
-The old database is dropped and replaced from scratch. Columns from old collections are carried forward onto their counterpart collections in the new schema where they are not already covered. The new schema is defined in `database/pb_schema.json` and imported via PocketBase's schema import on a fresh database — consistent with the development rule in `CLAUDE.md`.
+The old database is dropped and replaced from scratch. Columns from old collections are carried forward onto their counterpart collections in the new schema where they are not already covered. The new schema is defined and managed exclusively via PocketBase migrations in `backend/migrations/`. `database/pb_schema.json` is deleted.
 
 All new backend and frontend code follows the layered architecture defined in `CLAUDE.md`: API → Application → Service → Repository → Store. This change introduces `internal/application/` (backend) and `src/lib/services/`, `src/lib/repositories/` (frontend) as new layers.
 
@@ -336,8 +336,8 @@ Repositories are the only layer that calls the PocketBase JS SDK.
 
 ## 8. Data migration path
 
-1. Update `database/pb_schema.json` with all new collections as specified in section 2.1.
-2. On the OpenBSD server: stop the binary, delete `pb_data/`, import the new schema via PocketBase's admin UI or `--importcollections` flag, restart.
+1. Write a PocketBase migration in `backend/migrations/` that defines all collections as specified in section 2.1, sets unique constraints, and configures access rules using the new ownership chain. Delete `database/pb_schema.json`.
+2. On the OpenBSD server: stop the binary, delete `pb_data/`, build and run the new binary (migrations run automatically on `serve`), restart.
 3. Migrate existing data (run as a one-shot script):
    - For each `devices` record → create `items` + `entryDevices` record.
    - For each `personDevices` record → create `personItems` record.

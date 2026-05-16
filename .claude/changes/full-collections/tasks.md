@@ -3,9 +3,9 @@
 ## Phase 1 — Schema
 
 - [ ] **1.1** Write contract tests verifying HTTP access rules (status codes, auth enforcement) for all new collections via direct HTTP requests against a real PocketBase instance.
-- [ ] **1.2** Update `database/pb_schema.json` to define all collections as specified in `design.md` section 2.1, including carry-over columns (`users.avatar`, `persons.profileImage`, `entryDevices.identifier`, `entryDevices.defunctReason`).
-- [ ] **1.3** Set PocketBase access rules for all collections in `pb_schema.json` using the new ownership chain (`propertyOwners → personPropertyOwners → person.user` and `cobrandPropertyOwners → cobrand → cobrandAdmins → userId`). Confirm contract tests from 1.1 pass.
-- [ ] **1.4** On the OpenBSD server: stop the binary, delete `pb_data/`, import the new schema, restart. Verify all collections exist with correct fields and rules.
+- [ ] **1.2** Write a PocketBase migration in `backend/migrations/` that creates all collections as specified in `design.md` section 2.1, with all unique constraints, carry-over columns (`persons.profileImage`, `entryDevices.identifier`, `entryDevices.defunctReason`), and removal of default `name` and `avatar` fields from `users`. Delete `database/pb_schema.json`.
+- [ ] **1.3** In the same migration, set PocketBase access rules for all collections using the new ownership chain (`propertyOwners → personPropertyOwners → person.user` and `cobrandPropertyOwners → cobrand → cobrandAdmins.user`). Confirm contract tests from 1.1 pass.
+- [ ] **1.4** On the OpenBSD server: stop the binary, delete `pb_data/`, build and run the new binary (migrations run automatically on `serve`). Verify all collections exist with correct fields and rules.
 
 ## Phase 2 — Backend: DTOs
 

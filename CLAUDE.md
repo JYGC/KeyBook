@@ -76,8 +76,8 @@ backend/
     dtos/          Data transfer objects for all entities
     helpers/       PocketBase DAO error utilities
     frontend/build/ Gitignored — populated from frontend build output
-database/
-  pb_schema.json   PocketBase collection definitions
+backend/
+  migrations/      PocketBase migration files (schema source of truth)
 ```
 
 ### Key patterns
@@ -143,7 +143,7 @@ Optional: **Domain** (pure entities and value objects, no dependencies), **DTO/S
 ## Development rules
 
 - Always read a file before editing it.
-- Schema changes go through `database/pb_schema.json` only — never edit the PocketBase database directly.
+- Schema changes go through PocketBase migrations in `backend/migrations/` only — never edit the database directly.
 - No speculative abstractions — only build what is needed now.
 - Format Go code with `gofmt` and `goimports` before committing.
 - Run `npm run lint` in `frontend/` to check TypeScript/Svelte style before committing.

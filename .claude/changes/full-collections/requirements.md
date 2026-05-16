@@ -12,12 +12,14 @@ WHEN a user views an item THE SYSTEM SHALL display its name, description, pictur
 ### 1.2 Person item ownership
 
 WHEN a user assigns an item to a person THE SYSTEM SHALL create a personItems record linking that person and item.
+WHEN a user assigns an item to a person it is already assigned to THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a user removes an item from a person THE SYSTEM SHALL delete the corresponding personItems record.
 WHEN a user views a person's items THE SYSTEM SHALL list all items linked to that person via personItems.
 
 ### 1.3 Property item inventory
 
 WHEN a user assigns an item to a property THE SYSTEM SHALL create a propertyItems record linking that property and item.
+WHEN a user assigns an item to a property it is already assigned to THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a user removes an item from a property THE SYSTEM SHALL delete the corresponding propertyItems record.
 WHEN a user views a property's inventory THE SYSTEM SHALL list all items linked to that property via propertyItems.
 
@@ -43,6 +45,7 @@ WHEN a user views an agent THE SYSTEM SHALL display the linked person details, c
 ### 2.2 Property agents
 
 WHEN a user assigns an agent to a property THE SYSTEM SHALL create a propertyAgents record linking that agent and property.
+WHEN a user assigns an agent to a property they are already assigned to THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a user removes an agent from a property THE SYSTEM SHALL delete the corresponding propertyAgents record.
 WHEN a user views a property's agents THE SYSTEM SHALL list all agents linked to that property via propertyAgents.
 
@@ -51,8 +54,8 @@ WHEN a user views a property's agents THE SYSTEM SHALL list all agents linked to
 ### 3.1 Property owners
 
 WHEN a user creates a property owner record THE SYSTEM SHALL link it to a property.
-WHEN a user links a person to a property owner THE SYSTEM SHALL create a personPropertyOwners record with the person, propertyOwner, and an optional display name.
-WHEN a user links a cobrand (firm) to a property owner THE SYSTEM SHALL create a cobrandPropertyOwners record with the cobrand, propertyOwner, and an optional display name.
+WHEN a user links a person to a property owner THE SYSTEM SHALL create a personPropertyOwners record with the person and propertyOwner.
+WHEN a user links a cobrand (firm) to a property owner THE SYSTEM SHALL create a cobrandPropertyOwners record with the cobrand and propertyOwner.
 WHEN a user views ownership of a property THE SYSTEM SHALL display all persons and cobrands linked as owners via their respective relation collections.
 WHEN a user removes a person from a property owner THE SYSTEM SHALL delete the corresponding personPropertyOwners record.
 WHEN a user removes a cobrand from a property owner THE SYSTEM SHALL delete the corresponding cobrandPropertyOwners record.
@@ -73,6 +76,7 @@ WHEN a cobrand admin is removed THE SYSTEM SHALL delete the cobrandAdmins record
 ### 4.3 Cobrand property managers
 
 WHEN a cobrand is assigned to manage a property THE SYSTEM SHALL create a cobrandPropertyManagers record linking the cobrand and property.
+WHEN a cobrand is assigned to manage a property it already manages THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a cobrand is removed from managing a property THE SYSTEM SHALL delete the corresponding cobrandPropertyManagers record.
 WHEN a user views a cobrand's managed properties THE SYSTEM SHALL list all properties linked via cobrandPropertyManagers.
 
@@ -81,12 +85,14 @@ WHEN a user views a cobrand's managed properties THE SYSTEM SHALL list all prope
 ### 5.1 Tenants
 
 WHEN a user adds a person as a tenant of a property THE SYSTEM SHALL create a tenants record linking that person and property.
+WHEN a user adds a person as a tenant of a property they are already a tenant of THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a user removes a tenant from a property THE SYSTEM SHALL delete the corresponding tenants record.
 WHEN a user views tenants of a property THE SYSTEM SHALL list all persons linked via tenants.
 
 ### 5.2 Households
 
 WHEN a user adds a person to a property's household THE SYSTEM SHALL create a households record linking that person and property.
+WHEN a user adds a person to a household they are already a member of THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a user removes a person from a household THE SYSTEM SHALL delete the corresponding households record.
 WHEN a user views a property's household THE SYSTEM SHALL list all persons linked via households.
 
@@ -94,11 +100,11 @@ WHEN a user views a property's household THE SYSTEM SHALL list all persons linke
 
 ### 6.1 Users
 
-WHEN a user account is created THE SYSTEM SHALL store a name and an optional avatar image.
+WHEN a user account is created THE SYSTEM SHALL store only an email address. The default `name` and `avatar` fields provided by PocketBase shall be removed.
 
 ### 6.2 Persons
 
-WHEN a person is created THE SYSTEM SHALL store name, an optional date of birth, an optional profile image, and an optional link to a user account.
+WHEN a person is created THE SYSTEM SHALL store name, date of birth, an optional profile image, and an optional link to a user account.
 WHEN a user links a person to a user account THE SYSTEM SHALL set the persons.user field to the given users record.
 WHEN a user views a person THE SYSTEM SHALL derive the person's property roles (owner, tenant, agent, household member) from the relevant relation collections.
 
