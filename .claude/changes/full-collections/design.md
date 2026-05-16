@@ -72,7 +72,7 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 
 ---
 
-**`cobrandPropertyManagers`**
+**`cobrandPropertyManagers`** *(unique on `cobrand` + `property`)*
 | Field | Type | Notes |
 |---|---|---|
 | `cobrand` | relation → cobrands, required | |
@@ -89,7 +89,7 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 
 ---
 
-**`agents`**
+**`agents`** *(unique on `person` + `cobrand`)*
 | Field | Type | Notes |
 |---|---|---|
 | `person` | relation → persons, required | |
@@ -97,7 +97,7 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 
 ---
 
-**`propertyAgents`**
+**`propertyAgents`** *(unique on `agent` + `property`)*
 | Field | Type | Notes |
 |---|---|---|
 | `agent` | relation → agents, required | |
@@ -105,7 +105,7 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 
 ---
 
-**`households`**
+**`households`** *(unique on `person` + `property`)*
 | Field | Type | Notes |
 |---|---|---|
 | `person` | relation → persons, required | |
@@ -113,7 +113,7 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 
 ---
 
-**`tenants`**
+**`tenants`** *(unique on `person` + `property`)*
 | Field | Type | Notes |
 |---|---|---|
 | `person` | relation → persons, required | |
