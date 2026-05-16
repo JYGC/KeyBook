@@ -16,11 +16,7 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 
 ---
 
-**`users`** *(auth — created by PocketBase by default; only field additions shown)*
-| Field | Type | Notes |
-|---|---|---|
-| `name` | text | |
-| `avatar` | file | *(carried over)* |
+**`users`** *(auth — created by PocketBase by default; `email` is kept; `name` and `avatar` are included by default but must be removed)*
 
 ---
 
@@ -28,7 +24,7 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 | Field | Type | Notes |
 |---|---|---|
 | `name` | text, required | |
-| `DOB` | date | |
+| `DOB` | date, required | |
 | `user` | relation → users, unique | optional (null allowed; non-null values must be unique) |
 | `profileImage` | file | *(carried over)* |
 
@@ -53,7 +49,6 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 |---|---|---|
 | `person` | relation → persons, required | |
 | `propertyOwner` | relation → propertyOwners, required | |
-| `name` | text | display name for this ownership |
 
 ---
 
@@ -85,7 +80,6 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 |---|---|---|
 | `cobrand` | relation → cobrands, required | |
 | `propertyOwner` | relation → propertyOwners, required | |
-| `name` | text | display name for this ownership |
 
 ---
 
@@ -125,7 +119,7 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 | Field | Type | Notes |
 |---|---|---|
 | `name` | text, required | |
-| `description` | text | |
+| `description` | text, required | |
 | `picture` | file | (was `image` on old `devices`) |
 
 ---
