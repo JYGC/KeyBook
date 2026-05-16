@@ -17,7 +17,7 @@
 - [ ] **2.6** Add DTOs: `ItemDto`, `PropertyItemDto`, `PersonItemDto`, `EntryDeviceDto` (include `identifier` and `defunctReason`).
 - [ ] **2.7** Rewrite `PersonDto`: fields are `name`, `DOB`, `user`, `profileImage`.
 - [ ] **2.8** Rewrite `PropertyDto`: fields are `address` only.
-- [ ] **2.9** Add DTOs: `PropertyHistoryDto` (property, snapshot, description, statedDateTime), `TenantHistoryDto` (property, propertyAddress, person, personName, action, statedDateTime), `PropertyItemHistoryDto` (property, propertyAddress, item, itemName, action, statedDateTime).
+- [ ] **2.9** Add DTOs: `PropertyHistoryDto` (property, snapshot, description, statedDateTime), `TenantHistoryDto` (property, propertySnapshot, person, personSnapshot, action, statedDateTime), `PropertyItemHistoryDto` (property, propertySnapshot, item, itemSnapshot, action, statedDateTime).
 
 ## Phase 3 — Backend: Repositories
 

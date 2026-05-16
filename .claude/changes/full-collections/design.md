@@ -165,14 +165,14 @@ All relation fields are nullable with cascade delete disabled — history record
 
 **`tenantHistories`**
 
-All relation fields are nullable with cascade delete disabled. `personName` and `propertyAddress` are captured at write time so the record remains readable after either referenced entity is deleted.
+All relation fields are nullable with cascade delete disabled. `personSnapshot` and `propertySnapshot` capture the full state of each referenced entity at write time so the record remains readable after either is deleted.
 
 | Field | Type | Notes |
 |---|---|---|
 | `property` | relation → properties | optional; no cascade delete; becomes null if property deleted |
-| `propertyAddress` | text, required | address captured at time of event |
+| `propertySnapshot` | json, required | full property state captured at time of event |
 | `person` | relation → persons | optional; no cascade delete; becomes null if person deleted |
-| `personName` | text, required | name captured at time of event |
+| `personSnapshot` | json, required | full person state captured at time of event |
 | `action` | select (Added/Removed), required | |
 | `statedDateTime` | date | |
 
@@ -180,14 +180,14 @@ All relation fields are nullable with cascade delete disabled. `personName` and 
 
 **`propertyItemHistories`**
 
-All relation fields are nullable with cascade delete disabled. `itemName` and `propertyAddress` are captured at write time so the record remains readable after either referenced entity is deleted.
+All relation fields are nullable with cascade delete disabled. `itemSnapshot` and `propertySnapshot` capture the full state of each referenced entity at write time so the record remains readable after either is deleted.
 
 | Field | Type | Notes |
 |---|---|---|
 | `property` | relation → properties | optional; no cascade delete; becomes null if property deleted |
-| `propertyAddress` | text, required | address captured at time of event |
+| `propertySnapshot` | json, required | full property state captured at time of event |
 | `item` | relation → items | optional; no cascade delete; becomes null if item deleted |
-| `itemName` | text, required | name captured at time of event |
+| `itemSnapshot` | json, required | full item state captured at time of event |
 | `action` | select (Added/Removed), required | |
 | `statedDateTime` | date | |
 
@@ -298,8 +298,8 @@ Hook handlers in `cmd/keybook.go` call application services; application service
 Three history services record property-scoped change events. Remove `PersonHistoryServices`, `PropertyHistoryServices`, `DeviceHistoryServices`, and `PersonDeviceHistoryServices` after migration.
 
 - `PropertyHistoryService` — called from `OnModelAfterCreate` and `OnModelBeforeUpdate` hooks on `properties`; writes a `propertyHistories` record with the full property state in `snapshot`.
-- `TenantHistoryService` — called from `OnModelAfterCreate` and `OnModelAfterDelete` hooks on `tenants`; writes a `tenantHistories` record with action `Added` or `Removed`, capturing `personName` and `propertyAddress` from the live records before any deletion occurs.
-- `PropertyItemHistoryService` — called from `OnModelAfterCreate` and `OnModelAfterDelete` hooks on `propertyItems`; writes a `propertyItemHistories` record with action `Added` or `Removed`, capturing `itemName` and `propertyAddress` from the live records before any deletion occurs.
+- `TenantHistoryService` — called from `OnModelAfterCreate` and `OnModelAfterDelete` hooks on `tenants`; writes a `tenantHistories` record with action `Added` or `Removed`, capturing full `personSnapshot` and `propertySnapshot` from the live records before any deletion occurs.
+- `PropertyItemHistoryService` — called from `OnModelAfterCreate` and `OnModelAfterDelete` hooks on `propertyItems`; writes a `propertyItemHistories` record with action `Added` or `Removed`, capturing full `itemSnapshot` and `propertySnapshot` from the live records before any deletion occurs.
 
 Add `PropertyHistoryRepository`, `TenantHistoryRepository`, and `PropertyItemHistoryRepository` to `internal/repositories/` to support these services.
 
