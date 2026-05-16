@@ -67,17 +67,23 @@ KeyBook is a web app for managing devices, persons, and properties, with automat
 ## Architecture
 
 ```
-frontend/          SvelteKit (Svelte 5, TypeScript, Carbon Design System)
+frontend/
+  src/
+    lib/
+      modules/      Application layer — use-case orchestration, reactive state
+      services/     Service layer — business logic (to be introduced)
+      repositories/ Repository layer — PocketBase SDK abstraction (to be introduced)
+    routes/         SvelteKit pages and layouts
 backend/
-  cmd/keybook.go   Entry point — wires DI container, registers PocketBase hooks
+  cmd/keybook.go    API layer — entry point, DI wiring, PocketBase hook handlers
+  migrations/       Schema source of truth — PocketBase migrations
   internal/
-    repositories/  Data access layer (PocketBase DAO queries)
-    services/      Business logic; history-tracking services called by hooks
-    dtos/          Data transfer objects for all entities
-    helpers/       PocketBase DAO error utilities
+    application/    Application layer — use-case orchestration (to be introduced)
+    services/       Service layer — business logic and audit history
+    repositories/   Repository layer — PocketBase DAO queries
+    dtos/           DTO layer — data transfer objects at layer boundaries
+    helpers/        PocketBase DAO error utilities
     frontend/build/ Gitignored — populated from frontend build output
-backend/
-  migrations/      PocketBase migration files (schema source of truth)
 ```
 
 ### Key patterns
