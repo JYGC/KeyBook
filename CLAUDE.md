@@ -90,6 +90,8 @@ database/
 
 ### Mandate
 
+**All tests must be run on the OpenBSD server** (see `CLAUDE.local.md` for connection details). Do not run tests locally.
+
 **Unit tests must be written before the implementation code they cover (TDD).** Write the test, watch it fail, then write the minimum code to make it pass.
 
 ### Test types
