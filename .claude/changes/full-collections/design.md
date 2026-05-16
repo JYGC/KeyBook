@@ -12,7 +12,7 @@ All new backend and frontend code follows the layered architecture defined in `C
 
 ### 2.1 Complete collection definitions
 
-All columns listed. Columns marked *(carried over)* come from the old schema. History collections follow the existing pattern (snapshot JSON + `statedDateTime` per entity) and are retained for `persons` and `properties` only — relation-only tables rely on PocketBase's built-in `created`/`updated` timestamps.
+All columns listed. Columns marked *(carried over)* come from the old schema. Three history collections (`propertyHistories`, `tenantHistories`, `propertyItemHistories`) track property-scoped changes — relation-only tables rely on PocketBase's built-in `created`/`updated` timestamps.
 
 ---
 
@@ -150,24 +150,46 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 
 ---
 
-**`personHistory`** *(unchanged)*
-| Field | Type |
-|---|---|
-| `personId` | text, required |
-| `person` | json (snapshot), required |
-| `statedDateTime` | date |
-| `description` | text |
-| `property` | relation → properties, required |
+**`propertyHistories`**
+
+All relation fields are nullable with cascade delete disabled — history records survive property deletion. The `snapshot` preserves readable state after the property record is gone.
+
+| Field | Type | Notes |
+|---|---|---|
+| `property` | relation → properties | optional; no cascade delete; becomes null if property deleted |
+| `snapshot` | json, required | full property state captured at time of change |
+| `description` | text | |
+| `statedDateTime` | date | |
 
 ---
 
-**`propertyHistory`** *(unchanged)*
-| Field | Type |
-|---|---|
-| `propertyId` | text, required |
-| `property` | json (snapshot), required |
-| `statedDateTime` | date |
-| `description` | text |
+**`tenantHistories`**
+
+All relation fields are nullable with cascade delete disabled. `personName` and `propertyAddress` are captured at write time so the record remains readable after either referenced entity is deleted.
+
+| Field | Type | Notes |
+|---|---|---|
+| `property` | relation → properties | optional; no cascade delete; becomes null if property deleted |
+| `propertyAddress` | text, required | address captured at time of event |
+| `person` | relation → persons | optional; no cascade delete; becomes null if person deleted |
+| `personName` | text, required | name captured at time of event |
+| `action` | select (Added/Removed), required | |
+| `statedDateTime` | date | |
+
+---
+
+**`propertyItemHistories`**
+
+All relation fields are nullable with cascade delete disabled. `itemName` and `propertyAddress` are captured at write time so the record remains readable after either referenced entity is deleted.
+
+| Field | Type | Notes |
+|---|---|---|
+| `property` | relation → properties | optional; no cascade delete; becomes null if property deleted |
+| `propertyAddress` | text, required | address captured at time of event |
+| `item` | relation → items | optional; no cascade delete; becomes null if item deleted |
+| `itemName` | text, required | name captured at time of event |
+| `action` | select (Added/Removed), required | |
+| `statedDateTime` | date | |
 
 ---
 
@@ -179,6 +201,8 @@ The following old collections are dropped with the database and have no equivale
 - `personDevices` — superseded by `personItems`
 - `deviceHistory` — dropped (entry devices tracked via `entryDevices` timestamps)
 - `personDeviceHistory` — dropped
+- `personHistory` — dropped; person changes are not tracked in the new schema
+- `propertyHistory` — dropped; replaced by `propertyHistories`, `tenantHistories`, and `propertyItemHistories`
 
 ### 2.3 Access rule implications
 
@@ -209,6 +233,10 @@ users ────────────────────────�
         ├── tenants ─────────────────────────────── properties
         └── personItems ── items ── propertyItems ── properties
                                  └── entryDevices
+
+properties ── propertyHistories
+           ── tenantHistories ── persons
+           ── propertyItemHistories ── items
 ```
 
 ## 4. Backend changes
@@ -231,6 +259,9 @@ One repository per new collection following the existing pattern:
 - `PropertyItemRepository`
 - `PersonItemRepository`
 - `EntryDeviceRepository`
+- `PropertyHistoryRepository`
+- `TenantHistoryRepository`
+- `PropertyItemHistoryRepository`
 
 ### 4.2 Modified repositories
 
@@ -264,7 +295,13 @@ Hook handlers in `cmd/keybook.go` call application services; application service
 
 ### 4.5 History services and hooks
 
-No new history services are required for the relation collections. The existing `PersonHistoryServices` and `PropertyHistoryServices` hooks continue to apply. Remove `DeviceHistoryServices` and `PersonDeviceHistoryServices` after migration.
+Three history services record property-scoped change events. Remove `PersonHistoryServices`, `PropertyHistoryServices`, `DeviceHistoryServices`, and `PersonDeviceHistoryServices` after migration.
+
+- `PropertyHistoryService` — called from `OnModelAfterCreate` and `OnModelBeforeUpdate` hooks on `properties`; writes a `propertyHistories` record with the full property state in `snapshot`.
+- `TenantHistoryService` — called from `OnModelAfterCreate` and `OnModelAfterDelete` hooks on `tenants`; writes a `tenantHistories` record with action `Added` or `Removed`, capturing `personName` and `propertyAddress` from the live records before any deletion occurs.
+- `PropertyItemHistoryService` — called from `OnModelAfterCreate` and `OnModelAfterDelete` hooks on `propertyItems`; writes a `propertyItemHistories` record with action `Added` or `Removed`, capturing `itemName` and `propertyAddress` from the live records before any deletion occurs.
+
+Add `PropertyHistoryRepository`, `TenantHistoryRepository`, and `PropertyItemHistoryRepository` to `internal/repositories/` to support these services.
 
 ### 4.6 DTOs (`internal/dtos/`)
 

@@ -112,3 +112,22 @@ WHEN a user views a person THE SYSTEM SHALL derive the person's property roles (
 
 WHEN a property is created THE SYSTEM SHALL store an address.
 WHEN access to a property is checked THE SYSTEM SHALL determine authorisation via propertyOwners → personPropertyOwners or cobrandPropertyOwners.
+
+## 7. History
+
+### 7.1 Property history
+
+WHEN a property record is created or updated THE SYSTEM SHALL write a propertyHistories snapshot record.
+WHEN a property owner views a property they currently or previously owned THE SYSTEM SHALL display that property's history entries from propertyHistories.
+
+### 7.2 Tenant history
+
+WHEN a person is added as a tenant of a property THE SYSTEM SHALL write a tenantHistories record with action Added.
+WHEN a person is removed as a tenant of a property THE SYSTEM SHALL write a tenantHistories record with action Removed.
+WHEN a property owner views a property they currently or previously owned THE SYSTEM SHALL display the current and past tenants of that property from tenantHistories.
+
+### 7.3 Property item history
+
+WHEN an item is assigned to a property THE SYSTEM SHALL write a propertyItemHistories record with action Added.
+WHEN an item is removed from a property THE SYSTEM SHALL write a propertyItemHistories record with action Removed.
+WHEN a property owner views a property they currently or previously owned THE SYSTEM SHALL display the current and past items at that property from propertyItemHistories.
