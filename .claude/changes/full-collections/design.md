@@ -16,7 +16,7 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Hi
 
 ---
 
-**`users`** *(auth)*
+**`users`** *(auth — created by PocketBase by default; only field additions shown)*
 | Field | Type | Notes |
 |---|---|---|
 | `name` | text | |
