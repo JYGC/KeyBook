@@ -24,8 +24,10 @@ WHEN a user views a property's inventory THE SYSTEM SHALL list all items linked 
 ### 1.4 Entry devices
 
 WHEN a user designates an item as an entry device THE SYSTEM SHALL create an entryDevices record with the item, a deviceType, and an identifier.
+WHEN a user designates an item that already has an entryDevices record THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a user changes any field of an entry device THE SYSTEM SHALL update the entryDevices record.
 WHEN a user marks an entry device as defunct THE SYSTEM SHALL store a defunctReason (Lost/Damaged/Retired/Stolen) on the entryDevices record.
+WHEN a user attempts to mark an entry device as defunct without providing a defunctReason THE SYSTEM SHALL display a validation error.
 WHEN a user removes the entry device designation from an item THE SYSTEM SHALL delete the entryDevices record (the underlying item is retained).
 WHEN a user views entry devices for a property THE SYSTEM SHALL list all items that have an entryDevices record and are assigned to that property via propertyItems.
 
@@ -34,6 +36,7 @@ WHEN a user views entry devices for a property THE SYSTEM SHALL list all items t
 ### 2.1 Agents
 
 WHEN a user registers a person as an agent THE SYSTEM SHALL create an agents record linking that person to a cobrand.
+WHEN a user registers a person as an agent for a cobrand they are already an agent of THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a user removes an agent THE SYSTEM SHALL delete the agents record and all associated propertyAgents records.
 WHEN a user views an agent THE SYSTEM SHALL display the linked person details, cobrand, and all properties the agent manages.
 
@@ -64,6 +67,7 @@ WHEN a user views a cobrand THE SYSTEM SHALL display its admins, agents, managed
 ### 4.2 Cobrand admins
 
 WHEN a user is added as a cobrand admin THE SYSTEM SHALL create a cobrandAdmins record linking the user to the cobrand.
+WHEN a user is added as a cobrand admin for a cobrand they already administer THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a cobrand admin is removed THE SYSTEM SHALL delete the cobrandAdmins record.
 
 ### 4.3 Cobrand property managers
