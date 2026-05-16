@@ -153,6 +153,8 @@ Components call module methods; modules call the SDK directly. No component acce
 
 ### Frontend tests
 
+Every integration test exercises Svelte components together with their modules against a real running PocketBase instance — no SDK mocking.
+
 | Command | Tool | What it covers |
 |---|---|---|
 | `npm run test:unit` | Vitest | Unit and integration tests in `src/` |
