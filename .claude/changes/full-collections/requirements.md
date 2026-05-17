@@ -119,6 +119,13 @@ WHEN an authenticated user attempts to update or delete a person record whose us
 
 WHEN a property is created THE SYSTEM SHALL store an address.
 WHEN access to a property is checked THE SYSTEM SHALL determine authorisation via propertyOwners → personPropertyOwners or cobrandPropertyOwners.
+WHEN an unauthenticated request attempts to list, view, create, update, or delete a property record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to list or view a property THE SYSTEM SHALL allow it only if they are a person owner, cobrand owner, cobrand manager, tenant, household member, or agent of that property.
+WHEN an authenticated user attempts to list or view a property and none of those relations hold THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to create a property record THE SYSTEM SHALL allow it regardless of existing ownership.
+WHEN an authenticated user attempts to update a property record THE SYSTEM SHALL allow it only if they are a person owner or cobrand owner of that property.
+WHEN an authenticated user attempts to delete a property record THE SYSTEM SHALL allow it only if they are a person owner or cobrand owner of that property.
+WHEN a cobrand manager, tenant, household member, or agent attempts to update or delete a property record THE SYSTEM SHALL reject it with 403.
 
 ## 7. History
 

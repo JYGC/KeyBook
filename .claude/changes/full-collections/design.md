@@ -251,6 +251,44 @@ The three groups this covers:
 
 Update and delete are restricted to the user account linked to that person (`persons.user`). Property owners manage their relationship to a person via the association collections (`tenants`, `households`, etc.), not by editing the person record itself.
 
+#### `properties` access rules
+
+| Operation | Rule |
+|---|---|
+| list | *(see below)* |
+| view | *(see below — same as list)* |
+| create | `@request.auth.id != ""` |
+| update | *(see below)* |
+| delete | *(see below — same as update)* |
+
+**list / view** — a property is visible to any user with a current relationship to it:
+
+```
+propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| tenants.person.user.id = @request.auth.id
+|| households.person.user.id = @request.auth.id
+|| propertyAgents.agent.person.user.id = @request.auth.id
+```
+
+The six groups this covers:
+- **Person owners** — users linked via `personPropertyOwners → propertyOwners`.
+- **Cobrand owners** — cobrand admins of cobrands linked via `cobrandPropertyOwners → propertyOwners`.
+- **Cobrand managers** — cobrand admins of cobrands linked via `cobrandPropertyManagers`.
+- **Tenants** — users whose person record appears in `tenants` for this property.
+- **Household members** — users whose person record appears in `households` for this property.
+- **Agents** — users whose person record is linked via `propertyAgents → agents` for this property.
+
+**update / delete** — restricted to owners only:
+
+```
+propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+Cobrand managers, tenants, household members, and agents can view but not modify the property record itself.
+
 ## 3. Collection relationship diagram
 
 ```
