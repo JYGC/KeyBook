@@ -220,6 +220,37 @@ cobrandPropertyOwners.propertyOwner
 ```
 Access rules on all collections will need updating to use the new ownership chain.
 
+#### `persons` access rules
+
+| Operation | Rule |
+|---|---|
+| list | *(see below)* |
+| view | *(see below — same as list)* |
+| create | `@request.auth.id != ""` |
+| update | `user.id = @request.auth.id` |
+| delete | `user.id = @request.auth.id` |
+
+**list / view** — a person is visible to:
+
+```
+user.id = @request.auth.id
+|| tenants.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| tenants.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| tenants.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| personItems.item.propertyItems.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| personItems.item.propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| personItems.item.propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+The three groups this covers:
+- **Own user** — the person whose `user` field matches the authenticated account.
+- **Tenant property owners/managers** — any user who is an owner (via `personPropertyOwners` or `cobrandPropertyOwners`) or a cobrand manager (via `cobrandPropertyManagers`) of a property where this person appears in `tenants`.
+- **Item property owners/managers** — any user who owns or manages a property that has an item (via `propertyItems`) currently held by this person (via `personItems`).
+
+**create** is open to any authenticated user so that property owners can register tenants and household members who do not yet have their own user account. The person becomes visible to the creating owner once linked as a tenant (or via a held item) — the frontend receives the created record ID directly from the create response and must use it immediately to create the association record without re-querying.
+
+Update and delete are restricted to the user account linked to that person (`persons.user`). Property owners manage their relationship to a person via the association collections (`tenants`, `households`, etc.), not by editing the person record itself.
+
 ## 3. Collection relationship diagram
 
 ```

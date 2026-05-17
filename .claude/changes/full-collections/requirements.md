@@ -107,6 +107,13 @@ WHEN a user account is created THE SYSTEM SHALL store only an email address. The
 WHEN a person is created THE SYSTEM SHALL store name, date of birth, an optional profile image, and an optional link to a user account.
 WHEN a user links a person to a user account THE SYSTEM SHALL set the persons.user field to the given users record.
 WHEN a user views a person THE SYSTEM SHALL derive the person's property roles (owner, tenant, agent, household member) from the relevant relation collections.
+WHEN an unauthenticated request attempts to list, view, or create a person record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to list or view a person record THE SYSTEM SHALL allow it only if at least one of the following is true: the person's user field matches the authenticated user; the authenticated user owns or manages a property where that person is a tenant; the authenticated user owns or manages a property that holds an item currently assigned to that person via personItems.
+WHEN an authenticated user attempts to list or view a person record that does not satisfy any of those conditions THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to create a person record THE SYSTEM SHALL allow it regardless of ownership relation, so that owners can register tenants who do not yet have user accounts.
+WHEN an authenticated user attempts to update a person record THE SYSTEM SHALL allow it only if that person's user field is linked to the authenticated user's account.
+WHEN an authenticated user attempts to delete a person record THE SYSTEM SHALL allow it only if that person's user field is linked to the authenticated user's account.
+WHEN an authenticated user attempts to update or delete a person record whose user field is null or linked to a different user THE SYSTEM SHALL reject it with 403.
 
 ### 6.3 Properties
 
