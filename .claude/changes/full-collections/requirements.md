@@ -59,6 +59,30 @@ WHEN a user links a cobrand (firm) to a property owner THE SYSTEM SHALL create a
 WHEN a user views ownership of a property THE SYSTEM SHALL display all persons and cobrands linked as owners via their respective relation collections.
 WHEN a user removes a person from a property owner THE SYSTEM SHALL delete the corresponding personPropertyOwners record.
 WHEN a user removes a cobrand from a property owner THE SYSTEM SHALL delete the corresponding cobrandPropertyOwners record.
+WHEN an unauthenticated request attempts to list, view, create, update, or delete a propertyOwners record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to list or view a propertyOwners record THE SYSTEM SHALL allow it only if they are a person owner, cobrand owner, or cobrand manager of the linked property.
+WHEN a tenant, household member, or agent attempts to list or view a propertyOwners record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to create a propertyOwners record for a property that already has at least one owner and they are not themselves an existing owner of that property THE SYSTEM SHALL reject the request.
+WHEN an authenticated user attempts to update or delete a propertyOwners record THE SYSTEM SHALL allow it only if they are a person owner or cobrand owner of the linked property.
+WHEN a cobrand manager attempts to update or delete a propertyOwners record THE SYSTEM SHALL reject it with 403.
+WHEN a user attempts to delete the last remaining propertyOwners record for a property THE SYSTEM SHALL reject the request.
+
+### 3.2 Person property owners
+
+WHEN an unauthenticated request attempts to list, view, create, update, or delete a personPropertyOwners record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to list or view a personPropertyOwners record THE SYSTEM SHALL allow it only if they are a person owner, cobrand owner, or cobrand manager of the linked property.
+WHEN a tenant, household member, or agent attempts to list or view a personPropertyOwners record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to create, update, or delete a personPropertyOwners record THE SYSTEM SHALL allow it only if they are a person owner or cobrand owner of the linked property.
+WHEN a cobrand manager attempts to create, update, or delete a personPropertyOwners record THE SYSTEM SHALL reject it with 403.
+
+### 3.3 Cobrand property owners
+
+WHEN an unauthenticated request attempts to list, view, create, update, or delete a cobrandPropertyOwners record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to list or view a cobrandPropertyOwners record THE SYSTEM SHALL allow it only if they are a person owner, cobrand owner, or cobrand manager of the linked property.
+WHEN a tenant, household member, or agent attempts to list or view a cobrandPropertyOwners record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to create or update a cobrandPropertyOwners record THE SYSTEM SHALL allow it only if they are a person owner or cobrand owner of the linked property.
+WHEN a cobrand manager attempts to create or update a cobrandPropertyOwners record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to delete a cobrandPropertyOwners record THE SYSTEM SHALL allow it if they are a person owner or cobrand owner of the linked property, or if they are an admin of the cobrand being removed.
 
 ## 4. Cobrand (Firm) Management
 
@@ -79,6 +103,11 @@ WHEN a cobrand is assigned to manage a property THE SYSTEM SHALL create a cobran
 WHEN a cobrand is assigned to manage a property it already manages THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a cobrand is removed from managing a property THE SYSTEM SHALL delete the corresponding cobrandPropertyManagers record.
 WHEN a user views a cobrand's managed properties THE SYSTEM SHALL list all properties linked via cobrandPropertyManagers.
+WHEN an unauthenticated request attempts to list, view, create, update, or delete a cobrandPropertyManagers record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to list or view a cobrandPropertyManagers record THE SYSTEM SHALL allow it only if they are a person owner, cobrand owner, or an admin of the managing cobrand.
+WHEN an authenticated user attempts to create or update a cobrandPropertyManagers record THE SYSTEM SHALL allow it only if they are a person owner or cobrand owner of the linked property.
+WHEN a managing cobrand admin attempts to create or update a cobrandPropertyManagers record for a property they do not own THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to delete a cobrandPropertyManagers record THE SYSTEM SHALL allow it if they are a person owner or cobrand owner of the linked property, or if they are an admin of the managing cobrand.
 
 ## 5. Tenant and Household Management
 

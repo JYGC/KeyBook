@@ -289,6 +289,140 @@ propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
 
 Cobrand managers, tenants, household members, and agents can view but not modify the property record itself.
 
+#### `propertyOwners` access rules
+
+| Operation | Rule |
+|---|---|
+| list | *(see below)* |
+| view | *(see below — same as list)* |
+| create | `@request.auth.id != ""` |
+| update | *(see below)* |
+| delete | *(see below — same as update)* |
+
+**list / view** — an ownership record is visible to anyone who owns or manages the linked property:
+
+```
+property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+The three groups this covers:
+- **Person owners** — co-owners can see each other's ownership records on the same property.
+- **Cobrand owners** — cobrand admins of cobrands that co-own the property.
+- **Cobrand managers** — cobrand admins of cobrands that manage the property; they need to know who they are managing for, but cannot change ownership.
+
+Tenants, household members, and agents do not see ownership records.
+
+**create** is open to any authenticated user. The backend `PropertyOwnerApplicationService` enforces the bootstrap rule (the first owner of a brand-new property is created in the same transaction as the property) and the existing-owner rule (only an existing owner of a property may add another `propertyOwners` record to it). Access rules alone cannot express the bootstrap case without a chicken-and-egg failure on the first record.
+
+**update / delete** — restricted to current person and cobrand owners only:
+
+```
+property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+Cobrand managers may not modify or remove ownership records. The application service must additionally prevent deletion of the last remaining owner record for a property.
+
+#### `personPropertyOwners` access rules
+
+| Operation | Rule |
+|---|---|
+| list | *(see below)* |
+| view | *(see below — same as list)* |
+| create | *(see below)* |
+| update | *(see below — same as create)* |
+| delete | *(see below — same as create)* |
+
+**list / view** — visible to owners and managers of the linked property (same three groups as `propertyOwners`, routed through `propertyOwner.property`):
+
+```
+propertyOwner.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| propertyOwner.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+Tenants, household members, and agents do not see ownership sub-records.
+
+**create / update / delete** — restricted to current owners only; managers may not modify who is linked as an owner:
+
+```
+propertyOwner.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+#### `cobrandPropertyOwners` access rules
+
+| Operation | Rule |
+|---|---|
+| list | *(see below)* |
+| view | *(see below — same as list)* |
+| create | *(see below)* |
+| update | *(see below — same as create)* |
+| delete | *(see below — differs from create)* |
+
+**list / view** — same three groups as `personPropertyOwners`:
+
+```
+propertyOwner.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| propertyOwner.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+**create / update** — restricted to current property owners only:
+
+```
+propertyOwner.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+**delete** — property owners may remove a cobrand owner; additionally, the cobrand being removed may resign its own ownership:
+
+```
+propertyOwner.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+#### `cobrandPropertyManagers` access rules
+
+| Operation | Rule |
+|---|---|
+| list | *(see below)* |
+| view | *(see below — same as list)* |
+| create | *(see below)* |
+| update | *(see below — same as create)* |
+| delete | *(see below — differs from create)* |
+
+**list / view** — property owners can see who manages their property; the managing cobrand's own admins can see their own management record:
+
+```
+property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+The three groups:
+- **Person owners** — owners of the linked property.
+- **Cobrand owners** — cobrand admins of cobrands that own the linked property.
+- **Managing cobrand admins** — admins of the cobrand that holds this management record; they need to see the properties they manage.
+
+**create / update** — only property owners may appoint or change managers:
+
+```
+property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+**delete** — property owners may revoke management; the managing cobrand's admins may resign:
+
+```
+property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
 ## 3. Collection relationship diagram
 
 ```
