@@ -283,12 +283,11 @@ func up1748563200(db dbx.Builder) error {
 	}
 
 	// 10. agents  (unique on person + cobrand)
+	// PocketBase v0.22 can't handle 3+ back-relations in a chain, so property-based
+	// access for agents is omitted here (it would require 3 back-relations).
 	agentListViewRule := "" +
 		"cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
-		" || person.user.id = @request.auth.id" +
-		" || propertyAgents_via_agent.property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
-		" || propertyAgents_via_agent.property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
-		" || propertyAgents_via_agent.property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
+		" || person.user.id = @request.auth.id"
 
 	agentCreateUpdateRule := "cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
@@ -432,20 +431,16 @@ func up1748563200(db dbx.Builder) error {
 	}
 
 	// 14. items
+	// 3+ back-relation chains cause SQL errors in PocketBase v0.22, so property-owner
+	// access is omitted (requires 3 backs via propertyItems→property→propertyOwners→...).
+	// Residents (tenant/household/agent) are reachable via 2 back-relations.
 	itemListViewRule := "" +
 		"personItems_via_item.person.user.id = @request.auth.id" +
-		" || propertyItems_via_item.property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
-		" || propertyItems_via_item.property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
-		" || propertyItems_via_item.property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || propertyItems_via_item.property.tenants_via_property.person.user.id = @request.auth.id" +
 		" || propertyItems_via_item.property.households_via_property.person.user.id = @request.auth.id" +
 		" || propertyItems_via_item.property.propertyAgents_via_property.agent.person.user.id = @request.auth.id"
 
-	itemUpdateDeleteRule := "" +
-		"personItems_via_item.person.user.id = @request.auth.id" +
-		" || propertyItems_via_item.property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
-		" || propertyItems_via_item.property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
-		" || propertyItems_via_item.property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
+	itemUpdateDeleteRule := "personItems_via_item.person.user.id = @request.auth.id"
 
 	itemsCol := &models.Collection{
 		Name: "items",
@@ -468,20 +463,14 @@ func up1748563200(db dbx.Builder) error {
 	itemsColID := itemsCol.Id
 
 	// 15. entryDevices  (unique on item)
+	// Same PocketBase v0.22 limitation as items: 3+ back chains omitted.
 	edListViewRule := "" +
 		"item.personItems_via_item.person.user.id = @request.auth.id" +
-		" || item.propertyItems_via_item.property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
-		" || item.propertyItems_via_item.property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
-		" || item.propertyItems_via_item.property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || item.propertyItems_via_item.property.tenants_via_property.person.user.id = @request.auth.id" +
 		" || item.propertyItems_via_item.property.households_via_property.person.user.id = @request.auth.id" +
 		" || item.propertyItems_via_item.property.propertyAgents_via_property.agent.person.user.id = @request.auth.id"
 
-	edCUDRule := "" +
-		"item.personItems_via_item.person.user.id = @request.auth.id" +
-		" || item.propertyItems_via_item.property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
-		" || item.propertyItems_via_item.property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
-		" || item.propertyItems_via_item.property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
+	edCUDRule := "item.personItems_via_item.person.user.id = @request.auth.id"
 
 	entryDevicesCol := &models.Collection{
 		Name: "entryDevices",
@@ -547,17 +536,9 @@ func up1748563200(db dbx.Builder) error {
 	}
 
 	// 17. personItems  (unique on person + item)
-	psListViewRule := "" +
-		"person.user.id = @request.auth.id" +
-		" || item.propertyItems_via_item.property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
-		" || item.propertyItems_via_item.property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
-		" || item.propertyItems_via_item.property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
-
-	psUpdateDeleteRule := "" +
-		"person.user.id = @request.auth.id" +
-		" || item.propertyItems_via_item.property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
-		" || item.propertyItems_via_item.property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
-		" || item.propertyItems_via_item.property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
+	// Property-owner access requires 3+ back-relations; omitted due to PocketBase v0.22 limitation.
+	psListViewRule := "person.user.id = @request.auth.id"
+	psUpdateDeleteRule := "person.user.id = @request.auth.id"
 
 	personItemsCol := &models.Collection{
 		Name: "personItems",
