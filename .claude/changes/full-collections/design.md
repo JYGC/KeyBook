@@ -482,6 +482,78 @@ property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
 || cobrand.cobrandAdmins.user.id = @request.auth.id
 ```
 
+#### `agents` access rules
+
+| Operation | Rule |
+|---|---|
+| list | *(see below)* |
+| view | *(see below — same as list)* |
+| create | *(see below)* |
+| update | *(see below — same as create)* |
+| delete | *(see below — differs from create)* |
+
+**list / view** — visible to cobrand admins of the linked cobrand, the agent themselves, and owners/managers of any property this agent is assigned to:
+
+```
+cobrand.cobrandAdmins.user.id = @request.auth.id
+|| person.user.id = @request.auth.id
+|| propertyAgents.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| propertyAgents.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| propertyAgents.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+**create / update** — only cobrand admins may register a person as an agent of their cobrand or change that record:
+
+```
+cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+**delete** — cobrand admins may remove any agent; the agent themselves may resign:
+
+```
+cobrand.cobrandAdmins.user.id = @request.auth.id
+|| person.user.id = @request.auth.id
+```
+
+#### `propertyAgents` access rules
+
+| Operation | Rule |
+|---|---|
+| list | *(see below)* |
+| view | *(see below — same as list)* |
+| create | *(see below)* |
+| update | *(see below — same as create)* |
+| delete | *(see below — differs from create)* |
+
+**list / view** — visible to property owners/managers and to the agent and their cobrand admins:
+
+```
+property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| agent.person.user.id = @request.auth.id
+|| agent.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+**create / update** — either side may initiate or change the assignment: property owners, cobrand owners, cobrand property managers, or the agent's cobrand admins:
+
+```
+property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| agent.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+**delete** — same as create, plus the agent themselves (resignation):
+
+```
+property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| agent.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| agent.person.user.id = @request.auth.id
+```
+
 ## 3. Collection relationship diagram
 
 ```

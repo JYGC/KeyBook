@@ -41,6 +41,10 @@ WHEN a user registers a person as an agent THE SYSTEM SHALL create an agents rec
 WHEN a user registers a person as an agent for a cobrand they are already an agent of THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a user removes an agent THE SYSTEM SHALL delete the agents record and all associated propertyAgents records.
 WHEN a user views an agent THE SYSTEM SHALL display the linked person details, cobrand, and all properties the agent manages.
+WHEN an unauthenticated request attempts to list, view, create, update, or delete an agents record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to list or view an agents record THE SYSTEM SHALL allow it only if they are a cobrand admin of that agent's cobrand, the agent themselves, or an owner or manager of a property that agent is assigned to.
+WHEN an authenticated user attempts to create or update an agents record THE SYSTEM SHALL allow it only if they are a cobrand admin of the linked cobrand.
+WHEN an authenticated user attempts to delete an agents record THE SYSTEM SHALL allow it if they are a cobrand admin of the linked cobrand, or if the record links their own person account.
 
 ### 2.2 Property agents
 
@@ -48,6 +52,10 @@ WHEN a user assigns an agent to a property THE SYSTEM SHALL create a propertyAge
 WHEN a user assigns an agent to a property they are already assigned to THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a user removes an agent from a property THE SYSTEM SHALL delete the corresponding propertyAgents record.
 WHEN a user views a property's agents THE SYSTEM SHALL list all agents linked to that property via propertyAgents.
+WHEN an unauthenticated request attempts to list, view, create, update, or delete a propertyAgents record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to list or view a propertyAgents record THE SYSTEM SHALL allow it only if they are a person owner, cobrand owner, or cobrand manager of the linked property, or if they are the assigned agent or a cobrand admin of the agent's cobrand.
+WHEN an authenticated user attempts to create or update a propertyAgents record THE SYSTEM SHALL allow it only if they are a person owner, cobrand owner, or cobrand manager of the linked property, or a cobrand admin of the agent's cobrand.
+WHEN an authenticated user attempts to delete a propertyAgents record THE SYSTEM SHALL allow it if they are a person owner, cobrand owner, cobrand manager, or cobrand admin of the agent's cobrand, or if the record links their own person account as the agent.
 
 ## 3. Property Ownership
 
