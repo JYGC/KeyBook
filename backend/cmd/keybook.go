@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"keybook/backend/internal/repositories"
 	"keybook/backend/internal/services"
+	_ "keybook/backend/migrations"
 	"log"
 
 	"github.com/pocketbase/pocketbase"
