@@ -7,9 +7,8 @@
 - [ ] **1.3** In the same migration, add access rules for `users`, `persons`, and `properties` per `design.md` section 2.3.
 - [ ] **1.4** In the same migration, add access rules for the ownership chain collections — `propertyOwners`, `personPropertyOwners`, `cobrandPropertyOwners`, `cobrandPropertyManagers` — per `design.md` section 2.3. Note the bootstrap exception for `propertyOwners` create (enforcement delegated to `PropertyOwnerApplicationService`) and the last-owner-deletion guard (application service only).
 - [ ] **1.5** In the same migration, add access rules for the remaining non-history collections — `cobrands`, `cobrandAdmins`, `agents`, `propertyAgents`, `households`, `tenants`, `items`, `entryDevices`, `propertyItems`, `personItems` — per `design.md` section 2.3.
-- [ ] **1.6** In the same migration, add access rules for the history collections — `propertyHistories`, `tenantHistories`, `propertyItemHistories` — per `design.md` section 2.3.
-- [ ] **1.7** Confirm all contract tests from 1.1 pass against the completed migration.
-- [ ] **1.8** On the OpenBSD server: stop the binary, delete `pb_data/`, build and run the new binary (migrations run automatically on `serve`). Verify all collections exist with correct fields and rules.
+- [ ] **1.6** Confirm all contract tests from 1.1 pass against the completed migration.
+- [ ] **1.7** On the OpenBSD server: stop the binary, delete `pb_data/`, build and run the new binary (migrations run automatically on `serve`). Verify all collections exist with correct fields and rules.
 
 ## Phase 2 — Backend: DTOs
 
@@ -21,7 +20,6 @@
 - [ ] **2.6** Add DTOs: `ItemDto`, `PropertyItemDto`, `PersonItemDto`, `EntryDeviceDto` (include `identifier` and `defunctReason`).
 - [ ] **2.7** Rewrite `PersonDto`: fields are `name`, `DOB`, `user`, `profileImage`.
 - [ ] **2.8** Rewrite `PropertyDto`: fields are `address` only.
-- [ ] **2.9** Add DTOs: `PropertyHistoryDto` (property, snapshot, description, statedDateTime), `TenantHistoryDto` (property, propertySnapshot, person, personSnapshot, action, statedDateTime), `PropertyItemHistoryDto` (property, propertySnapshot, item, itemSnapshot, action, statedDateTime).
 
 ## Phase 3 — Backend: Repositories
 
@@ -34,7 +32,6 @@
 - [ ] **3.7** Rewrite `PersonRepository`: fields are `name`, `DOB`, `user`, `profileImage`. Confirm integration tests pass.
 - [ ] **3.8** Rewrite `PropertyRepository`: fields are `address` only. Confirm integration tests pass.
 - [ ] **3.9** Delete `DeviceRepository` and `PersonDeviceRepository`.
-- [ ] **3.10** Add `PropertyHistoryRepository`, `TenantHistoryRepository`, `PropertyItemHistoryRepository`.
 
 ## Phase 4 — Backend: Services
 
@@ -45,9 +42,6 @@
 - [ ] **4.5** Add `PropertyOwnerService` (ownership validation, duplicate person/cobrand owner prevention).
 - [ ] **4.6** Add `PersonService` (person validation).
 - [ ] **4.7** Add `PropertyService` (property validation, ownership chain resolution).
-- [ ] **4.8** Add `PropertyHistoryService` (writes `propertyHistories` snapshot on property create/update).
-- [ ] **4.9** Add `TenantHistoryService` (writes `tenantHistories` Added/Removed record on tenant create/delete).
-- [ ] **4.10** Add `PropertyItemHistoryService` (writes `propertyItemHistories` Added/Removed record on propertyItem create/delete).
 
 ## Phase 5 — Backend: Application layer
 
@@ -63,9 +57,8 @@
 
 - [ ] **6.1** Register all new repositories, services, and application services in the `dig` container in `cmd/keybook.go`.
 - [ ] **6.2** Update hook handlers in `cmd/keybook.go` to call application services rather than services or repositories directly.
-- [ ] **6.3** Register `PropertyHistoryService`, `TenantHistoryService`, and `PropertyItemHistoryService` in the `dig` container and wire their hooks (`OnModelAfterCreate`/`OnModelBeforeUpdate` on `properties`; `OnModelAfterCreate`/`OnModelAfterDelete` on `tenants` and `propertyItems`) in `cmd/keybook.go`.
-- [ ] **6.4** Remove `PersonHistoryServices`, `PropertyHistoryServices`, `DeviceHistoryServices`, and `PersonDeviceHistoryServices` hooks and their registrations from `cmd/keybook.go`.
-- [ ] **6.5** Remove `DeviceRepository` and `PersonDeviceRepository` from the DI container.
+- [ ] **6.3** Remove `PersonHistoryServices`, `PropertyHistoryServices`, `DeviceHistoryServices`, and `PersonDeviceHistoryServices` hooks and their registrations from `cmd/keybook.go`.
+- [ ] **6.4** Remove `DeviceRepository` and `PersonDeviceRepository` from the DI container.
 
 ## Phase 7 — Frontend: Item registry
 
@@ -111,7 +104,7 @@
 - [ ] **10.1** Write unit tests for updated `PersonService` (role derivation — owner/tenant/agent/household via relation collections) and `PropertyService` (ownership chain traversal via propertyOwners/personPropertyOwners/cobrandPropertyOwners).
 - [ ] **10.2** Write integration tests for updated person and property repositories against a real running PocketBase instance — no SDK mocking.
 - [ ] **10.3** Implement/update `src/lib/repositories/person/` — `PersonRepository` and all person-relation repositories (`PersonPropertyOwnerRepository`, etc.).
-- [ ] **10.4** Implement/update `src/lib/repositories/property/` — `PropertyRepository`, all property-relation repositories, and `PropertyHistoryRepository`, `TenantHistoryRepository`, `PropertyItemHistoryRepository`.
+- [ ] **10.4** Implement/update `src/lib/repositories/property/` — `PropertyRepository` and all property-relation repositories.
 - [ ] **10.5** Implement/update `src/lib/services/person/` — `PersonService` (role derivation delegated from PersonModule; does not call SDK directly).
 - [ ] **10.6** Implement/update `src/lib/services/property/` — `PropertyService` (ownership chain resolution delegated from PropertyModule; does not call SDK directly).
 - [ ] **10.7** Write unit tests for updated `PersonModule` and `PropertyModule`.
@@ -119,8 +112,7 @@
 - [ ] **10.9** Update person components to display profileImage and roles derived from `PersonService`.
 - [ ] **10.10** Rewrite `PropertyModule`: ownership derived via `PropertyService` from new ownership collections.
 - [ ] **10.11** Update property components to display owners (persons and cobrands), agents, tenants, and household members.
-- [ ] **10.12** Implement history display on the property detail view: property history (from `propertyHistories`), tenant history (from `tenantHistories`), and item history (from `propertyItemHistories`) — visible to property owners only.
-- [ ] **10.13** Write E2E tests for person create/edit with profileImage, role assignment, property ownership display, and property history access by owner.
+- [ ] **10.12** Write E2E tests for person create/edit with profileImage, role assignment, and property ownership display.
 
 ## Phase 11 — Cleanup
 

@@ -199,21 +199,3 @@ WHEN an authenticated user attempts to update a property record THE SYSTEM SHALL
 WHEN an authenticated user attempts to delete a property record THE SYSTEM SHALL allow it only if they are a person owner or cobrand owner of that property.
 WHEN a cobrand manager, tenant, household member, or agent attempts to update or delete a property record THE SYSTEM SHALL reject it with 403.
 
-## 7. History
-
-### 7.1 Property history
-
-WHEN a property record is created or updated THE SYSTEM SHALL write a propertyHistories snapshot record.
-WHEN a property owner views a property they currently or previously owned THE SYSTEM SHALL display that property's history entries from propertyHistories.
-
-### 7.2 Tenant history
-
-WHEN a person is added as a tenant of a property THE SYSTEM SHALL write a tenantHistories record with action Added.
-WHEN a person is removed as a tenant of a property THE SYSTEM SHALL write a tenantHistories record with action Removed.
-WHEN a property owner views a property they currently or previously owned THE SYSTEM SHALL display the current and past tenants of that property from tenantHistories.
-
-### 7.3 Property item history
-
-WHEN an item is assigned to a property THE SYSTEM SHALL write a propertyItemHistories record with action Added.
-WHEN an item is removed from a property THE SYSTEM SHALL write a propertyItemHistories record with action Removed.
-WHEN a property owner views a property they currently or previously owned THE SYSTEM SHALL display the current and past items at that property from propertyItemHistories.
