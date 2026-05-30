@@ -325,6 +325,31 @@ property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
 
 Cobrand managers may not modify or remove ownership records. The application service must additionally prevent deletion of the last remaining owner record for a property.
 
+#### `cobrands` access rules
+
+| Operation | Rule |
+|---|---|
+| list | *(see below)* |
+| view | *(see below — same as list)* |
+| create | `@request.auth.id != ""` |
+| update | *(see below)* |
+| delete | *(see below — same as update)* |
+
+**list / view** — a cobrand is visible only to its own admins and its agents:
+
+```
+cobrandAdmins.user.id = @request.auth.id
+|| agents.person.user.id = @request.auth.id
+```
+
+**create** is open to any authenticated user so that a person can form a new cobrand and bootstrap themselves as its first admin.
+
+**update / delete** — restricted to cobrand admins only; agents may not modify the cobrand record:
+
+```
+cobrandAdmins.user.id = @request.auth.id
+```
+
 #### `personPropertyOwners` access rules
 
 | Operation | Rule |

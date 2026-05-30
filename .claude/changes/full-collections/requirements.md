@@ -90,6 +90,12 @@ WHEN an authenticated user attempts to delete a cobrandPropertyOwners record THE
 
 WHEN a user creates a cobrand THE SYSTEM SHALL store it as a named firm entity.
 WHEN a user views a cobrand THE SYSTEM SHALL display its admins, agents, managed properties, and owned properties.
+WHEN an unauthenticated request attempts to list, view, create, update, or delete a cobrands record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to list or view a cobrands record THE SYSTEM SHALL allow it only if they are an admin of that cobrand or an agent belonging to that cobrand.
+WHEN an authenticated user who is neither a cobrand admin nor an agent of that cobrand attempts to list or view a cobrands record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to create a cobrands record THE SYSTEM SHALL allow it regardless of existing cobrand membership.
+WHEN an authenticated user attempts to update or delete a cobrands record THE SYSTEM SHALL allow it only if they are an admin of that cobrand.
+WHEN a cobrand agent attempts to update or delete a cobrands record THE SYSTEM SHALL reject it with 403.
 
 ### 4.2 Cobrand admins
 
