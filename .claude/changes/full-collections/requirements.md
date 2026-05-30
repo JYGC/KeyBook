@@ -8,6 +8,10 @@ WHEN a user creates an item THE SYSTEM SHALL store its name, description, and op
 WHEN a user edits an item THE SYSTEM SHALL update the stored name, description, and picture.
 WHEN a user deletes an item THE SYSTEM SHALL remove all associated personItems, propertyItems, and entryDevices records.
 WHEN a user views an item THE SYSTEM SHALL display its name, description, picture, and all associations (person owners, property locations, entry device status).
+WHEN an unauthenticated request attempts to list, view, create, update, or delete an items record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to list or view an items record THE SYSTEM SHALL allow it only if they are a person-owner of that item, a person owner or cobrand owner or cobrand manager of a property it is assigned to, or a tenant, household member, or agent at such a property.
+WHEN an authenticated user attempts to create an items record THE SYSTEM SHALL allow it regardless of existing associations.
+WHEN an authenticated user attempts to update or delete an items record THE SYSTEM SHALL allow it only if they are a person-owner of that item, or a person owner, cobrand owner, or cobrand manager of a property it is assigned to.
 
 ### 1.2 Person item ownership
 
@@ -15,6 +19,10 @@ WHEN a user assigns an item to a person THE SYSTEM SHALL create a personItems re
 WHEN a user assigns an item to a person it is already assigned to THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a user removes an item from a person THE SYSTEM SHALL delete the corresponding personItems record.
 WHEN a user views a person's items THE SYSTEM SHALL list all items linked to that person via personItems.
+WHEN an unauthenticated request attempts to list, view, create, update, or delete a personItems record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to list or view a personItems record THE SYSTEM SHALL allow it only if they are the linked person, or a person owner, cobrand owner, or cobrand manager of a property where that item is located.
+WHEN an authenticated user attempts to create a personItems record THE SYSTEM SHALL allow it regardless of existing associations.
+WHEN an authenticated user attempts to update or delete a personItems record THE SYSTEM SHALL allow it only if they are the linked person, or a person owner, cobrand owner, or cobrand manager of a property where that item is located.
 
 ### 1.3 Property item inventory
 
@@ -22,6 +30,9 @@ WHEN a user assigns an item to a property THE SYSTEM SHALL create a propertyItem
 WHEN a user assigns an item to a property it is already assigned to THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a user removes an item from a property THE SYSTEM SHALL delete the corresponding propertyItems record.
 WHEN a user views a property's inventory THE SYSTEM SHALL list all items linked to that property via propertyItems.
+WHEN an unauthenticated request attempts to list, view, create, update, or delete a propertyItems record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to list or view a propertyItems record THE SYSTEM SHALL allow it only if they are a person owner, cobrand owner, cobrand manager, tenant, household member, or agent of the linked property, or a person-owner of the linked item.
+WHEN an authenticated user attempts to create, update, or delete a propertyItems record THE SYSTEM SHALL allow it only if they are a person owner, cobrand owner, or cobrand manager of the linked property, or a person-owner of the linked item.
 
 ### 1.4 Entry devices
 
@@ -32,6 +43,9 @@ WHEN a user marks an entry device as defunct THE SYSTEM SHALL store a defunctRea
 WHEN a user attempts to mark an entry device as defunct without providing a defunctReason THE SYSTEM SHALL display a validation error.
 WHEN a user removes the entry device designation from an item THE SYSTEM SHALL delete the entryDevices record (the underlying item is retained).
 WHEN a user views entry devices for a property THE SYSTEM SHALL list all items that have an entryDevices record and are assigned to that property via propertyItems.
+WHEN an unauthenticated request attempts to list, view, create, update, or delete an entryDevices record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to list or view an entryDevices record THE SYSTEM SHALL allow it only if they are a person-owner of the linked item, or a person owner, cobrand owner, cobrand manager, tenant, household member, or agent of a property the item is assigned to.
+WHEN an authenticated user attempts to create, update, or delete an entryDevices record THE SYSTEM SHALL allow it only if they are a person-owner of the linked item, or a person owner, cobrand owner, or cobrand manager of a property the item is assigned to.
 
 ## 2. Real Estate Agent Management
 

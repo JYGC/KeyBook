@@ -554,6 +554,131 @@ property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
 || agent.person.user.id = @request.auth.id
 ```
 
+#### `items` access rules
+
+| Operation | Rule |
+|---|---|
+| list | *(see below)* |
+| view | *(see below — same as list)* |
+| create | `@request.auth.id != ""` |
+| update | *(see below)* |
+| delete | *(see below — same as update)* |
+
+**list / view** — visible to person-owners, property owners/managers, and any resident (tenant, household member, or agent) of a property the item is assigned to:
+
+```
+personItems.person.user.id = @request.auth.id
+|| propertyItems.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| propertyItems.property.tenants.person.user.id = @request.auth.id
+|| propertyItems.property.households.person.user.id = @request.auth.id
+|| propertyItems.property.propertyAgents.agent.person.user.id = @request.auth.id
+```
+
+**create** is open to any authenticated user so a person can register a new item before any association records exist. The `PersonApplicationService` atomically creates the `personItems` record in the same request.
+
+**update / delete** — restricted to person-owners and property owners/managers; residents may not modify item records:
+
+```
+personItems.person.user.id = @request.auth.id
+|| propertyItems.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+#### `entryDevices` access rules
+
+| Operation | Rule |
+|---|---|
+| list | *(see below)* |
+| view | *(see below — same as list)* |
+| create | *(see below)* |
+| update | *(see below — same as create)* |
+| delete | *(see below — same as create)* |
+
+**list / view** — same audiences as the linked item, since residents need to see entry devices for properties they occupy:
+
+```
+item.personItems.person.user.id = @request.auth.id
+|| item.propertyItems.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| item.propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| item.propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| item.propertyItems.property.tenants.person.user.id = @request.auth.id
+|| item.propertyItems.property.households.person.user.id = @request.auth.id
+|| item.propertyItems.property.propertyAgents.agent.person.user.id = @request.auth.id
+```
+
+**create / update / delete** — restricted to person-owners and property owners/managers; residents may not designate, modify, or remove entry device records:
+
+```
+item.personItems.person.user.id = @request.auth.id
+|| item.propertyItems.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| item.propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| item.propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+#### `propertyItems` access rules
+
+| Operation | Rule |
+|---|---|
+| list | *(see below)* |
+| view | *(see below — same as list)* |
+| create | *(see below)* |
+| update | *(see below — same as create)* |
+| delete | *(see below — same as create)* |
+
+**list / view** — visible to property owners/managers, the item's person-owners, and all residents at that property:
+
+```
+property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| item.personItems.person.user.id = @request.auth.id
+|| property.tenants.person.user.id = @request.auth.id
+|| property.households.person.user.id = @request.auth.id
+|| property.propertyAgents.agent.person.user.id = @request.auth.id
+```
+
+**create / update / delete** — either side may place or remove an item: property owners/managers or the item's person-owners:
+
+```
+property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| item.personItems.person.user.id = @request.auth.id
+```
+
+#### `personItems` access rules
+
+| Operation | Rule |
+|---|---|
+| list | *(see below)* |
+| view | *(see below — same as list)* |
+| create | `@request.auth.id != ""` |
+| update | *(see below)* |
+| delete | *(see below — same as update)* |
+
+**list / view** — visible to the person themselves and property owners/managers of properties where the item is located:
+
+```
+person.user.id = @request.auth.id
+|| item.propertyItems.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| item.propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| item.propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+**create** is open to any authenticated user. On first creation of a `personItems` record the item has no property associations yet, so a property-owner check cannot be used; the `ItemApplicationService` enforces who may claim ownership.
+
+**update / delete** — the person themselves or property owners/managers of properties holding that item:
+
+```
+person.user.id = @request.auth.id
+|| item.propertyItems.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| item.propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| item.propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
 #### `households` access rules
 
 | Operation | Rule |
