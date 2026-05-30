@@ -554,6 +554,82 @@ property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
 || agent.person.user.id = @request.auth.id
 ```
 
+#### `households` access rules
+
+| Operation | Rule |
+|---|---|
+| list | *(see below)* |
+| view | *(see below — same as list)* |
+| create | *(see below)* |
+| update | *(see below — same as create)* |
+| delete | *(see below — differs from create)* |
+
+**list / view** — visible to property owners/managers, any household member of the same property, and any tenant of the same property:
+
+```
+property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| property.households.person.user.id = @request.auth.id
+|| property.tenants.person.user.id = @request.auth.id
+```
+
+`property.households.person.user.id = @request.auth.id` covers the member themselves (since their own record is included in the back-reference traversal) as well as co-members of the same household.
+
+**create / update** — only property owners and managers may add or change household members:
+
+```
+property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+**delete** — owners and managers may remove any member; the member themselves may leave:
+
+```
+property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| person.user.id = @request.auth.id
+```
+
+#### `tenants` access rules
+
+| Operation | Rule |
+|---|---|
+| list | *(see below)* |
+| view | *(see below — same as list)* |
+| create | *(see below)* |
+| update | *(see below — same as create)* |
+| delete | *(see below — differs from create)* |
+
+**list / view** — visible to property owners/managers, any tenant of the same property, and any household member of the same property:
+
+```
+property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| property.tenants.person.user.id = @request.auth.id
+|| property.households.person.user.id = @request.auth.id
+```
+
+**create / update** — only property owners and managers may add or change tenants:
+
+```
+property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+**delete** — owners and managers may remove any tenant; the tenant themselves may vacate:
+
+```
+property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
+|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| person.user.id = @request.auth.id
+```
+
 ## 3. Collection relationship diagram
 
 ```

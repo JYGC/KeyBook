@@ -138,6 +138,10 @@ WHEN a user adds a person as a tenant of a property THE SYSTEM SHALL create a te
 WHEN a user adds a person as a tenant of a property they are already a tenant of THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a user removes a tenant from a property THE SYSTEM SHALL delete the corresponding tenants record.
 WHEN a user views tenants of a property THE SYSTEM SHALL list all persons linked via tenants.
+WHEN an unauthenticated request attempts to list, view, create, update, or delete a tenants record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to list or view a tenants record THE SYSTEM SHALL allow it only if they are a person owner, cobrand owner, or cobrand manager of the linked property, or a tenant or household member of that property.
+WHEN an authenticated user attempts to create or update a tenants record THE SYSTEM SHALL allow it only if they are a person owner, cobrand owner, or cobrand manager of the linked property.
+WHEN an authenticated user attempts to delete a tenants record THE SYSTEM SHALL allow it if they are a person owner, cobrand owner, or cobrand manager of the linked property, or if the record links their own person account.
 
 ### 5.2 Households
 
@@ -145,6 +149,10 @@ WHEN a user adds a person to a property's household THE SYSTEM SHALL create a ho
 WHEN a user adds a person to a household they are already a member of THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a user removes a person from a household THE SYSTEM SHALL delete the corresponding households record.
 WHEN a user views a property's household THE SYSTEM SHALL list all persons linked via households.
+WHEN an unauthenticated request attempts to list, view, create, update, or delete a households record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to list or view a households record THE SYSTEM SHALL allow it only if they are a person owner, cobrand owner, or cobrand manager of the linked property, or a household member or tenant of that property.
+WHEN an authenticated user attempts to create or update a households record THE SYSTEM SHALL allow it only if they are a person owner, cobrand owner, or cobrand manager of the linked property.
+WHEN an authenticated user attempts to delete a households record THE SYSTEM SHALL allow it if they are a person owner, cobrand owner, or cobrand manager of the linked property, or if the record links their own person account.
 
 ## 6. Data model restructuring
 
