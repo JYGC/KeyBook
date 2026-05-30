@@ -350,6 +350,40 @@ cobrandAdmins.user.id = @request.auth.id
 cobrandAdmins.user.id = @request.auth.id
 ```
 
+#### `cobrandAdmins` access rules
+
+| Operation | Rule |
+|---|---|
+| list | *(see below)* |
+| view | *(see below — same as list)* |
+| create | `@request.auth.id != ""` |
+| update | *(see below)* |
+| delete | *(see below — differs from update)* |
+
+**list / view** — visible to existing admins of the same cobrand and to agents of that cobrand:
+
+```
+cobrand.cobrandAdmins.user.id = @request.auth.id
+|| cobrand.agents.person.user.id = @request.auth.id
+```
+
+Agents need to know who their principals are; they can already see the cobrand record itself.
+
+**create** is open to any authenticated user. `CobrandApplicationService` enforces the bootstrap rule (the first admin is created atomically with the cobrand) and the existing-admin rule (only an existing admin may add further admins to an already-administered cobrand). The access rule alone cannot express the bootstrap case without a chicken-and-egg failure on the first record.
+
+**update** — restricted to existing cobrand admins:
+
+```
+cobrand.cobrandAdmins.user.id = @request.auth.id
+```
+
+**delete** — existing cobrand admins may remove any admin record; additionally, the linked user may remove themselves (resignation):
+
+```
+cobrand.cobrandAdmins.user.id = @request.auth.id
+|| user.id = @request.auth.id
+```
+
 #### `personPropertyOwners` access rules
 
 | Operation | Rule |

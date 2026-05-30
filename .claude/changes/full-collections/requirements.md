@@ -102,6 +102,13 @@ WHEN a cobrand agent attempts to update or delete a cobrands record THE SYSTEM S
 WHEN a user is added as a cobrand admin THE SYSTEM SHALL create a cobrandAdmins record linking the user to the cobrand.
 WHEN a user is added as a cobrand admin for a cobrand they already administer THE SYSTEM SHALL display an error and not create a duplicate record.
 WHEN a cobrand admin is removed THE SYSTEM SHALL delete the cobrandAdmins record.
+WHEN an unauthenticated request attempts to list, view, create, update, or delete a cobrandAdmins record THE SYSTEM SHALL reject it with 403.
+WHEN an authenticated user attempts to list or view a cobrandAdmins record THE SYSTEM SHALL allow it only if they are an existing admin of that cobrand or an agent belonging to that cobrand.
+WHEN an authenticated user attempts to create a cobrandAdmins record THE SYSTEM SHALL allow it regardless of existing admin membership.
+WHEN an authenticated user attempts to create a cobrandAdmins record for a cobrand that already has at least one admin and they are not themselves an existing admin of that cobrand THE SYSTEM SHALL reject the request.
+WHEN an authenticated user attempts to update a cobrandAdmins record THE SYSTEM SHALL allow it only if they are an existing admin of that cobrand.
+WHEN an authenticated user attempts to delete a cobrandAdmins record THE SYSTEM SHALL allow it if they are an existing admin of that cobrand, or if the record links their own user account.
+WHEN a cobrand agent attempts to update or delete a cobrandAdmins record THE SYSTEM SHALL reject it with 403.
 
 ### 4.3 Cobrand property managers
 
