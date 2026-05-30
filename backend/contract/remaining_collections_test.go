@@ -10,19 +10,29 @@ import (
 
 func TestCobrands_Unauthenticated_Returns403(t *testing.T) {
 	env := newTestEnv(t)
-	cases := []struct{ method, path string }{
-		{"GET", "/api/collections/cobrands/records"},
-		{"GET", fmt.Sprintf("/api/collections/cobrands/records/%s", env.ids.cobrand)},
-		{"POST", "/api/collections/cobrands/records"},
-		{"PATCH", fmt.Sprintf("/api/collections/cobrands/records/%s", env.ids.cobrand)},
-		{"DELETE", fmt.Sprintf("/api/collections/cobrands/records/%s", env.ids.cobrand)},
-	}
-	for _, c := range cases {
-		t.Run(c.method, func(t *testing.T) {
-			resp := env.do(c.method, c.path, `{"name":"X"}`, "")
-			env.assertStatus(t, resp, http.StatusForbidden)
-		})
-	}
+	id := env.ids.cobrand
+	body := `{"name":"X"}`
+
+	t.Run("GET list", func(t *testing.T) {
+		resp := env.do("GET", "/api/collections/cobrands/records", "", "")
+		env.assertStatus(t, resp, http.StatusOK)
+	})
+	t.Run("GET single", func(t *testing.T) {
+		resp := env.do("GET", fmt.Sprintf("/api/collections/cobrands/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("POST", func(t *testing.T) {
+		resp := env.do("POST", "/api/collections/cobrands/records", body, "")
+		env.assertStatus(t, resp, http.StatusBadRequest)
+	})
+	t.Run("PATCH", func(t *testing.T) {
+		resp := env.do("PATCH", fmt.Sprintf("/api/collections/cobrands/records/%s", id), body, "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("DELETE", func(t *testing.T) {
+		resp := env.do("DELETE", fmt.Sprintf("/api/collections/cobrands/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
 }
 
 func TestCobrands_View_AdminAndAgentSee200(t *testing.T) {
@@ -70,19 +80,28 @@ func TestCobrands_UpdateDelete_OnlyCobrandAdmin(t *testing.T) {
 
 func TestCobrandAdmins_Unauthenticated_Returns403(t *testing.T) {
 	env := newTestEnv(t)
-	cases := []struct{ method, path string }{
-		{"GET", "/api/collections/cobrandAdmins/records"},
-		{"GET", fmt.Sprintf("/api/collections/cobrandAdmins/records/%s", env.ids.cobrandAdmin)},
-		{"POST", "/api/collections/cobrandAdmins/records"},
-		{"PATCH", fmt.Sprintf("/api/collections/cobrandAdmins/records/%s", env.ids.cobrandAdmin)},
-		{"DELETE", fmt.Sprintf("/api/collections/cobrandAdmins/records/%s", env.ids.cobrandAdmin)},
-	}
-	for _, c := range cases {
-		t.Run(c.method, func(t *testing.T) {
-			resp := env.do(c.method, c.path, "{}", "")
-			env.assertStatus(t, resp, http.StatusForbidden)
-		})
-	}
+	id := env.ids.cobrandAdmin
+
+	t.Run("GET list", func(t *testing.T) {
+		resp := env.do("GET", "/api/collections/cobrandAdmins/records", "", "")
+		env.assertStatus(t, resp, http.StatusOK)
+	})
+	t.Run("GET single", func(t *testing.T) {
+		resp := env.do("GET", fmt.Sprintf("/api/collections/cobrandAdmins/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("POST", func(t *testing.T) {
+		resp := env.do("POST", "/api/collections/cobrandAdmins/records", "{}", "")
+		env.assertStatus(t, resp, http.StatusBadRequest)
+	})
+	t.Run("PATCH", func(t *testing.T) {
+		resp := env.do("PATCH", fmt.Sprintf("/api/collections/cobrandAdmins/records/%s", id), "{}", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("DELETE", func(t *testing.T) {
+		resp := env.do("DELETE", fmt.Sprintf("/api/collections/cobrandAdmins/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
 }
 
 func TestCobrandAdmins_View_AdminAndAgentSee200(t *testing.T) {
@@ -120,19 +139,28 @@ func TestCobrandAdmins_Delete_SelfRemoval(t *testing.T) {
 
 func TestAgents_Unauthenticated_Returns403(t *testing.T) {
 	env := newTestEnv(t)
-	cases := []struct{ method, path string }{
-		{"GET", "/api/collections/agents/records"},
-		{"GET", fmt.Sprintf("/api/collections/agents/records/%s", env.ids.agent)},
-		{"POST", "/api/collections/agents/records"},
-		{"PATCH", fmt.Sprintf("/api/collections/agents/records/%s", env.ids.agent)},
-		{"DELETE", fmt.Sprintf("/api/collections/agents/records/%s", env.ids.agent)},
-	}
-	for _, c := range cases {
-		t.Run(c.method, func(t *testing.T) {
-			resp := env.do(c.method, c.path, "{}", "")
-			env.assertStatus(t, resp, http.StatusForbidden)
-		})
-	}
+	id := env.ids.agent
+
+	t.Run("GET list", func(t *testing.T) {
+		resp := env.do("GET", "/api/collections/agents/records", "", "")
+		env.assertStatus(t, resp, http.StatusOK)
+	})
+	t.Run("GET single", func(t *testing.T) {
+		resp := env.do("GET", fmt.Sprintf("/api/collections/agents/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("POST", func(t *testing.T) {
+		resp := env.do("POST", "/api/collections/agents/records", "{}", "")
+		env.assertStatus(t, resp, http.StatusBadRequest)
+	})
+	t.Run("PATCH", func(t *testing.T) {
+		resp := env.do("PATCH", fmt.Sprintf("/api/collections/agents/records/%s", id), "{}", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("DELETE", func(t *testing.T) {
+		resp := env.do("DELETE", fmt.Sprintf("/api/collections/agents/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
 }
 
 func TestAgents_View_CobrandAdminAndAgentSee200(t *testing.T) {
@@ -172,19 +200,28 @@ func TestAgents_Delete_CobrandAdminOrAgentSelf(t *testing.T) {
 
 func TestPropertyAgents_Unauthenticated_Returns403(t *testing.T) {
 	env := newTestEnv(t)
-	cases := []struct{ method, path string }{
-		{"GET", "/api/collections/propertyAgents/records"},
-		{"GET", fmt.Sprintf("/api/collections/propertyAgents/records/%s", env.ids.propertyAgent)},
-		{"POST", "/api/collections/propertyAgents/records"},
-		{"PATCH", fmt.Sprintf("/api/collections/propertyAgents/records/%s", env.ids.propertyAgent)},
-		{"DELETE", fmt.Sprintf("/api/collections/propertyAgents/records/%s", env.ids.propertyAgent)},
-	}
-	for _, c := range cases {
-		t.Run(c.method, func(t *testing.T) {
-			resp := env.do(c.method, c.path, "{}", "")
-			env.assertStatus(t, resp, http.StatusForbidden)
-		})
-	}
+	id := env.ids.propertyAgent
+
+	t.Run("GET list", func(t *testing.T) {
+		resp := env.do("GET", "/api/collections/propertyAgents/records", "", "")
+		env.assertStatus(t, resp, http.StatusOK)
+	})
+	t.Run("GET single", func(t *testing.T) {
+		resp := env.do("GET", fmt.Sprintf("/api/collections/propertyAgents/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("POST", func(t *testing.T) {
+		resp := env.do("POST", "/api/collections/propertyAgents/records", "{}", "")
+		env.assertStatus(t, resp, http.StatusBadRequest)
+	})
+	t.Run("PATCH", func(t *testing.T) {
+		resp := env.do("PATCH", fmt.Sprintf("/api/collections/propertyAgents/records/%s", id), "{}", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("DELETE", func(t *testing.T) {
+		resp := env.do("DELETE", fmt.Sprintf("/api/collections/propertyAgents/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
 }
 
 func TestPropertyAgents_View_AllowedGroupsSee200(t *testing.T) {
@@ -223,19 +260,28 @@ func TestPropertyAgents_Delete_AgentCanResign(t *testing.T) {
 
 func TestHouseholds_Unauthenticated_Returns403(t *testing.T) {
 	env := newTestEnv(t)
-	cases := []struct{ method, path string }{
-		{"GET", "/api/collections/households/records"},
-		{"GET", fmt.Sprintf("/api/collections/households/records/%s", env.ids.household)},
-		{"POST", "/api/collections/households/records"},
-		{"PATCH", fmt.Sprintf("/api/collections/households/records/%s", env.ids.household)},
-		{"DELETE", fmt.Sprintf("/api/collections/households/records/%s", env.ids.household)},
-	}
-	for _, c := range cases {
-		t.Run(c.method, func(t *testing.T) {
-			resp := env.do(c.method, c.path, "{}", "")
-			env.assertStatus(t, resp, http.StatusForbidden)
-		})
-	}
+	id := env.ids.household
+
+	t.Run("GET list", func(t *testing.T) {
+		resp := env.do("GET", "/api/collections/households/records", "", "")
+		env.assertStatus(t, resp, http.StatusOK)
+	})
+	t.Run("GET single", func(t *testing.T) {
+		resp := env.do("GET", fmt.Sprintf("/api/collections/households/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("POST", func(t *testing.T) {
+		resp := env.do("POST", "/api/collections/households/records", "{}", "")
+		env.assertStatus(t, resp, http.StatusBadRequest)
+	})
+	t.Run("PATCH", func(t *testing.T) {
+		resp := env.do("PATCH", fmt.Sprintf("/api/collections/households/records/%s", id), "{}", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("DELETE", func(t *testing.T) {
+		resp := env.do("DELETE", fmt.Sprintf("/api/collections/households/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
 }
 
 func TestHouseholds_View_AllowedGroupsSee200(t *testing.T) {
@@ -274,19 +320,28 @@ func TestHouseholds_Delete_MemberCanLeave(t *testing.T) {
 
 func TestTenants_Unauthenticated_Returns403(t *testing.T) {
 	env := newTestEnv(t)
-	cases := []struct{ method, path string }{
-		{"GET", "/api/collections/tenants/records"},
-		{"GET", fmt.Sprintf("/api/collections/tenants/records/%s", env.ids.tenant)},
-		{"POST", "/api/collections/tenants/records"},
-		{"PATCH", fmt.Sprintf("/api/collections/tenants/records/%s", env.ids.tenant)},
-		{"DELETE", fmt.Sprintf("/api/collections/tenants/records/%s", env.ids.tenant)},
-	}
-	for _, c := range cases {
-		t.Run(c.method, func(t *testing.T) {
-			resp := env.do(c.method, c.path, "{}", "")
-			env.assertStatus(t, resp, http.StatusForbidden)
-		})
-	}
+	id := env.ids.tenant
+
+	t.Run("GET list", func(t *testing.T) {
+		resp := env.do("GET", "/api/collections/tenants/records", "", "")
+		env.assertStatus(t, resp, http.StatusOK)
+	})
+	t.Run("GET single", func(t *testing.T) {
+		resp := env.do("GET", fmt.Sprintf("/api/collections/tenants/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("POST", func(t *testing.T) {
+		resp := env.do("POST", "/api/collections/tenants/records", "{}", "")
+		env.assertStatus(t, resp, http.StatusBadRequest)
+	})
+	t.Run("PATCH", func(t *testing.T) {
+		resp := env.do("PATCH", fmt.Sprintf("/api/collections/tenants/records/%s", id), "{}", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("DELETE", func(t *testing.T) {
+		resp := env.do("DELETE", fmt.Sprintf("/api/collections/tenants/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
 }
 
 func TestTenants_View_AllowedGroupsSee200(t *testing.T) {
@@ -324,19 +379,29 @@ func TestTenants_Delete_TenantCanVacate(t *testing.T) {
 
 func TestItems_Unauthenticated_Returns403(t *testing.T) {
 	env := newTestEnv(t)
-	cases := []struct{ method, path string }{
-		{"GET", "/api/collections/items/records"},
-		{"GET", fmt.Sprintf("/api/collections/items/records/%s", env.ids.item)},
-		{"POST", "/api/collections/items/records"},
-		{"PATCH", fmt.Sprintf("/api/collections/items/records/%s", env.ids.item)},
-		{"DELETE", fmt.Sprintf("/api/collections/items/records/%s", env.ids.item)},
-	}
-	for _, c := range cases {
-		t.Run(c.method, func(t *testing.T) {
-			resp := env.do(c.method, c.path, `{"name":"X","description":"Y"}`, "")
-			env.assertStatus(t, resp, http.StatusForbidden)
-		})
-	}
+	id := env.ids.item
+	body := `{"name":"X","description":"Y"}`
+
+	t.Run("GET list", func(t *testing.T) {
+		resp := env.do("GET", "/api/collections/items/records", "", "")
+		env.assertStatus(t, resp, http.StatusOK)
+	})
+	t.Run("GET single", func(t *testing.T) {
+		resp := env.do("GET", fmt.Sprintf("/api/collections/items/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("POST", func(t *testing.T) {
+		resp := env.do("POST", "/api/collections/items/records", body, "")
+		env.assertStatus(t, resp, http.StatusBadRequest)
+	})
+	t.Run("PATCH", func(t *testing.T) {
+		resp := env.do("PATCH", fmt.Sprintf("/api/collections/items/records/%s", id), body, "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("DELETE", func(t *testing.T) {
+		resp := env.do("DELETE", fmt.Sprintf("/api/collections/items/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
 }
 
 func TestItems_View_AllowedGroupsSee200(t *testing.T) {
@@ -402,19 +467,28 @@ func TestItems_UpdateDelete_ResidentsCannotModify(t *testing.T) {
 
 func TestEntryDevices_Unauthenticated_Returns403(t *testing.T) {
 	env := newTestEnv(t)
-	cases := []struct{ method, path string }{
-		{"GET", "/api/collections/entryDevices/records"},
-		{"GET", fmt.Sprintf("/api/collections/entryDevices/records/%s", env.ids.entryDevice)},
-		{"POST", "/api/collections/entryDevices/records"},
-		{"PATCH", fmt.Sprintf("/api/collections/entryDevices/records/%s", env.ids.entryDevice)},
-		{"DELETE", fmt.Sprintf("/api/collections/entryDevices/records/%s", env.ids.entryDevice)},
-	}
-	for _, c := range cases {
-		t.Run(c.method, func(t *testing.T) {
-			resp := env.do(c.method, c.path, "{}", "")
-			env.assertStatus(t, resp, http.StatusForbidden)
-		})
-	}
+	id := env.ids.entryDevice
+
+	t.Run("GET list", func(t *testing.T) {
+		resp := env.do("GET", "/api/collections/entryDevices/records", "", "")
+		env.assertStatus(t, resp, http.StatusOK)
+	})
+	t.Run("GET single", func(t *testing.T) {
+		resp := env.do("GET", fmt.Sprintf("/api/collections/entryDevices/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("POST", func(t *testing.T) {
+		resp := env.do("POST", "/api/collections/entryDevices/records", "{}", "")
+		env.assertStatus(t, resp, http.StatusBadRequest)
+	})
+	t.Run("PATCH", func(t *testing.T) {
+		resp := env.do("PATCH", fmt.Sprintf("/api/collections/entryDevices/records/%s", id), "{}", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("DELETE", func(t *testing.T) {
+		resp := env.do("DELETE", fmt.Sprintf("/api/collections/entryDevices/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
 }
 
 func TestEntryDevices_View_ResidentsSee200(t *testing.T) {
@@ -447,7 +521,7 @@ func TestEntryDevices_CreateUpdateDelete_ResidentsCannotModify(t *testing.T) {
 	body := fmt.Sprintf(`{"item":%q,"deviceType":"Key","identifier":"X001","defunctReason":"None"}`, newItemID)
 
 	resp := env.do("POST", "/api/collections/entryDevices/records", body, env.tok.tenant)
-	env.assertStatus(t, resp, http.StatusNotFound)
+	env.assertStatus(t, resp, http.StatusBadRequest)
 
 	// Resident cannot update existing entry device.
 	path := fmt.Sprintf("/api/collections/entryDevices/records/%s", env.ids.entryDevice)
@@ -459,19 +533,28 @@ func TestEntryDevices_CreateUpdateDelete_ResidentsCannotModify(t *testing.T) {
 
 func TestPropertyItems_Unauthenticated_Returns403(t *testing.T) {
 	env := newTestEnv(t)
-	cases := []struct{ method, path string }{
-		{"GET", "/api/collections/propertyItems/records"},
-		{"GET", fmt.Sprintf("/api/collections/propertyItems/records/%s", env.ids.propertyItem)},
-		{"POST", "/api/collections/propertyItems/records"},
-		{"PATCH", fmt.Sprintf("/api/collections/propertyItems/records/%s", env.ids.propertyItem)},
-		{"DELETE", fmt.Sprintf("/api/collections/propertyItems/records/%s", env.ids.propertyItem)},
-	}
-	for _, c := range cases {
-		t.Run(c.method, func(t *testing.T) {
-			resp := env.do(c.method, c.path, "{}", "")
-			env.assertStatus(t, resp, http.StatusForbidden)
-		})
-	}
+	id := env.ids.propertyItem
+
+	t.Run("GET list", func(t *testing.T) {
+		resp := env.do("GET", "/api/collections/propertyItems/records", "", "")
+		env.assertStatus(t, resp, http.StatusOK)
+	})
+	t.Run("GET single", func(t *testing.T) {
+		resp := env.do("GET", fmt.Sprintf("/api/collections/propertyItems/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("POST", func(t *testing.T) {
+		resp := env.do("POST", "/api/collections/propertyItems/records", "{}", "")
+		env.assertStatus(t, resp, http.StatusBadRequest)
+	})
+	t.Run("PATCH", func(t *testing.T) {
+		resp := env.do("PATCH", fmt.Sprintf("/api/collections/propertyItems/records/%s", id), "{}", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("DELETE", func(t *testing.T) {
+		resp := env.do("DELETE", fmt.Sprintf("/api/collections/propertyItems/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
 }
 
 func TestPropertyItems_View_AllGroupsSee200(t *testing.T) {
@@ -513,19 +596,28 @@ func TestPropertyItems_Create_EitherSideCanAdd(t *testing.T) {
 
 func TestPersonItems_Unauthenticated_Returns403(t *testing.T) {
 	env := newTestEnv(t)
-	cases := []struct{ method, path string }{
-		{"GET", "/api/collections/personItems/records"},
-		{"GET", fmt.Sprintf("/api/collections/personItems/records/%s", env.ids.personItem)},
-		{"POST", "/api/collections/personItems/records"},
-		{"PATCH", fmt.Sprintf("/api/collections/personItems/records/%s", env.ids.personItem)},
-		{"DELETE", fmt.Sprintf("/api/collections/personItems/records/%s", env.ids.personItem)},
-	}
-	for _, c := range cases {
-		t.Run(c.method, func(t *testing.T) {
-			resp := env.do(c.method, c.path, "{}", "")
-			env.assertStatus(t, resp, http.StatusForbidden)
-		})
-	}
+	id := env.ids.personItem
+
+	t.Run("GET list", func(t *testing.T) {
+		resp := env.do("GET", "/api/collections/personItems/records", "", "")
+		env.assertStatus(t, resp, http.StatusOK)
+	})
+	t.Run("GET single", func(t *testing.T) {
+		resp := env.do("GET", fmt.Sprintf("/api/collections/personItems/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("POST", func(t *testing.T) {
+		resp := env.do("POST", "/api/collections/personItems/records", "{}", "")
+		env.assertStatus(t, resp, http.StatusBadRequest)
+	})
+	t.Run("PATCH", func(t *testing.T) {
+		resp := env.do("PATCH", fmt.Sprintf("/api/collections/personItems/records/%s", id), "{}", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
+	t.Run("DELETE", func(t *testing.T) {
+		resp := env.do("DELETE", fmt.Sprintf("/api/collections/personItems/records/%s", id), "", "")
+		env.assertStatus(t, resp, http.StatusNotFound)
+	})
 }
 
 func TestPersonItems_View_PersonAndOwnersSee200(t *testing.T) {

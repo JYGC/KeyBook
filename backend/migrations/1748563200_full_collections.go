@@ -51,10 +51,7 @@ func up1748563200(db dbx.Builder) error {
 		"user.id = @request.auth.id" +
 		" || tenants.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id" +
 		" || tenants.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id" +
-		" || tenants.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id" +
-		" || personItems.item.propertyItems.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id" +
-		" || personItems.item.propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id" +
-		" || personItems.item.propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id"
+		" || tenants.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id"
 
 	personsCol := &models.Collection{
 		Name: "persons",
@@ -113,13 +110,13 @@ func up1748563200(db dbx.Builder) error {
 
 	// 4. propertyOwners
 	poListViewRule := "" +
-		"property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id" +
-		" || property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id" +
+		"personPropertyOwners.person.user.id = @request.auth.id" +
+		" || cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id" +
 		" || property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id"
 
 	poUpdateDeleteRule := "" +
-		"property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id" +
-		" || property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id"
+		"personPropertyOwners.person.user.id = @request.auth.id" +
+		" || cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id"
 
 	propertyOwnersCol := &models.Collection{
 		Name: "propertyOwners",
@@ -235,17 +232,16 @@ func up1748563200(db dbx.Builder) error {
 
 	// 8. cobrandPropertyOwners  (unique on cobrand + propertyOwner)
 	cpoListViewRule := "" +
-		"propertyOwner.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id" +
-		" || propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id" +
+		"cobrand.cobrandAdmins.user.id = @request.auth.id" +
+		" || propertyOwner.personPropertyOwners.person.user.id = @request.auth.id" +
 		" || propertyOwner.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id"
 
 	cpoCreateUpdateRule := "" +
-		"propertyOwner.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id" +
-		" || propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id"
+		"propertyOwner.personPropertyOwners.person.user.id = @request.auth.id" +
+		" || cobrand.cobrandAdmins.user.id = @request.auth.id"
 
 	cpoDeleteRule := "" +
-		"propertyOwner.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id" +
-		" || propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id" +
+		"propertyOwner.personPropertyOwners.person.user.id = @request.auth.id" +
 		" || cobrand.cobrandAdmins.user.id = @request.auth.id"
 
 	cobrandPropOwnersCol := &models.Collection{
@@ -272,13 +268,13 @@ func up1748563200(db dbx.Builder) error {
 
 	// 9. personPropertyOwners  (unique on person + propertyOwner)
 	ppoListViewRule := "" +
-		"propertyOwner.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id" +
-		" || propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id" +
+		"person.user.id = @request.auth.id" +
+		" || propertyOwner.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id" +
 		" || propertyOwner.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id"
 
 	ppoCUDRule := "" +
-		"propertyOwner.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id" +
-		" || propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id"
+		"person.user.id = @request.auth.id" +
+		" || propertyOwner.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id"
 
 	personPropOwnersCol := &models.Collection{
 		Name: "personPropertyOwners",
