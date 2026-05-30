@@ -860,6 +860,50 @@ Repositories are the only layer that calls the PocketBase JS SDK.
 - **Contract tests**: Verify PocketBase collection access rules (HTTP status codes, auth enforcement) via direct HTTP requests. Written first, before schema is imported.
 - All tests run on the OpenBSD server (see `CLAUDE.local.md`).
 
+### Contract test structure
+
+Contract tests are Go tests that start a real PocketBase HTTP server (`t.TempDir()` data directory), bootstrap a shared fixture set via the admin API, then make direct HTTP requests authenticated as each user type to verify correct status codes.
+
+**Standard fixture set** — created once per test file:
+
+| Fixture | Type | Key relationships |
+|---|---|---|
+| `userOwner` | users | linked to `personOwner` |
+| `userCobrandAdmin` | users | admin of `cobrand`; cobrand co-owns `property` via `cobrandPropertyOwners` |
+| `userManager` | users | cobrand manager of `property` via `cobrandPropertyManagers` |
+| `userTenant` | users | linked to `personTenant` |
+| `userHousehold` | users | linked to `personHousehold` |
+| `userAgent` | users | linked to `personAgent`; assigned to `property` via `propertyAgents` |
+| `userUnrelated` | users | no relationship to any entity |
+| `personOwner` | persons | user = `userOwner` |
+| `personTenant` | persons | user = `userTenant` |
+| `personHousehold` | persons | user = `userHousehold` |
+| `personAgent` | persons | user = `userAgent` |
+| `cobrand` | cobrands | |
+| `cobrandAdmin` | cobrandAdmins | user = `userCobrandAdmin`, cobrand = `cobrand` |
+| `property` | properties | |
+| `propertyOwner` | propertyOwners | property = `property` |
+| `personPropertyOwner` | personPropertyOwners | person = `personOwner`, propertyOwner = `propertyOwner` |
+| `cobrandPropertyOwner` | cobrandPropertyOwners | cobrand = `cobrand`, propertyOwner = `propertyOwner` |
+| `cobrandPropertyManager` | cobrandPropertyManagers | cobrand = `cobrand`, property = `property` |
+| `tenant` | tenants | person = `personTenant`, property = `property` |
+| `household` | households | person = `personHousehold`, property = `property` |
+| `agent` | agents | person = `personAgent`, cobrand = `cobrand` |
+| `propertyAgent` | propertyAgents | agent = `agent`, property = `property` |
+| `item` | items | |
+| `personItem` | personItems | person = `personOwner`, item = `item` |
+| `propertyItem` | propertyItems | item = `item`, property = `property` |
+| `entryDevice` | entryDevices | item = `item` |
+
+**Test pattern** — for each collection, assert:
+
+1. Unauthenticated requests to all five operations (list, view, create, update, delete) return 403.
+2. Each user type in the authorized group for that operation returns 200 (list/view), 201 (create), or 204 (update/delete).
+3. Each user type that should be blocked returns 403.
+4. Special cases (bootstrap, last-owner guard, self-removal, resignation) are tested as application-service-level behaviours — verify the correct HTTP status and error body returned by the application service, not a raw PocketBase access-rule rejection.
+
+Expected outcomes for each user type × collection × operation are derived directly from the EARS requirements in `requirements.md`.
+
 ## 8. Data migration path
 
 1. Write a PocketBase migration in `backend/migrations/` that defines all collections as specified in section 2.1, sets unique constraints, and configures access rules using the new ownership chain. Delete `database/pb_schema.json`.
