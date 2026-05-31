@@ -463,13 +463,9 @@ func up1748563200(db dbx.Builder) error {
 	itemsColID := itemsCol.Id
 
 	// 15. entryDevices  (unique on item)
-	// Same PocketBase v0.22 limitation as items: 3+ back chains omitted.
-	edListViewRule := "" +
-		"item.personItems_via_item.person.user.id = @request.auth.id" +
-		" || item.propertyItems_via_item.property.tenants_via_property.person.user.id = @request.auth.id" +
-		" || item.propertyItems_via_item.property.households_via_property.person.user.id = @request.auth.id" +
-		" || item.propertyItems_via_item.property.propertyAgents_via_property.agent.person.user.id = @request.auth.id"
-
+	// PocketBase v0.22: forward→back→forward→back chains from entryDevices fail.
+	// Only the forward→back chain (item → personItems) is supported.
+	edListViewRule := "item.personItems_via_item.person.user.id = @request.auth.id"
 	edCUDRule := "item.personItems_via_item.person.user.id = @request.auth.id"
 
 	entryDevicesCol := &models.Collection{
