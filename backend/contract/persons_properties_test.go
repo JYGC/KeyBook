@@ -227,25 +227,25 @@ func TestProperties_Update_NonOwnerGroupsReturn404(t *testing.T) {
 	}
 }
 
-func TestProperties_Delete_OwnersReturn204(t *testing.T) {
+func TestProperties_Delete_OwnerRulePassesReferentialIntegrityBlocks(t *testing.T) {
 	env := newTestEnv(t)
 
-	// Create a fresh property so deletion doesn't affect other tests.
+	// Create a fresh property with ownership chain.
 	pid := env.createRecord(t, "properties", map[string]any{"address": "To Delete"})
-	// Create ownership chain so person owner can delete it.
 	powID := env.createRecord(t, "propertyOwners", map[string]any{"property": pid})
-	ppoid := env.createRecord(t, "personPropertyOwners",
+	env.createRecord(t, "personPropertyOwners",
 		map[string]any{"person": env.ids.personOwner, "propertyOwner": powID})
 
-	// propertyOwners.property is Required, so delete children first via admin.
-	resp := env.do("DELETE", fmt.Sprintf("/api/collections/personPropertyOwners/records/%s", ppoid), "", env.tok.admin)
-	env.assertStatus(t, resp, http.StatusNoContent)
-	resp = env.do("DELETE", fmt.Sprintf("/api/collections/propertyOwners/records/%s", powID), "", env.tok.admin)
-	env.assertStatus(t, resp, http.StatusNoContent)
-
 	path := fmt.Sprintf("/api/collections/properties/records/%s", pid)
+
+	// Non-owner gets 404 (access rule denies).
+	resp := env.do("DELETE", path, "", env.tok.unrelated)
+	env.assertStatus(t, resp, http.StatusNotFound)
+
+	// Owner gets 400: the access rule passes (not 404), but propertyOwners.property
+	// is Required so PocketBase blocks deletion with a referential integrity error.
 	resp = env.do("DELETE", path, "", env.tok.userOwner)
-	env.assertStatus(t, resp, http.StatusNoContent)
+	env.assertStatus(t, resp, http.StatusBadRequest)
 }
 
 func TestProperties_Delete_NonOwnerGroupsReturn404(t *testing.T) {
