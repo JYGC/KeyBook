@@ -14,14 +14,14 @@
 
 ## Phase 2 — Backend: DTOs
 
-- [ ] **2.1** Write unit tests for all new and updated DTOs covering field mapping and required-field validation.
-- [ ] **2.2** Add DTOs: `CobrandDto`, `CobrandAdminDto`, `CobrandPropertyManagerDto`, `CobrandPropertyOwnerDto`.
-- [ ] **2.3** Add DTOs: `PropertyOwnerDto`, `PersonPropertyOwnerDto`.
-- [ ] **2.4** Add DTOs: `AgentDto`, `PropertyAgentDto`.
-- [ ] **2.5** Add DTOs: `HouseholdDto`, `TenantDto`.
-- [ ] **2.6** Add DTOs: `ItemDto`, `PropertyItemDto`, `PersonItemDto`, `EntryDeviceDto` (include `identifier` and `defunctReason`).
-- [ ] **2.7** Rewrite `PersonDto`: fields are `name`, `DOB`, `user`, `profileImage`.
-- [ ] **2.8** Rewrite `PropertyDto`: fields are `address` only.
+- [x] **2.1** Write unit tests for all new and updated DTOs covering field mapping and required-field validation.
+- [x] **2.2** Add DTOs: `CobrandDto`, `CobrandAdminDto`, `CobrandPropertyManagerDto`, `CobrandPropertyOwnerDto`.
+- [x] **2.3** Add DTOs: `PropertyOwnerDto`, `PersonPropertyOwnerDto`.
+- [x] **2.4** Add DTOs: `AgentDto`, `PropertyAgentDto`.
+- [x] **2.5** Add DTOs: `HouseholdDto`, `TenantDto`.
+- [x] **2.6** Add DTOs: `ItemDto`, `PropertyItemDto`, `PersonItemDto`, `EntryDeviceDto` (include `identifier` and `defunctReason`).
+- [x] **2.7** Rewrite `PersonDto`: fields are `name`, `DOB`, `user`, `profileImage`.
+- [x] **2.8** Rewrite `PropertyDto`: fields are `address` only.
 
 ## Phase 3 — Backend: Repositories
 
