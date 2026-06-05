@@ -25,15 +25,15 @@
 
 ## Phase 3 — Backend: Repositories
 
-- [ ] **3.1** Write integration tests for each new repository using a real PocketBase HTTP server (`t.TempDir()`) — no database mocking. Cover CRUD operations and relation queries.
-- [ ] **3.2** Add `ItemRepository`, `PropertyItemRepository`, `PersonItemRepository`, `EntryDeviceRepository`.
-- [ ] **3.3** Add `PropertyOwnerRepository`, `PersonPropertyOwnerRepository`.
-- [ ] **3.4** Add `CobrandRepository`, `CobrandAdminRepository`, `CobrandPropertyManagerRepository`, `CobrandPropertyOwnerRepository`.
-- [ ] **3.5** Add `AgentRepository`, `PropertyAgentRepository`.
-- [ ] **3.6** Add `HouseholdRepository`, `TenantRepository`.
-- [ ] **3.7** Rewrite `PersonRepository`: fields are `name`, `DOB`, `user`, `profileImage`. Confirm integration tests pass.
-- [ ] **3.8** Rewrite `PropertyRepository`: fields are `address` only. Confirm integration tests pass.
-- [ ] **3.9** Delete `DeviceRepository` and `PersonDeviceRepository`.
+- [x] **3.1** Write integration tests for each new repository using a real PocketBase HTTP server (`t.TempDir()`) — no database mocking. Cover CRUD operations and relation queries.
+- [x] **3.2** Add `ItemRepository`, `PropertyItemRepository`, `PersonItemRepository`, `EntryDeviceRepository`.
+- [x] **3.3** Add `PropertyOwnerRepository`, `PersonPropertyOwnerRepository`.
+- [x] **3.4** Add `CobrandRepository`, `CobrandAdminRepository`, `CobrandPropertyManagerRepository`, `CobrandPropertyOwnerRepository`.
+- [x] **3.5** Add `AgentRepository`, `PropertyAgentRepository`.
+- [x] **3.6** Add `HouseholdRepository`, `TenantRepository`.
+- [x] **3.7** Rewrite `PersonRepository`: fields are `name`, `DOB`, `user`, `profileImage`. Confirm integration tests pass.
+- [x] **3.8** Rewrite `PropertyRepository`: fields are `address` only. Confirm integration tests pass.
+- [x] **3.9** Delete `DeviceRepository` and `PersonDeviceRepository`.
 
 ## Phase 4 — Backend: Services
 
