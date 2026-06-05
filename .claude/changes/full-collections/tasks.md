@@ -57,10 +57,10 @@
 
 ## Phase 6 — Backend: DI wiring
 
-- [ ] **6.1** Register all new repositories, services, and application services in the `dig` container in `cmd/keybook.go`.
-- [ ] **6.2** Update hook handlers in `cmd/keybook.go` to call application services rather than services or repositories directly.
-- [ ] **6.3** Remove `PersonHistoryServices`, `PropertyHistoryServices`, `DeviceHistoryServices`, and `PersonDeviceHistoryServices` hooks and their registrations from `cmd/keybook.go`.
-- [ ] **6.4** Remove `DeviceRepository` and `PersonDeviceRepository` from the DI container.
+- [x] **6.1** Register all new repositories, services, and application services in the `dig` container in `cmd/keybook.go`.
+- [x] **6.2** Update hook handlers in `cmd/keybook.go` to call application services rather than services or repositories directly.
+- [x] **6.3** Remove `PersonHistoryServices`, `PropertyHistoryServices`, `DeviceHistoryServices`, and `PersonDeviceHistoryServices` hooks and their registrations from `cmd/keybook.go`.
+- [x] **6.4** Remove `DeviceRepository` and `PersonDeviceRepository` from the DI container.
 
 ## Phase 7 — Frontend: Item registry
 
