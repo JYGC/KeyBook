@@ -8,10 +8,7 @@ import { PersonItemRepository } from './person-item-repository';
 const pb = new PocketBase('http://192.168.8.144:8090');
 
 beforeAll(async () => {
-  await pb.collection('_superusers').authWithPassword(
-    'casperchen91@hotmail.com',
-    'w3m#@tpth100',
-  );
+  await pb.admins.authWithPassword('casperchen91@hotmail.com', 'w3m#@tpth100');
 });
 
 describe('ItemRepository', () => {

@@ -9,7 +9,7 @@ const TEST_PASSWORD = 'E2Eitems_test1';
 
 test.beforeAll(async () => {
   const pb = new PocketBase(PB_URL);
-  await pb.collection('_superusers').authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
+  await pb.admins.authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
   try {
     await pb.collection('users').create({
       email: TEST_EMAIL,
@@ -42,7 +42,7 @@ test('create item', async ({ page }) => {
 
 test('edit item name', async ({ page }) => {
   const pb = new PocketBase(PB_URL);
-  await pb.collection('_superusers').authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
+  await pb.admins.authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
   const users = await pb.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
   const testUser = users[0];
 
@@ -75,7 +75,7 @@ test('edit item name', async ({ page }) => {
 
 test('delete item', async ({ page }) => {
   const pb = new PocketBase(PB_URL);
-  await pb.collection('_superusers').authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
+  await pb.admins.authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
   const users = await pb.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
   const testUser = users[0];
 
@@ -104,7 +104,7 @@ test('delete item', async ({ page }) => {
 
 test('designate entry device', async ({ page }) => {
   const pb = new PocketBase(PB_URL);
-  await pb.collection('_superusers').authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
+  await pb.admins.authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
   const users = await pb.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
   const testUser = users[0];
 
@@ -140,7 +140,7 @@ test('designate entry device', async ({ page }) => {
 
 test('mark entry device defunct', async ({ page }) => {
   const pb = new PocketBase(PB_URL);
-  await pb.collection('_superusers').authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
+  await pb.admins.authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
   const users = await pb.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
   const testUser = users[0];
 
