@@ -13,7 +13,7 @@ func TestPropertyOwnerRepository_CRUD(t *testing.T) {
 
 	property := createRecord(t, app, "properties", map[string]any{"address": "1 Test St"})
 
-	repo := repositories.NewPropertyOwnerRepository(app.PocketBase)
+	repo := repositories.NewPropertyOwnerRepository(app)
 
 	// Create
 	created, err := repo.CreatePropertyOwner(property.GetId())
@@ -63,7 +63,7 @@ func TestPersonPropertyOwnerRepository_CRUD(t *testing.T) {
 	property := createRecord(t, app, "properties", map[string]any{"address": "1 Test St"})
 	propertyOwner := createRecord(t, app, "propertyOwners", map[string]any{"property": property.GetId()})
 
-	repo := repositories.NewPersonPropertyOwnerRepository(app.PocketBase)
+	repo := repositories.NewPersonPropertyOwnerRepository(app)
 
 	// Create
 	created, err := repo.CreatePersonPropertyOwner(person.GetId(), propertyOwner.GetId())
@@ -113,7 +113,7 @@ func TestCobrandPropertyOwnerRepository_CRUD(t *testing.T) {
 	property := createRecord(t, app, "properties", map[string]any{"address": "1 Test St"})
 	propertyOwner := createRecord(t, app, "propertyOwners", map[string]any{"property": property.GetId()})
 
-	repo := repositories.NewCobrandPropertyOwnerRepository(app.PocketBase)
+	repo := repositories.NewCobrandPropertyOwnerRepository(app)
 
 	// Create
 	created, err := repo.CreateCobrandPropertyOwner(cobrand.GetId(), propertyOwner.GetId())
@@ -162,7 +162,7 @@ func TestCobrandPropertyManagerRepository_CRUD(t *testing.T) {
 	cobrand := createRecord(t, app, "cobrands", map[string]any{"name": "Manager Co"})
 	property := createRecord(t, app, "properties", map[string]any{"address": "1 Test St"})
 
-	repo := repositories.NewCobrandPropertyManagerRepository(app.PocketBase)
+	repo := repositories.NewCobrandPropertyManagerRepository(app)
 
 	// Create
 	created, err := repo.CreateCobrandPropertyManager(cobrand.GetId(), property.GetId())

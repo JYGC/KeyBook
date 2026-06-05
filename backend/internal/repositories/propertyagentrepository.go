@@ -4,7 +4,7 @@ import (
 	"keybook/backend/internal/dtos"
 
 	"github.com/pocketbase/dbx"
-	"github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/models"
 )
 
@@ -16,10 +16,10 @@ type IPropertyAgentRepository interface {
 }
 
 type PropertyAgentRepository struct {
-	app *pocketbase.PocketBase
+	app core.App
 }
 
-func NewPropertyAgentRepository(app *pocketbase.PocketBase) IPropertyAgentRepository {
+func NewPropertyAgentRepository(app core.App) IPropertyAgentRepository {
 	return &PropertyAgentRepository{app}
 }
 

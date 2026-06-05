@@ -4,7 +4,7 @@ import (
 	"keybook/backend/internal/dtos"
 
 	"github.com/pocketbase/dbx"
-	"github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/models"
 )
 
@@ -16,10 +16,10 @@ type IHouseholdRepository interface {
 }
 
 type HouseholdRepository struct {
-	app *pocketbase.PocketBase
+	app core.App
 }
 
-func NewHouseholdRepository(app *pocketbase.PocketBase) IHouseholdRepository {
+func NewHouseholdRepository(app core.App) IHouseholdRepository {
 	return &HouseholdRepository{app}
 }
 

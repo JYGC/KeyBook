@@ -14,7 +14,7 @@ func TestHouseholdRepository_CRUD(t *testing.T) {
 	person := createRecord(t, app, "persons", map[string]any{"name": "Carol", "DOB": "1988-03-20 00:00:00.000Z"})
 	property := createRecord(t, app, "properties", map[string]any{"address": "1 Test St"})
 
-	repo := repositories.NewHouseholdRepository(app.PocketBase)
+	repo := repositories.NewHouseholdRepository(app)
 
 	// Create
 	created, err := repo.CreateHousehold(person.GetId(), property.GetId())
@@ -63,7 +63,7 @@ func TestTenantRepository_CRUD(t *testing.T) {
 	person := createRecord(t, app, "persons", map[string]any{"name": "Bob", "DOB": "1992-05-15 00:00:00.000Z"})
 	property := createRecord(t, app, "properties", map[string]any{"address": "1 Test St"})
 
-	repo := repositories.NewTenantRepository(app.PocketBase)
+	repo := repositories.NewTenantRepository(app)
 
 	// Create
 	created, err := repo.CreateTenant(person.GetId(), property.GetId())

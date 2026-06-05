@@ -4,7 +4,7 @@ import (
 	"keybook/backend/internal/dtos"
 
 	"github.com/pocketbase/dbx"
-	"github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/models"
 )
 
@@ -16,10 +16,10 @@ type ICobrandPropertyOwnerRepository interface {
 }
 
 type CobrandPropertyOwnerRepository struct {
-	app *pocketbase.PocketBase
+	app core.App
 }
 
-func NewCobrandPropertyOwnerRepository(app *pocketbase.PocketBase) ICobrandPropertyOwnerRepository {
+func NewCobrandPropertyOwnerRepository(app core.App) ICobrandPropertyOwnerRepository {
 	return &CobrandPropertyOwnerRepository{app}
 }
 

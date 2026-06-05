@@ -10,7 +10,7 @@ import (
 
 func TestPersonRepository_CRUD(t *testing.T) {
 	app := newApp(t)
-	repo := repositories.NewPersonRepository(app.PocketBase)
+	repo := repositories.NewPersonRepository(app)
 
 	// Create
 	created, err := repo.CreatePerson("Alice", "1990-01-01 00:00:00.000Z", "")
@@ -61,7 +61,7 @@ func TestPersonRepository_CRUD(t *testing.T) {
 
 func TestPropertyRepository_CRUD(t *testing.T) {
 	app := newApp(t)
-	repo := repositories.NewPropertyRepository(app.PocketBase)
+	repo := repositories.NewPropertyRepository(app)
 
 	// Create
 	created, err := repo.CreateProperty("1 Example Street")

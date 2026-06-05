@@ -3,7 +3,7 @@ package repositories
 import (
 	"keybook/backend/internal/dtos"
 
-	"github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/models"
 )
 
@@ -15,10 +15,10 @@ type IEntryDeviceRepository interface {
 }
 
 type EntryDeviceRepository struct {
-	app *pocketbase.PocketBase
+	app core.App
 }
 
-func NewEntryDeviceRepository(app *pocketbase.PocketBase) IEntryDeviceRepository {
+func NewEntryDeviceRepository(app core.App) IEntryDeviceRepository {
 	return &EntryDeviceRepository{app}
 }
 

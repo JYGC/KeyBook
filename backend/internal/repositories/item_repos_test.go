@@ -10,7 +10,7 @@ import (
 
 func TestItemRepository_CRUD(t *testing.T) {
 	app := newApp(t)
-	repo := repositories.NewItemRepository(app.PocketBase)
+	repo := repositories.NewItemRepository(app)
 
 	// Create
 	created, err := repo.CreateItem("Front Door Key", "Main entrance key")
@@ -65,7 +65,7 @@ func TestPropertyItemRepository_CRUD(t *testing.T) {
 	item := createRecord(t, app, "items", map[string]any{"name": "Key", "description": "test"})
 	property := createRecord(t, app, "properties", map[string]any{"address": "1 Test St"})
 
-	repo := repositories.NewPropertyItemRepository(app.PocketBase)
+	repo := repositories.NewPropertyItemRepository(app)
 
 	// Create
 	created, err := repo.CreatePropertyItem(item.GetId(), property.GetId())
@@ -120,7 +120,7 @@ func TestPersonItemRepository_CRUD(t *testing.T) {
 	person := createRecord(t, app, "persons", map[string]any{"name": "Alice", "DOB": "1990-01-01 00:00:00.000Z"})
 	item := createRecord(t, app, "items", map[string]any{"name": "Key", "description": "test"})
 
-	repo := repositories.NewPersonItemRepository(app.PocketBase)
+	repo := repositories.NewPersonItemRepository(app)
 
 	// Create
 	created, err := repo.CreatePersonItem(person.GetId(), item.GetId())
@@ -168,7 +168,7 @@ func TestEntryDeviceRepository_CRUD(t *testing.T) {
 
 	item := createRecord(t, app, "items", map[string]any{"name": "Key", "description": "test"})
 
-	repo := repositories.NewEntryDeviceRepository(app.PocketBase)
+	repo := repositories.NewEntryDeviceRepository(app)
 
 	// Create
 	created, err := repo.CreateEntryDevice(item.GetId(), "Key", "KEY-001", "None")

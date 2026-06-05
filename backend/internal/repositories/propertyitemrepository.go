@@ -4,7 +4,7 @@ import (
 	"keybook/backend/internal/dtos"
 
 	"github.com/pocketbase/dbx"
-	"github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/models"
 )
 
@@ -17,10 +17,10 @@ type IPropertyItemRepository interface {
 }
 
 type PropertyItemRepository struct {
-	app *pocketbase.PocketBase
+	app core.App
 }
 
-func NewPropertyItemRepository(app *pocketbase.PocketBase) IPropertyItemRepository {
+func NewPropertyItemRepository(app core.App) IPropertyItemRepository {
 	return &PropertyItemRepository{app}
 }
 

@@ -14,7 +14,7 @@ func TestAgentRepository_CRUD(t *testing.T) {
 	person := createRecord(t, app, "persons", map[string]any{"name": "Dave", "DOB": "1985-07-10 00:00:00.000Z"})
 	cobrand := createRecord(t, app, "cobrands", map[string]any{"name": "Agency Co"})
 
-	repo := repositories.NewAgentRepository(app.PocketBase)
+	repo := repositories.NewAgentRepository(app)
 
 	// Create
 	created, err := repo.CreateAgent(person.GetId(), cobrand.GetId())
@@ -65,7 +65,7 @@ func TestPropertyAgentRepository_CRUD(t *testing.T) {
 	agent := createRecord(t, app, "agents", map[string]any{"person": person.GetId(), "cobrand": cobrand.GetId()})
 	property := createRecord(t, app, "properties", map[string]any{"address": "1 Test St"})
 
-	repo := repositories.NewPropertyAgentRepository(app.PocketBase)
+	repo := repositories.NewPropertyAgentRepository(app)
 
 	// Create
 	created, err := repo.CreatePropertyAgent(agent.GetId(), property.GetId())

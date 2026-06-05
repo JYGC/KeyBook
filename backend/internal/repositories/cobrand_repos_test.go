@@ -10,7 +10,7 @@ import (
 
 func TestCobrandRepository_CRUD(t *testing.T) {
 	app := newApp(t)
-	repo := repositories.NewCobrandRepository(app.PocketBase)
+	repo := repositories.NewCobrandRepository(app)
 
 	// Create
 	created, err := repo.CreateCobrand("Acme Co")
@@ -60,7 +60,7 @@ func TestCobrandAdminRepository_CRUD(t *testing.T) {
 	// Use a synthetic user ID — PocketBase DAO does not enforce FK constraints.
 	const userID = "testuser00000001"
 
-	repo := repositories.NewCobrandAdminRepository(app.PocketBase)
+	repo := repositories.NewCobrandAdminRepository(app)
 
 	// Create
 	created, err := repo.CreateCobrandAdmin(userID, cobrand.GetId())

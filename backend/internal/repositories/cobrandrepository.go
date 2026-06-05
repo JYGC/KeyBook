@@ -3,7 +3,7 @@ package repositories
 import (
 	"keybook/backend/internal/dtos"
 
-	"github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/models"
 )
 
@@ -15,10 +15,10 @@ type ICobrandRepository interface {
 }
 
 type CobrandRepository struct {
-	app *pocketbase.PocketBase
+	app core.App
 }
 
-func NewCobrandRepository(app *pocketbase.PocketBase) ICobrandRepository {
+func NewCobrandRepository(app core.App) ICobrandRepository {
 	return &CobrandRepository{app}
 }
 
