@@ -25,8 +25,9 @@ func (p PersonRepository) GetPersonById(personId string) (
 	query := p.app.Dao().DB().Select(
 		"p.id",
 		"p.name",
-		"p.type",
-		"p.property",
+		"p.DOB",
+		"p.user",
+		"p.profileImage",
 	).From(
 		"persons p",
 	).Where(

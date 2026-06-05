@@ -58,15 +58,6 @@ func (ph PersonHistoryServices) AddNewPersonHistoryDueToUpdatePersonHook(
 		)
 	}
 
-	if personBeforeUpdate.Type != personAfterUpdate.Type {
-		description = fmt.Sprintf(
-			"%s Type changed from \"%s\" to \"%s\".",
-			description,
-			personBeforeUpdate.Type,
-			personAfterUpdate.Type,
-		)
-	}
-
 	if description == "" {
 		return nil
 	}
