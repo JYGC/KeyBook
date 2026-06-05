@@ -5,24 +5,26 @@ import (
 
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase/models"
 )
 
 type IPersonRepository interface {
-	GetPersonById(personId string) (
-		dtos.PersonDto,
-		error,
-	)
+	GetPersonById(personId string) (dtos.PersonDto, error)
+	CreatePerson(name, DOB, userID string) (dtos.PersonDto, error)
+	UpdatePerson(id, name, DOB string) error
+	DeletePerson(id string) error
 }
 
 type PersonRepository struct {
 	app *pocketbase.PocketBase
 }
 
-func (p PersonRepository) GetPersonById(personId string) (
-	dtos.PersonDto,
-	error,
-) {
-	query := p.app.Dao().DB().Select(
+func NewPersonRepository(app *pocketbase.PocketBase) IPersonRepository {
+	return &PersonRepository{app}
+}
+
+func (r *PersonRepository) GetPersonById(personId string) (dtos.PersonDto, error) {
+	query := r.app.Dao().DB().Select(
 		"p.id",
 		"p.name",
 		"p.DOB",
@@ -35,14 +37,45 @@ func (p PersonRepository) GetPersonById(personId string) (
 	)
 
 	var result dtos.PersonDto
-
-	queryErr := query.One(&result)
-	return result, queryErr
+	return result, query.One(&result)
 }
 
-func NewPersonRepository(app *pocketbase.PocketBase) IPersonRepository {
-	personRepository := PersonRepository{
-		app,
+func (r *PersonRepository) CreatePerson(name, DOB, userID string) (dtos.PersonDto, error) {
+	col, err := r.app.Dao().FindCollectionByNameOrId("persons")
+	if err != nil {
+		return dtos.PersonDto{}, err
 	}
-	return personRepository
+	record := models.NewRecord(col)
+	record.Set("name", name)
+	record.Set("DOB", DOB)
+	if userID != "" {
+		record.Set("user", userID)
+	}
+	if err := r.app.Dao().SaveRecord(record); err != nil {
+		return dtos.PersonDto{}, err
+	}
+	return dtos.PersonDto{
+		Id:   record.GetId(),
+		Name: record.GetString("name"),
+		DOB:  record.GetString("DOB"),
+		User: record.GetString("user"),
+	}, nil
+}
+
+func (r *PersonRepository) UpdatePerson(id, name, DOB string) error {
+	record, err := r.app.Dao().FindRecordById("persons", id)
+	if err != nil {
+		return err
+	}
+	record.Set("name", name)
+	record.Set("DOB", DOB)
+	return r.app.Dao().SaveRecord(record)
+}
+
+func (r *PersonRepository) DeletePerson(id string) error {
+	record, err := r.app.Dao().FindRecordById("persons", id)
+	if err != nil {
+		return err
+	}
+	return r.app.Dao().DeleteRecord(record)
 }
