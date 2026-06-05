@@ -47,13 +47,13 @@
 
 ## Phase 5 — Backend: Application layer
 
-- [ ] **5.1** Write integration tests for each application service using a real PocketBase HTTP server (`t.TempDir()`) — cover full use-case orchestration flows including cross-service operations.
-- [ ] **5.2** Add `ItemApplicationService` (orchestrates item CRUD, entry device designation, person/property item associations via `ItemService`).
-- [ ] **5.3** Add `CobrandApplicationService` (orchestrates cobrand CRUD, admin assignment, property manager assignment via `CobrandService`).
-- [ ] **5.4** Add `AgentApplicationService` (orchestrates agent registration and property assignment via `AgentService`).
-- [ ] **5.5** Add `PropertyOwnerApplicationService` (orchestrates property owner creation, person/cobrand owner linkage via `PropertyOwnerService`).
-- [ ] **5.6** Add `PersonApplicationService` (orchestrates person CRUD and user account linking via `PersonService`).
-- [ ] **5.7** Add `PropertyApplicationService` (orchestrates property CRUD via `PropertyService`).
+- [x] **5.1** Write integration tests for each application service using a real PocketBase HTTP server (`t.TempDir()`) — cover full use-case orchestration flows including cross-service operations.
+- [x] **5.2** Add `ItemApplicationService` (orchestrates item CRUD, entry device designation, person/property item associations via `ItemService`).
+- [x] **5.3** Add `CobrandApplicationService` (orchestrates cobrand CRUD, admin assignment, property manager assignment via `CobrandService`).
+- [x] **5.4** Add `AgentApplicationService` (orchestrates agent registration and property assignment via `AgentService`).
+- [x] **5.5** Add `PropertyOwnerApplicationService` (orchestrates property owner creation, person/cobrand owner linkage via `PropertyOwnerService`).
+- [x] **5.6** Add `PersonApplicationService` (orchestrates person CRUD and user account linking via `PersonService`).
+- [x] **5.7** Add `PropertyApplicationService` (orchestrates property CRUD via `PropertyService`).
 
 ## Phase 6 — Backend: DI wiring
 
