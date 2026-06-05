@@ -42,6 +42,10 @@ func TestItemService_ValidateEntryDeviceTransition(t *testing.T) {
 		{"defunct stays defunct", "Lost", "Lost", false},
 		{"defunct updates reason", "Lost", "Damaged", false},
 		{"defunct reactivated — not allowed", "Lost", "", true},
+		// DB uses "None" for the active state
+		{"DB active stays active", "None", "None", false},
+		{"DB active goes defunct", "None", "Lost", false},
+		{"DB defunct reactivated — not allowed", "Lost", "None", true},
 	}
 
 	for _, tt := range tests {
