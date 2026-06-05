@@ -8,7 +8,15 @@ import { PersonItemRepository } from './person-item-repository';
 const pb = new PocketBase('http://192.168.8.144:8090');
 
 beforeAll(async () => {
-  await pb.admins.authWithPassword('casperchen91@hotmail.com', 'w3m#@tpth100');
+  // PocketBase Go v0.22 uses /api/admins (not _superusers which is v0.23+).
+  // PocketBase JS SDK v0.26 maps pb.admins to _superusers, so we use raw fetch.
+  const res = await fetch('http://192.168.8.144:8090/api/admins/auth-with-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identity: 'casperchen91@hotmail.com', password: 'w3m#@tpth100' }),
+  });
+  const data = await res.json();
+  pb.authStore.save(data.token, data.admin);
 });
 
 describe('ItemRepository', () => {

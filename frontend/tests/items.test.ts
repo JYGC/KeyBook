@@ -7,9 +7,20 @@ const ADMIN_PASSWORD = 'w3m#@tpth100';
 const TEST_EMAIL = 'e2e_items@keybook.test';
 const TEST_PASSWORD = 'E2Eitems_test1';
 
-test.beforeAll(async () => {
+async function adminAuth(): Promise<PocketBase> {
   const pb = new PocketBase(PB_URL);
-  await pb.admins.authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
+  const res = await fetch(`${PB_URL}/api/admins/auth-with-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identity: ADMIN_EMAIL, password: ADMIN_PASSWORD }),
+  });
+  const data = await res.json();
+  pb.authStore.save(data.token, data.admin);
+  return pb;
+}
+
+test.beforeAll(async () => {
+  const pb = await adminAuth();
   try {
     await pb.collection('users').create({
       email: TEST_EMAIL,
@@ -41,8 +52,7 @@ test('create item', async ({ page }) => {
 });
 
 test('edit item name', async ({ page }) => {
-  const pb = new PocketBase(PB_URL);
-  await pb.admins.authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
+  const pb = await adminAuth();
   const users = await pb.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
   const testUser = users[0];
 
@@ -74,8 +84,7 @@ test('edit item name', async ({ page }) => {
 });
 
 test('delete item', async ({ page }) => {
-  const pb = new PocketBase(PB_URL);
-  await pb.admins.authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
+  const pb = await adminAuth();
   const users = await pb.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
   const testUser = users[0];
 
@@ -103,8 +112,7 @@ test('delete item', async ({ page }) => {
 });
 
 test('designate entry device', async ({ page }) => {
-  const pb = new PocketBase(PB_URL);
-  await pb.admins.authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
+  const pb = await adminAuth();
   const users = await pb.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
   const testUser = users[0];
 
@@ -139,8 +147,7 @@ test('designate entry device', async ({ page }) => {
 });
 
 test('mark entry device defunct', async ({ page }) => {
-  const pb = new PocketBase(PB_URL);
-  await pb.admins.authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
+  const pb = await adminAuth();
   const users = await pb.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
   const testUser = users[0];
 
