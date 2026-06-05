@@ -37,13 +37,13 @@
 
 ## Phase 4 — Backend: Services
 
-- [ ] **4.1** Write unit tests for each new service covering business logic and validation in isolation (no PocketBase dependency).
-- [ ] **4.2** Add `ItemService` (item validation, entry device state transitions, defunct reason enforcement).
-- [ ] **4.3** Add `CobrandService` (cobrand validation, admin uniqueness).
-- [ ] **4.4** Add `AgentService` (agent registration rules, duplicate assignment prevention).
-- [ ] **4.5** Add `PropertyOwnerService` (ownership validation, duplicate person/cobrand owner prevention).
-- [ ] **4.6** Add `PersonService` (person validation).
-- [ ] **4.7** Add `PropertyService` (property validation, ownership chain resolution).
+- [x] **4.1** Write unit tests for each new service covering business logic and validation in isolation (no PocketBase dependency).
+- [x] **4.2** Add `ItemService` (item validation, entry device state transitions, defunct reason enforcement).
+- [x] **4.3** Add `CobrandService` (cobrand validation, admin uniqueness).
+- [x] **4.4** Add `AgentService` (agent registration rules, duplicate assignment prevention).
+- [x] **4.5** Add `PropertyOwnerService` (ownership validation, duplicate person/cobrand owner prevention).
+- [x] **4.6** Add `PersonService` (person validation).
+- [x] **4.7** Add `PropertyService` (property validation, ownership chain resolution).
 
 ## Phase 5 — Backend: Application layer
 
