@@ -2,6 +2,7 @@ import type { IEditDeviceModel } from "$lib/models/device-models";
 import type { IDeviceHistoryListItem, IDeviceListItemModel, IPersonListItemModel } from "$lib/models/person-device-models";
 import type { IEditPersonModel, IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "$lib/models/person-models";
 import type { IEditPropertyModel, IPropertyListItemModel } from "$lib/models/property-models";
+import type { IItemModel, IEntryDeviceModel } from "$lib/models/item-models";
 
 export interface IPropertyListModule {
   propertyListAsync: Promise<IPropertyListItemModel[]>;
@@ -59,6 +60,19 @@ export interface IDeviceHistoryListModule {
 
 export interface IDeviceHistoryListUpdaterModule {
   updateTriggerState: unknown;
+}
+
+export interface IItemListModule {
+  itemListAsync: Promise<IItemModel[]>;
+}
+
+export interface IItemEditorModule {
+  itemAsync: Promise<IItemModel | null>;
+  entryDeviceAsync: Promise<IEntryDeviceModel | null>;
+  get isAdd(): boolean;
+  getSaveItemAction: () => (item: IItemModel) => Promise<void>;
+  getDeleteItemAction: () => ((id: string) => Promise<void>) | null;
+  callBackAction: () => void;
 }
 
 export interface ILoginModule {

@@ -4,6 +4,7 @@
 	import { setPropertyContext } from '$lib/contexts/property-context.svelte';
 	import { setPersonContext } from "$lib/contexts/person-context.svelte";
 	import { setDeviceContext } from '$lib/contexts/device-context.svelte';
+	import { setItemContext } from '$lib/contexts/item-context.svelte';
 	import { Button, Content, Header, HeaderUtilities } from 'carbon-components-svelte';
 	import { Logout } from 'carbon-icons-svelte';
 	import type { Snippet } from 'svelte';
@@ -19,6 +20,7 @@
   setPropertyContext();
   setPersonContext();
   setDeviceContext();
+  setItemContext();
 
   const backendClient = data.backendClient;
 
