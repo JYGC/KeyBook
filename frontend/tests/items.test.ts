@@ -121,8 +121,6 @@ test('delete item', async ({ page }) => {
   const item = await pb.collection('items').create({ name: 'E2E Delete Item', description: 'Gone soon' });
   await pb.collection('personItems').create({ person: personId, item: item.id });
 
-  page.on('dialog', async dialog => { console.log('DIALOG:', dialog.message()); await dialog.dismiss(); });
-
   await page.goto('/user/items');
   await page.waitForLoadState('networkidle');
   await expect(page.getByRole('cell', { name: 'E2E Delete Item' })).toBeVisible();
