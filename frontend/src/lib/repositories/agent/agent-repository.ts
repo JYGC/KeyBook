@@ -4,6 +4,7 @@ import type { IAgentModel } from '$lib/models/agent-models';
 export interface IAgentRepository {
   getAll(): Promise<IAgentModel[]>;
   getById(id: string): Promise<IAgentModel>;
+  getByPersonId(personId: string): Promise<IAgentModel[]>;
   create(personId: string, cobrandId: string): Promise<IAgentModel>;
   delete(id: string): Promise<void>;
 }
@@ -22,6 +23,11 @@ export class AgentRepository implements IAgentRepository {
     const agent = all.find((a) => a.id === id);
     if (!agent) throw new Error(`Agent not found: ${id}`);
     return agent;
+  }
+
+  async getByPersonId(personId: string): Promise<IAgentModel[]> {
+    const all = await this.pb.collection('agents').getFullList<IAgentModel>();
+    return all.filter((a) => a.person === personId);
   }
 
   async create(personId: string, cobrandId: string): Promise<IAgentModel> {

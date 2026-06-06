@@ -1,27 +1,20 @@
-import PocketBase from "pocketbase";
-import type { IPropertyListModule } from "$lib/modules/interfaces";
-import type { IPropertyListItemModel } from "$lib/models/property-models";
+import type { IPropertyService } from '$lib/services/property/property-service';
+import type { INewPropertyListModule } from '$lib/modules/interfaces';
+import type { IPropertyModel } from '$lib/models/property-models';
 
-export class PropertyListModule implements IPropertyListModule {
-  private readonly __backendClient: PocketBase;
+export class PropertyListModule implements INewPropertyListModule {
+  private readonly __propertyService: IPropertyService;
 
-  public propertyListAsync = $derived.by<Promise<IPropertyListItemModel[]>>(async () => {
+  public propertyListAsync = $derived.by<Promise<IPropertyModel[]>>(async () => {
     try {
-      if (this.__backendClient.authStore.record === null) {
-        throw new Error("Cannot find loggedInUser.");
-      }
-      const items = await this.__backendClient.collection("properties").getFullList<IPropertyListItemModel>({
-        filter: `owners.id ?~ "${this.__backendClient.authStore.record.id}"`,
-        fields: "id,address"
-      });
-      return items;
+      return await this.__propertyService.getAllProperties();
     } catch (ex) {
       alert(ex);
       return [];
     }
   });
 
-  constructor(backendClient: PocketBase) {
-    this.__backendClient = backendClient;
+  constructor(propertyService: IPropertyService) {
+    this.__propertyService = propertyService;
   }
 }

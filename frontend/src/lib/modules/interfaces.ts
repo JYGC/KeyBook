@@ -1,7 +1,7 @@
 import type { IEditDeviceModel } from "$lib/models/device-models";
 import type { IDeviceHistoryListItem, IDeviceListItemModel, IPersonListItemModel } from "$lib/models/person-device-models";
-import type { IEditPersonModel, IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "$lib/models/person-models";
-import type { IEditPropertyModel, IPropertyListItemModel } from "$lib/models/property-models";
+import type { IPersonModel, IEditPersonModel, IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "$lib/models/person-models";
+import type { IPropertyModel, IPersonPropertyOwnerModel, ITenantModel, IHouseholdModel, IEditPropertyModel, IPropertyListItemModel } from "$lib/models/property-models";
 import type { IItemModel, IEntryDeviceModel } from "$lib/models/item-models";
 import type { ICobrandModel, ICobrandAdminModel, ICobrandPropertyManagerModel } from "$lib/models/cobrand-models";
 import type { IAgentModel, IPropertyAgentModel } from "$lib/models/agent-models";
@@ -16,6 +16,29 @@ export interface IPropertyEditorModule {
   getSavePropertyAction: () => ((changedProperty: IEditPropertyModel) => void);
   getDeletePropertyAction: () => ((property: IEditPropertyModel) => void) | null;
   callBackAction: () => void;
+}
+
+export interface INewPropertyListModule {
+  propertyListAsync: Promise<IPropertyModel[]>;
+}
+
+export interface INewPropertyEditorModule {
+  propertyAsync: Promise<IPropertyModel | null>;
+  get isAdd(): boolean;
+  getSavePropertyAction: () => (property: IPropertyModel) => Promise<void>;
+  getDeletePropertyAction: () => ((id: string) => Promise<void>) | null;
+  callBackAction: () => void;
+}
+
+export interface IPropertyDetailModule extends INewPropertyEditorModule {
+  personOwnersAsync: Promise<IPersonPropertyOwnerModel[]>;
+  tenantsAsync: Promise<ITenantModel[]>;
+  householdMembersAsync: Promise<IHouseholdModel[]>;
+  propertyAgentsAsync: Promise<IPropertyAgentModel[]>;
+  getAddTenantAction: () => (personId: string, propertyId: string) => Promise<void>;
+  getRemoveTenantAction: () => (id: string) => Promise<void>;
+  getAddHouseholdMemberAction: () => (personId: string, propertyId: string) => Promise<void>;
+  getRemoveHouseholdMemberAction: () => (id: string) => Promise<void>;
 }
 
 export interface IDeviceEditorModule {
@@ -41,6 +64,22 @@ export interface IPersonEditorModule {
 
 export interface IPersonListModule {
   personListAsync: Promise<IPersonListItemModel[]>;
+}
+
+export interface INewPersonListModule {
+  personListAsync: Promise<IPersonModel[]>;
+}
+
+export interface INewPersonEditorModule {
+  personAsync: Promise<IPersonModel | null>;
+  get isAdd(): boolean;
+  getSavePersonAction: () => (person: IPersonModel) => Promise<void>;
+  getDeletePersonAction: () => ((id: string) => Promise<void>) | null;
+  callBackAction: () => void;
+}
+
+export interface IPersonDetailModule extends INewPersonEditorModule {
+  rolesAsync: Promise<string[]>;
 }
 
 export interface IDeviceHolderEditorModule {
