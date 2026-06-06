@@ -64,16 +64,16 @@
 
 ## Phase 7 — Frontend: Item registry
 
-- [ ] **7.1** Write unit tests for `ItemService` business logic (entry device state transitions, defunct reason validation).
-- [ ] **7.2** Write integration tests for `ItemRepository`, `EntryDeviceRepository`, `PropertyItemRepository`, `PersonItemRepository` against a real running PocketBase instance — no SDK mocking.
-- [ ] **7.3** Implement `src/lib/repositories/item/` — `ItemRepository`, `EntryDeviceRepository`, `PropertyItemRepository`, `PersonItemRepository`.
-- [ ] **7.4** Implement `src/lib/services/item/` — `ItemService`.
-- [ ] **7.5** Write unit tests for `ItemListModule` and `ItemDetailModule`.
-- [ ] **7.6** Implement `src/lib/modules/item/` — `ItemListModule`, `ItemDetailModule` (calls `ItemService`; does not call repositories or SDK directly).
-- [ ] **7.7** Add `ItemContext` to the user layout.
-- [ ] **7.8** Implement components: `ItemList`, `ItemEditor`, `EntryDeviceEditor` (identifier, deviceType, defunctReason).
-- [ ] **7.9** Add routes: `/user/items/`, `/user/items/add/`, `/user/items/edit/`.
-- [ ] **7.10** Write E2E tests for item create, edit, delete, entry device designation, and defunct marking flows.
+- [x] **7.1** Write unit tests for `ItemService` business logic (entry device state transitions, defunct reason validation).
+- [x] **7.2** Write integration tests for `ItemRepository`, `EntryDeviceRepository`, `PropertyItemRepository`, `PersonItemRepository` against a real running PocketBase instance — no SDK mocking.
+- [x] **7.3** Implement `src/lib/repositories/item/` — `ItemRepository`, `EntryDeviceRepository`, `PropertyItemRepository`, `PersonItemRepository`.
+- [x] **7.4** Implement `src/lib/services/item/` — `ItemService`.
+- [x] **7.5** Write unit tests for `ItemListModule` and `ItemDetailModule`.
+- [x] **7.6** Implement `src/lib/modules/item/` — `ItemListModule`, `ItemDetailModule` (calls `ItemService`; does not call repositories or SDK directly).
+- [x] **7.7** Add `ItemContext` to the user layout.
+- [x] **7.8** Implement components: `ItemList`, `ItemEditor`, `EntryDeviceEditor` (identifier, deviceType, defunctReason).
+- [x] **7.9** Add routes: `/user/items/`, `/user/items/add/`, `/user/items/edit/`.
+- [x] **7.10** Write E2E tests for item create, edit, delete, entry device designation, and defunct marking flows.
 
 ## Phase 8 — Frontend: Cobrand management
 
