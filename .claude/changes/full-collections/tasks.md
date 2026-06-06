@@ -103,18 +103,18 @@
 
 ## Phase 10 — Frontend: Persons and properties
 
-- [ ] **10.1** Write unit tests for updated `PersonService` (role derivation — owner/tenant/agent/household via relation collections) and `PropertyService` (ownership chain traversal via propertyOwners/personPropertyOwners/cobrandPropertyOwners).
-- [ ] **10.2** Write integration tests for updated person and property repositories against a real running PocketBase instance — no SDK mocking.
-- [ ] **10.3** Implement/update `src/lib/repositories/person/` — `PersonRepository` and all person-relation repositories (`PersonPropertyOwnerRepository`, etc.).
-- [ ] **10.4** Implement/update `src/lib/repositories/property/` — `PropertyRepository` and all property-relation repositories.
-- [ ] **10.5** Implement/update `src/lib/services/person/` — `PersonService` (role derivation delegated from PersonModule; does not call SDK directly).
-- [ ] **10.6** Implement/update `src/lib/services/property/` — `PropertyService` (ownership chain resolution delegated from PropertyModule; does not call SDK directly).
-- [ ] **10.7** Write unit tests for updated `PersonModule` and `PropertyModule`.
-- [ ] **10.8** Rewrite `PersonModule`: fields are name, DOB, profileImage, user-link; roles derived via `PersonService`.
-- [ ] **10.9** Update person components to display profileImage and roles derived from `PersonService`.
-- [ ] **10.10** Rewrite `PropertyModule`: ownership derived via `PropertyService` from new ownership collections.
-- [ ] **10.11** Update property components to display owners (persons and cobrands), agents, tenants, and household members.
-- [ ] **10.12** Write E2E tests for person create/edit with profileImage, role assignment, and property ownership display.
+- [x] **10.1** Write unit tests for updated `PersonService` (role derivation — owner/tenant/agent/household via relation collections) and `PropertyService` (ownership chain traversal via propertyOwners/personPropertyOwners/cobrandPropertyOwners).
+- [x] **10.2** Write integration tests for updated person and property repositories against a real running PocketBase instance — no SDK mocking.
+- [x] **10.3** Implement/update `src/lib/repositories/person/` — `PersonRepository` and all person-relation repositories (`PersonPropertyOwnerRepository`, etc.).
+- [x] **10.4** Implement/update `src/lib/repositories/property/` — `PropertyRepository` and all property-relation repositories.
+- [x] **10.5** Implement/update `src/lib/services/person/` — `PersonService` (role derivation delegated from PersonModule; does not call SDK directly).
+- [x] **10.6** Implement/update `src/lib/services/property/` — `PropertyService` (ownership chain resolution delegated from PropertyModule; does not call SDK directly).
+- [x] **10.7** Write unit tests for updated `PersonModule` and `PropertyModule`.
+- [x] **10.8** Rewrite `PersonModule`: fields are name, DOB, profileImage, user-link; roles derived via `PersonService`.
+- [x] **10.9** Update person components to display profileImage and roles derived from `PersonService`.
+- [x] **10.10** Rewrite `PropertyModule`: ownership derived via `PropertyService` from new ownership collections.
+- [x] **10.11** Update property components to display owners (persons and cobrands), agents, tenants, and household members.
+- [x] **10.12** Write E2E tests for person create/edit with profileImage, role assignment, and property ownership display.
 
 ## Phase 11 — Cleanup
 
