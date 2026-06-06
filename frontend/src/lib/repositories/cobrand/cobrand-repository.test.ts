@@ -132,8 +132,9 @@ describe('CobrandPropertyOwnerRepository', () => {
     expect(byPropertyOwner.some((o) => o.id === created.id)).toBe(true);
 
     await ownerRepo.delete(created.id);
-    await pb.collection('propertyOwners').delete(propertyOwner.id);
-    await pb.collection('properties').delete(property.id);
+    // propertyOwner cannot be deleted when it is the last owner (backend hook guard),
+    // and property cannot be deleted while propertyOwner still references it.
+    // Leave these small orphan records; they do not affect other tests.
     await cobrandRepo.delete(cobrand.id);
   });
 });
