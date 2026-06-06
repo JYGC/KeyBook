@@ -10,6 +10,9 @@
   import { ItemDetailModule } from '$lib/modules/item/item-detail-module.svelte';
   import { Button, TextInput, Tile } from 'carbon-components-svelte';
 
+  let { data } = $props();
+  const itemId: string = data.itemId;
+
   const itemContext = getItemContext();
 
   const goBack = () => {
@@ -20,7 +23,7 @@
   const itemRepo = new ItemRepository(pb);
   const entryDeviceRepo = new EntryDeviceRepository(pb);
   const itemService = new ItemService(itemRepo, entryDeviceRepo);
-  const itemDetailModule = new ItemDetailModule(itemService, itemContext, goBack);
+  const itemDetailModule = new ItemDetailModule(itemService, itemId, goBack);
 
   const saveEntryDevice = itemDetailModule.getSaveEntryDeviceAction();
   const deleteEntryDevice = itemDetailModule.getDeleteEntryDeviceAction();
@@ -72,7 +75,7 @@
     <TextInput labelText="Defunct Reason" bind:value={newDefunctReason} />
     <br />
     <br />
-    <Button onclick={() => createEntryDevice(itemContext.selectedItemId, newDeviceType, newIdentifier, newDefunctReason)}>
+    <Button onclick={() => createEntryDevice(itemId, newDeviceType, newIdentifier, newDefunctReason)}>
       Create Entry Device
     </Button>
   {/if}

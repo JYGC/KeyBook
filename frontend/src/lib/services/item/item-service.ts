@@ -59,10 +59,6 @@ export class ItemService implements IItemService {
   }
 
   async deleteItem(id: string): Promise<void> {
-    const entryDevice = await this.entryDeviceRepo.getByItemId(id);
-    if (entryDevice !== null) {
-      await this.entryDeviceRepo.delete(entryDevice.id);
-    }
     await this.itemRepo.delete(id);
   }
 

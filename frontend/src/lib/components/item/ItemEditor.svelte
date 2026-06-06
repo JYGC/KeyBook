@@ -19,7 +19,7 @@
   <Tile>...getting item details</Tile>
 {:then item}
   {#if item === null}
-    {history.back()}
+    <p>Item not found.</p>
   {:else}
     <TextInput labelText="Item Name" bind:value={item.name} />
     <br />

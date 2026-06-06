@@ -1,34 +1,14 @@
 import type { IItemService } from '$lib/services/item/item-service';
-import type { ItemContext } from '$lib/contexts/item-context.svelte';
 import type { IItemEditorModule } from '$lib/modules/interfaces';
 import type { IItemModel, IEntryDeviceModel } from '$lib/models/item-models';
 
 export class ItemDetailModule implements IItemEditorModule {
   private readonly __itemService: IItemService;
-  private readonly __context: ItemContext;
+  private readonly __itemId: string;
   private readonly __backAction: () => void;
 
-  public itemAsync = $derived.by<Promise<IItemModel | null>>(async () => {
-    try {
-      const { item } = await this.__itemService.getItemWithEntryDevice(this.__context.selectedItemId);
-      return item;
-    } catch (ex) {
-      alert(ex);
-      return null;
-    }
-  });
-
-  public entryDeviceAsync = $derived.by<Promise<IEntryDeviceModel | null>>(async () => {
-    try {
-      const { entryDevice } = await this.__itemService.getItemWithEntryDevice(
-        this.__context.selectedItemId,
-      );
-      return entryDevice;
-    } catch (ex) {
-      alert(ex);
-      return null;
-    }
-  });
+  public itemAsync: Promise<IItemModel | null>;
+  public entryDeviceAsync: Promise<IEntryDeviceModel | null>;
 
   get isAdd() {
     return false;
@@ -82,9 +62,13 @@ export class ItemDetailModule implements IItemEditorModule {
       }
     };
 
-  constructor(itemService: IItemService, context: ItemContext, backAction: () => void) {
+  constructor(itemService: IItemService, itemId: string, backAction: () => void) {
     this.__itemService = itemService;
-    this.__context = context;
+    this.__itemId = itemId;
     this.__backAction = backAction;
+    const combined = this.__itemService.getItemWithEntryDevice(this.__itemId)
+      .catch((ex) => { alert(ex); return null; });
+    this.itemAsync = combined.then(result => result?.item ?? null);
+    this.entryDeviceAsync = combined.then(result => result?.entryDevice ?? null);
   }
 }

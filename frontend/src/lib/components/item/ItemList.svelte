@@ -5,15 +5,12 @@
 
   let {
     itemListModule,
-    selectedItemId = $bindable(),
   } = $props<{
     itemListModule: IItemListModule;
-    selectedItemId: string;
   }>();
 
   const goToEditItem = (itemId: string) => {
-    selectedItemId = itemId;
-    goto('/user/items/edit');
+    goto(`/user/items/edit?id=${itemId}`);
   };
 </script>
 

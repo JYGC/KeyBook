@@ -2,7 +2,6 @@
   import { goto } from '$app/navigation';
   import { getBackendClient } from '$lib/api/backend-client';
   import ItemList from '$lib/components/item/ItemList.svelte';
-  import { getItemContext } from '$lib/contexts/item-context.svelte';
   import { ItemRepository } from '$lib/repositories/item/item-repository';
   import { EntryDeviceRepository } from '$lib/repositories/item/entry-device-repository';
   import { ItemService } from '$lib/services/item/item-service';
@@ -15,12 +14,10 @@
   const itemService = new ItemService(itemRepo, entryDeviceRepo);
   const itemListModule = new ItemListModule(itemService);
 
-  const selectedItem = getItemContext();
-
   const gotoAddItem = () => {
     goto('/user/items/add');
   };
 </script>
 
 <Button onclick={gotoAddItem}>Add Item</Button>
-<ItemList {itemListModule} bind:selectedItemId={selectedItem.selectedItemId} />
+<ItemList {itemListModule} />

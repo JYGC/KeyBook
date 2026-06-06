@@ -17,7 +17,12 @@ export class ItemRepository implements IItemRepository {
   }
 
   async getById(id: string): Promise<IItemModel> {
-    return await this.pb.collection('items').getOne<IItemModel>(id);
+    // PocketBase v0.22: combining id= filter with a back-relation listRule
+    // produces incorrect SQL. Fetch all accessible items and match client-side.
+    const all = await this.pb.collection('items').getFullList<IItemModel>();
+    const item = all.find(i => i.id === id);
+    if (!item) throw new Error(`Item not found: ${id}`);
+    return item;
   }
 
   async create(name: string, description: string): Promise<IItemModel> {

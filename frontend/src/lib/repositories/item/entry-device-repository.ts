@@ -17,10 +17,10 @@ export class EntryDeviceRepository implements IEntryDeviceRepository {
   }
 
   async getByItemId(itemId: string): Promise<IEntryDeviceModel | null> {
-    const results = await this.pb.collection('entryDevices').getFullList<IEntryDeviceModel>({
-      filter: `item = "${itemId}"`,
-    });
-    return results.length > 0 ? results[0] : null;
+    // PocketBase v0.22: combining an explicit item= filter with the listRule (which also
+    // traverses item) produces incorrect SQL. Fetch all and match client-side.
+    const results = await this.pb.collection('entryDevices').getFullList<IEntryDeviceModel>();
+    return results.find(e => e.item === itemId) ?? null;
   }
 
   async create(
