@@ -3,6 +3,7 @@ import type { IDeviceHistoryListItem, IDeviceListItemModel, IPersonListItemModel
 import type { IEditPersonModel, IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "$lib/models/person-models";
 import type { IEditPropertyModel, IPropertyListItemModel } from "$lib/models/property-models";
 import type { IItemModel, IEntryDeviceModel } from "$lib/models/item-models";
+import type { ICobrandModel, ICobrandAdminModel, ICobrandPropertyManagerModel } from "$lib/models/cobrand-models";
 
 export interface IPropertyListModule {
   propertyListAsync: Promise<IPropertyListItemModel[]>;
@@ -73,6 +74,27 @@ export interface IItemEditorModule {
   getSaveItemAction: () => (item: IItemModel) => Promise<void>;
   getDeleteItemAction: () => ((id: string) => Promise<void>) | null;
   callBackAction: () => void;
+}
+
+export interface ICobrandListModule {
+  cobrandListAsync: Promise<ICobrandModel[]>;
+}
+
+export interface ICobrandEditorModule {
+  cobrandAsync: Promise<ICobrandModel | null>;
+  get isAdd(): boolean;
+  getSaveCobrandAction: () => (cobrand: ICobrandModel) => Promise<void>;
+  getDeleteCobrandAction: () => ((id: string) => Promise<void>) | null;
+  callBackAction: () => void;
+}
+
+export interface ICobrandDetailModule extends ICobrandEditorModule {
+  adminsAsync: Promise<ICobrandAdminModel[]>;
+  propertyManagersAsync: Promise<ICobrandPropertyManagerModel[]>;
+  getAddAdminAction: () => (cobrandId: string, userId: string) => Promise<void>;
+  getRemoveAdminAction: () => (id: string) => Promise<void>;
+  getAddPropertyManagerAction: () => (cobrandId: string, propertyId: string) => Promise<void>;
+  getRemovePropertyManagerAction: () => (id: string) => Promise<void>;
 }
 
 export interface ILoginModule {
