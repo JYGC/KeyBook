@@ -89,6 +89,9 @@ describe('TenantRepository', () => {
     expect(byPerson.some((r) => r.id === created.id)).toBe(true);
 
     await tenantRepo.delete(created.id);
+    // Delete personPropertyOwner before person (required relation constraint)
+    const ppos = await pb.collection('personPropertyOwners').getFullList({ filter: `person = "${person.id}"` });
+    for (const ppo of ppos) await pb.collection('personPropertyOwners').delete(ppo.id);
     await pb.collection('persons').delete(person.id);
     // Skip propertyOwner and property deletion — last-owner hook guard prevents it
   });
@@ -123,6 +126,9 @@ describe('HouseholdRepository', () => {
     expect(byPerson.some((r) => r.id === created.id)).toBe(true);
 
     await householdRepo.delete(created.id);
+    // Delete personPropertyOwner before person (required relation constraint)
+    const ppos = await pb.collection('personPropertyOwners').getFullList({ filter: `person = "${person.id}"` });
+    for (const ppo of ppos) await pb.collection('personPropertyOwners').delete(ppo.id);
     await pb.collection('persons').delete(person.id);
     // Skip propertyOwner and property deletion — last-owner hook guard prevents it
   });
