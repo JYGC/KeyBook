@@ -1,6 +1,6 @@
 import PocketBase from "pocketbase";
 import type { DeviceContext } from "$lib/contexts/device-context.svelte";
-import type { IDeviceHistoryListModule, IDeviceHistoryListUpdaterModule } from "$lib/modules/nterfaces";
+import type { IDeviceHistoryListModule, IDeviceHistoryListUpdaterModule } from "$lib/modules/interfaces";
 import type { IDeviceHistoryListItem as IDeviceHistoryListItemModel } from "$lib/models/person-device-models";
 
 export class DeviceHistoryListModule implements IDeviceHistoryListModule {
@@ -18,7 +18,7 @@ export class DeviceHistoryListModule implements IDeviceHistoryListModule {
       return (await this.__backendClient.collection("deviceHistoryListView").getFullList<IDeviceHistoryListItemModel>({
         filter: `deviceId = "${this.__deviceContext.selectedDeviceId}"`,
         fields: "id,deviceId,description,created",
-      })).sort((a, b) => new Date(b.created) - new Date(a.created));
+      })).sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
     } catch (ex) {
       alert(ex);
       return []

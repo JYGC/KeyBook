@@ -1,53 +1,38 @@
 <script lang="ts">
-	import type { IPersonEditorModule } from "$lib/modules/interfaces";
-  import { Button, ClickableTile, Select, SelectItem, TextInput, Tile } from "carbon-components-svelte";
-	import type { Snippet } from "svelte";
+  import type { INewPersonEditorModule } from '$lib/modules/interfaces';
+  import { Button, TextInput, Tile } from 'carbon-components-svelte';
+  import type { Snippet } from 'svelte';
 
   let {
-    children,
     deleteButton,
-    personEditorModule = $bindable(),
+    personEditorModule,
   } = $props<{
-    children?: Snippet,
-    deleteButton?: Snippet<[() => null]>,
-    personEditorModule: IPersonEditorModule
+    deleteButton?: Snippet<[() => void]>;
+    personEditorModule: INewPersonEditorModule;
   }>();
 
-  let allowEditingPersonType = $state(personEditorModule.isAdd)
-  const setAllowEditingPersonType = () => allowEditingPersonType = true;
-
-  const saveButtonClick = personEditorModule.getSavePersonAction();
+  const saveAction = personEditorModule.getSavePersonAction();
   const deleteActionButtonClick = personEditorModule.getDeletePersonAction();
 </script>
+
 {#await personEditorModule.personAsync}
   <Tile>...getting person details</Tile>
 {:then person}
   {#if person === null}
-    {personEditorModule.callBackAction()}
+    <p>Person not found.</p>
   {:else}
-    <TextInput labelText="Person Name" bind:value={person.name} />
+    <TextInput labelText="Name" bind:value={person.name} />
     <br />
-    {#if allowEditingPersonType}
-      <Select labelText="Person Type" bind:selected={person.type}>
-        <SelectItem value="Tenant" />
-        <SelectItem value="Agent" />
-        <SelectItem value="Household" />
-        <SelectItem value="Owner" />
-      </Select>
-    {:else}
-      <ClickableTile onclick={setAllowEditingPersonType}>
-        Person Type: {person.type} - Change
-      </ClickableTile>
+    <TextInput labelText="Date of Birth" bind:value={person.DOB} />
+    <br />
+    <br />
+    {#if saveAction !== null}
+      <Button onclick={() => saveAction(person)}>Save</Button>
     {/if}
-    <br />
-    {#if children !== undefined}
-      {@render children()}
-      <br />
-    {/if}
-    <br />
-    <Button onclick={() => saveButtonClick(person)}>Save</Button>
     {#if deleteButton !== undefined && deleteActionButtonClick !== null}
-      {@render deleteButton(() => deleteActionButtonClick(person))}
+      {@render deleteButton(() => deleteActionButtonClick(person.id))}
     {/if}
   {/if}
+{:catch error}
+  {error}
 {/await}

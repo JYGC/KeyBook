@@ -6,6 +6,7 @@ import type { IPropertyAgentRepository } from '$lib/repositories/agent/property-
 const mockAgentRepo: IAgentRepository = {
   getAll: vi.fn(),
   getById: vi.fn(),
+  getByPersonId: vi.fn(),
   create: vi.fn(),
   delete: vi.fn(),
 };
