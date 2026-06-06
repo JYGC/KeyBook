@@ -4,6 +4,7 @@ import type { IEditPersonModel, IPersonDeviceExpandPersonDevicePersonEditModel, 
 import type { IEditPropertyModel, IPropertyListItemModel } from "$lib/models/property-models";
 import type { IItemModel, IEntryDeviceModel } from "$lib/models/item-models";
 import type { ICobrandModel, ICobrandAdminModel, ICobrandPropertyManagerModel } from "$lib/models/cobrand-models";
+import type { IAgentModel, IPropertyAgentModel } from "$lib/models/agent-models";
 
 export interface IPropertyListModule {
   propertyListAsync: Promise<IPropertyListItemModel[]>;
@@ -95,6 +96,24 @@ export interface ICobrandDetailModule extends ICobrandEditorModule {
   getRemoveAdminAction: () => (id: string) => Promise<void>;
   getAddPropertyManagerAction: () => (cobrandId: string, propertyId: string) => Promise<void>;
   getRemovePropertyManagerAction: () => (id: string) => Promise<void>;
+}
+
+export interface IAgentListModule {
+  agentListAsync: Promise<IAgentModel[]>;
+}
+
+export interface IAgentEditorModule {
+  agentAsync: Promise<IAgentModel | null>;
+  get isAdd(): boolean;
+  getSaveAgentAction: () => ((agent: IAgentModel) => Promise<void>) | null;
+  getDeleteAgentAction: () => ((id: string) => Promise<void>) | null;
+  callBackAction: () => void;
+}
+
+export interface IAgentDetailModule extends IAgentEditorModule {
+  propertyAgentsAsync: Promise<IPropertyAgentModel[]>;
+  getAddPropertyAgentAction: () => (agentId: string, propertyId: string) => Promise<void>;
+  getRemovePropertyAgentAction: () => (id: string) => Promise<void>;
 }
 
 export interface ILoginModule {

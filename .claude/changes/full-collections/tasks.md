@@ -90,16 +90,16 @@
 
 ## Phase 9 — Frontend: Agent management
 
-- [ ] **9.1** Write unit tests for `AgentService` business logic (registration rules, duplicate assignment prevention).
-- [ ] **9.2** Write integration tests for agent repositories against a real running PocketBase instance — no SDK mocking.
-- [ ] **9.3** Implement `src/lib/repositories/agent/` — `AgentRepository`, `PropertyAgentRepository`.
-- [ ] **9.4** Implement `src/lib/services/agent/` — `AgentService`.
-- [ ] **9.5** Write unit tests for `AgentListModule` and `AgentDetailModule`.
-- [ ] **9.6** Implement `src/lib/modules/agent/` — `AgentListModule`, `AgentDetailModule`.
-- [ ] **9.7** Add `AgentContext` to the user layout.
-- [ ] **9.8** Implement components: `AgentList`, `AgentEditor`, `PropertyAgentList`.
-- [ ] **9.9** Add routes: `/user/agents/`, `/user/agents/add/`, `/user/agents/[id]/`.
-- [ ] **9.10** Write E2E tests for agent registration and property assignment.
+- [x] **9.1** Write unit tests for `AgentService` business logic (registration rules, duplicate assignment prevention).
+- [x] **9.2** Write integration tests for agent repositories against a real running PocketBase instance — no SDK mocking.
+- [x] **9.3** Implement `src/lib/repositories/agent/` — `AgentRepository`, `PropertyAgentRepository`.
+- [x] **9.4** Implement `src/lib/services/agent/` — `AgentService`.
+- [x] **9.5** Write unit tests for `AgentListModule` and `AgentDetailModule`.
+- [x] **9.6** Implement `src/lib/modules/agent/` — `AgentListModule`, `AgentDetailModule`.
+- [x] **9.7** Add `AgentContext` to the user layout.
+- [x] **9.8** Implement components: `AgentList`, `AgentEditor`, `PropertyAgentList`.
+- [x] **9.9** Add routes: `/user/agents/`, `/user/agents/add/`, `/user/agents/[id]/`.
+- [x] **9.10** Write E2E tests for agent registration and property assignment.
 
 ## Phase 10 — Frontend: Persons and properties
 
