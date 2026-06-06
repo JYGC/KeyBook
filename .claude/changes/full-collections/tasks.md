@@ -118,7 +118,7 @@
 
 ## Phase 11 — Cleanup
 
-- [ ] **11.1** Remove frontend device-related modules, components, routes (`/user/devices/`), repositories, and services.
-- [ ] **11.2** Remove `DeviceContext` from the user layout.
-- [ ] **11.3** Run full test suite on the OpenBSD server (`npm run test:unit`, `npm run test:integration`, `go test ./...`) and confirm all tests pass.
+- [x] **11.1** Remove frontend device-related modules, components, routes (`/user/devices/`), repositories, and services.
+- [x] **11.2** Remove `DeviceContext` from the user layout.
+- [x] **11.3** Run full test suite on the OpenBSD server (`npm run test:unit`, `npm run test:integration`, `go test ./...`) and confirm all tests pass.
 - [ ] **11.4** Deploy backend to OpenBSD server and deploy frontend independently (see `CLAUDE.local.md` for deployment steps).
