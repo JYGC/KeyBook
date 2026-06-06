@@ -77,16 +77,16 @@
 
 ## Phase 8 — Frontend: Cobrand management
 
-- [ ] **8.1** Write unit tests for `CobrandService` business logic (admin uniqueness enforcement).
-- [ ] **8.2** Write integration tests for cobrand repositories against a real running PocketBase instance — no SDK mocking.
-- [ ] **8.3** Implement `src/lib/repositories/cobrand/` — `CobrandRepository`, `CobrandAdminRepository`, `CobrandPropertyManagerRepository`, `CobrandPropertyOwnerRepository`.
-- [ ] **8.4** Implement `src/lib/services/cobrand/` — `CobrandService`.
-- [ ] **8.5** Write unit tests for `CobrandListModule` and `CobrandDetailModule`.
-- [ ] **8.6** Implement `src/lib/modules/cobrand/` — `CobrandListModule`, `CobrandDetailModule`.
-- [ ] **8.7** Add `CobrandContext` to the user layout.
-- [ ] **8.8** Implement components: `CobrandList`, `CobrandEditor`, `CobrandAdminList`, `CobrandPropertyManagerList`.
-- [ ] **8.9** Add routes: `/user/cobrands/`, `/user/cobrands/add/`, `/user/cobrands/[id]/`.
-- [ ] **8.10** Write E2E tests for cobrand create, admin assignment, and property manager assignment.
+- [x] **8.1** Write unit tests for `CobrandService` business logic (admin uniqueness enforcement).
+- [x] **8.2** Write integration tests for cobrand repositories against a real running PocketBase instance — no SDK mocking.
+- [x] **8.3** Implement `src/lib/repositories/cobrand/` — `CobrandRepository`, `CobrandAdminRepository`, `CobrandPropertyManagerRepository`, `CobrandPropertyOwnerRepository`.
+- [x] **8.4** Implement `src/lib/services/cobrand/` — `CobrandService`.
+- [x] **8.5** Write unit tests for `CobrandListModule` and `CobrandDetailModule`.
+- [x] **8.6** Implement `src/lib/modules/cobrand/` — `CobrandListModule`, `CobrandDetailModule`.
+- [x] **8.7** Add `CobrandContext` to the user layout.
+- [x] **8.8** Implement components: `CobrandList`, `CobrandEditor`, `CobrandAdminList`, `CobrandPropertyManagerList`.
+- [x] **8.9** Add routes: `/user/cobrands/`, `/user/cobrands/add/`, `/user/cobrands/[id]/`.
+- [x] **8.10** Write E2E tests for cobrand create, admin assignment, and property manager assignment.
 
 ## Phase 9 — Frontend: Agent management
 
