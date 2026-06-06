@@ -1,21 +1,23 @@
-import type { IEditDeviceModel } from "$lib/models/device-models";
-import type { IDeviceHistoryListItem, IDeviceListItemModel, IPersonListItemModel } from "$lib/models/person-device-models";
-import type { IPersonModel, IEditPersonModel, IPersonDeviceExpandPersonDevicePersonEditModel, IPersonIdNameTypeModel } from "$lib/models/person-models";
-import type { IPropertyModel, IPersonPropertyOwnerModel, ITenantModel, IHouseholdModel, IEditPropertyModel, IPropertyListItemModel } from "$lib/models/property-models";
+import type { IPersonModel } from "$lib/models/person-models";
+import type { IPropertyModel, IPersonPropertyOwnerModel, ITenantModel, IHouseholdModel } from "$lib/models/property-models";
 import type { IItemModel, IEntryDeviceModel } from "$lib/models/item-models";
 import type { ICobrandModel, ICobrandAdminModel, ICobrandPropertyManagerModel } from "$lib/models/cobrand-models";
 import type { IAgentModel, IPropertyAgentModel } from "$lib/models/agent-models";
 
-export interface IPropertyListModule {
-  propertyListAsync: Promise<IPropertyListItemModel[]>;
+export interface INewPersonListModule {
+  personListAsync: Promise<IPersonModel[]>;
 }
 
-export interface IPropertyEditorModule {
-  propertyAsync: Promise<IEditPropertyModel | null>;
+export interface INewPersonEditorModule {
+  personAsync: Promise<IPersonModel | null>;
   get isAdd(): boolean;
-  getSavePropertyAction: () => ((changedProperty: IEditPropertyModel) => void);
-  getDeletePropertyAction: () => ((property: IEditPropertyModel) => void) | null;
+  getSavePersonAction: () => (person: IPersonModel) => Promise<void>;
+  getDeletePersonAction: () => ((id: string) => Promise<void>) | null;
   callBackAction: () => void;
+}
+
+export interface IPersonDetailModule extends INewPersonEditorModule {
+  rolesAsync: Promise<string[]>;
 }
 
 export interface INewPropertyListModule {
@@ -39,68 +41,6 @@ export interface IPropertyDetailModule extends INewPropertyEditorModule {
   getRemoveTenantAction: () => (id: string) => Promise<void>;
   getAddHouseholdMemberAction: () => (personId: string, propertyId: string) => Promise<void>;
   getRemoveHouseholdMemberAction: () => (id: string) => Promise<void>;
-}
-
-export interface IDeviceEditorModule {
-  deviceAsync: Promise<IEditDeviceModel | null>;
-  get isAdd(): boolean;
-  deviceStatusTextAsync: Promise<string>;
-  getSaveDeviceAction: () => ((device: IEditDeviceModel) => void);
-  getDeleteDeviceAction: () => ((device: IEditDeviceModel) => void) | null;
-  callBackAction: () => void;
-}
-
-export interface IDeviceListModule {
-  deviceListAsync: Promise<IDeviceListItemModel[]>;
-}
-
-export interface IPersonEditorModule {
-  personAsync: Promise<IEditPersonModel | null>;
-  get isAdd(): boolean;
-  getSavePersonAction: () => ((device: IEditPersonModel) => void);
-  getDeletePersonAction: () => ((device: IEditPersonModel) => void) | null;
-  callBackAction: () => void;
-}
-
-export interface IPersonListModule {
-  personListAsync: Promise<IPersonListItemModel[]>;
-}
-
-export interface INewPersonListModule {
-  personListAsync: Promise<IPersonModel[]>;
-}
-
-export interface INewPersonEditorModule {
-  personAsync: Promise<IPersonModel | null>;
-  get isAdd(): boolean;
-  getSavePersonAction: () => (person: IPersonModel) => Promise<void>;
-  getDeletePersonAction: () => ((id: string) => Promise<void>) | null;
-  callBackAction: () => void;
-}
-
-export interface IPersonDetailModule extends INewPersonEditorModule {
-  rolesAsync: Promise<string[]>;
-}
-
-export interface IDeviceHolderEditorModule {
-  personDeviceExpandPersonDevicePersonAsync:
-    Promise<IPersonDeviceExpandPersonDevicePersonEditModel | null>;
-  availablePersonsAsync: Promise<IPersonIdNameTypeModel[]>;
-  replaceDeviceHolderActionAsync: () => void;
-  currentDeviceHolderNameAsync: Promise<string>;
-  selectedDeviceHolderId: string;
-}
-
-export interface IDeviceHoldingListModule {
-  deviceHoldingListOfPersonAsync: Promise<IDeviceListItemModel[]>;
-}
-
-export interface IDeviceHistoryListModule {
-  deviceHistoryListAsync: Promise<IDeviceHistoryListItem[] | null>;
-}
-
-export interface IDeviceHistoryListUpdaterModule {
-  updateTriggerState: unknown;
 }
 
 export interface IItemListModule {

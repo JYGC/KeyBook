@@ -3,7 +3,6 @@
 	import { goto } from '$app/navigation';
 	import { setPropertyContext } from '$lib/contexts/property-context.svelte';
 	import { setPersonContext } from "$lib/contexts/person-context.svelte";
-	import { setDeviceContext } from '$lib/contexts/device-context.svelte';
 	import { setItemContext } from '$lib/contexts/item-context.svelte';
 	import { setCobrandContext } from '$lib/contexts/cobrand-context.svelte';
 	import { setAgentContext } from '$lib/contexts/agent-context.svelte';
@@ -21,7 +20,6 @@
 
   setPropertyContext();
   setPersonContext();
-  setDeviceContext();
   setItemContext();
   setCobrandContext();
   setAgentContext();

@@ -25,15 +25,3 @@ export interface IHouseholdModel {
   person: string;
   property: string;
 }
-
-export interface IPropertyListItemModel {
-  id: string;
-  address: string;
-}
-
-export interface IEditPropertyModel {
-  id: string;
-  address: string;
-  owners: Array<string>;
-  managers: Array<string>;
-}
