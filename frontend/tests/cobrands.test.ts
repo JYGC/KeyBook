@@ -144,12 +144,10 @@ test('add property manager to cobrand', async ({ page }) => {
     .getFullList({ filter: `cobrand = "${cobrand.id}"` });
   expect(managers.some((m) => m.property === property.id)).toBe(true);
 
-  // Cleanup
+  // Cleanup cobrandPropertyManagers and cobrand
   for (const m of managers) await pb.collection('cobrandPropertyManagers').delete(m.id);
-  await pb.collection('personPropertyOwners').delete(
-    (await pb.collection('personPropertyOwners').getFullList({ filter: `propertyOwner = "${propertyOwner.id}"` }))[0].id,
-  );
-  await pb.collection('propertyOwners').delete(propertyOwner.id);
-  await pb.collection('properties').delete(property.id);
   await cleanupTestCobrands(pb);
+  // Clean up personPropertyOwner; skip propertyOwner+property due to last-owner hook guard
+  const ppos = await pb.collection('personPropertyOwners').getFullList({ filter: `propertyOwner = "${propertyOwner.id}"` });
+  for (const ppo of ppos) await pb.collection('personPropertyOwners').delete(ppo.id);
 });
