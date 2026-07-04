@@ -46,6 +46,6 @@
 		<p>Choose how you'll be using KeyBook.</p>
 		<br />
 		<Button onclick={() => goto('/user/persons/setup/')}>Set up my person profile</Button>
-		<Button kind="secondary" onclick={() => goto('/user/cobrands/add/')}>Set up my company</Button>
+		<Button onclick={() => goto('/user/cobrands/add/')}>Set up my company</Button>
 	{/if}
 {/await}
