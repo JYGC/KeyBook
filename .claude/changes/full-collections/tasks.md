@@ -122,3 +122,14 @@
 - [x] **11.2** Remove `DeviceContext` from the user layout.
 - [x] **11.3** Run full test suite on the OpenBSD server (`npm run test:unit`, `npm run test:integration`, `go test ./...`) and confirm all tests pass.
 - [ ] **11.4** Deploy backend to OpenBSD server and deploy frontend independently (see `CLAUDE.local.md` for deployment steps).
+
+## Phase 12 — User onboarding flow
+
+- [ ] **12.1** Write unit tests for `PersonRepository.create` with an optional `userId` argument (sets `user` on the created record when given; omitted → unlinked person) and for `PersonService.createPerson` passing the link through after validation. Extend the existing test files.
+- [ ] **12.2** Extend `PersonRepository.create(name, dob, userId?)` and `PersonService.createPerson(name, dob, userId?)` to set `persons.user` when `userId` is given. Confirm 12.1 tests pass.
+- [ ] **12.3** Write unit tests for the rewritten `RegisterModule`: holds a `dob` field; `callApi` creates the user with email/password only (no `name` field — removed from the users schema), authenticates, creates the linked person via `PersonService`, and returns the exported auth cookie; user-creation failure surfaces the error and creates no person; person-creation failure still completes login and returns the cookie.
+- [ ] **12.4** Rewrite `RegisterModule` per 12.3 (constructor takes the PocketBase client and `IPersonService`), add the date-of-birth input to `RegisterForm`, and update the register page to use the single orchestrated call (drop the `LoginModule` composition) and navigate to `/user`.
+- [ ] **12.5** Write unit tests for `PersonSetupModule`: creates a person linked to the authenticated user via `PersonService`, exposes validation/creation errors as reactive state, and signals success for navigation.
+- [ ] **12.6** Implement `PersonSetupModule` (`src/lib/modules/person/`) and the `/user/persons/setup/` route: form with name and date of birth; on success navigate to `/user/properties/list`; if the user already has a linked person, redirect to `/user/properties/list`.
+- [ ] **12.7** Update `/user/+page.ts`: replace the unconditional redirect with the person check — linked person found → `/user/properties/list`, none → `/user/persons/setup`.
+- [ ] **12.8** Write E2E tests: (a) register → person auto-created → lands on property list; (b) login as a user with no linked person → setup page → submit form → property list; (c) login as a user with a linked person → property list directly; (d) a user with a linked person visiting `/user/persons/setup` is redirected to the property list.

@@ -8,6 +8,8 @@ The old database is dropped and replaced from scratch. Columns from old collecti
 
 All new backend and frontend code follows the layered architecture defined in `CLAUDE.md`: API → Application → Service → Repository → Store. This change introduces `internal/application/` (backend) and `src/lib/services/`, `src/lib/repositories/` (frontend) as new layers.
 
+Registration is extended to create a `persons` record linked to the new user account, and post-login routing sends users with a linked person to their property list and users without one to a person setup page (section 5.7).
+
 ## 2. Schema changes
 
 ### 2.1 Complete collection definitions
@@ -797,6 +799,7 @@ Add DTOs for each new collection. Update `PersonDtos` and `PropertyDtos` to refl
 | `/user/cobrands/[id]/` | Cobrand detail (admins, agents, managed/owned properties) |
 | `/user/agents/` | Agent list, add |
 | `/user/agents/[id]/` | Agent detail with assigned properties |
+| `/user/persons/setup/` | Person setup (onboarding) — create the logged-in user's own linked person |
 
 ### 5.2 New application modules (`src/lib/modules/`)
 
@@ -841,6 +844,47 @@ One repository per collection, abstracting all PocketBase SDK calls:
 - `PersonRepository`, `PropertyRepository`
 
 Repositories are the only layer that calls the PocketBase JS SDK.
+
+### 5.7 User onboarding flow
+
+Registration creates a person together with the user, and `/user` routes by linked-person existence. Both flows are frontend-only — no backend or schema changes. The `persons` create rule (`@request.auth.id != ""`) already permits the authenticated new user to create their own person, and the unique constraint on `persons.user` prevents a second linked person.
+
+**Registration sequence** (`/auth/register`):
+
+```
+RegisterForm (name, DOB, email, password, passwordConfirm)
+  → RegisterModule.callApi()
+      1. users.create({ email, password, passwordConfirm })   — SDK (auth collection)
+      2. users.authWithPassword(email, password)              — SDK
+      3. PersonService.createPerson(name, DOB, userId)        — persons record with user link
+  → page stores the returned auth cookie → goto /user → post-login routing
+```
+
+- `RegisterModule` gains a `dob` field and orchestrates the full use case. It no longer sends `name` to the users collection — that field was removed from `users` (section 2.1), so today the entered name is silently dropped; it now lands on the person record instead.
+- `RegisterModule` takes `IPersonService` as a constructor dependency alongside the PocketBase client. Calls to the users auth collection stay on the SDK directly, matching `LoginModule` — no users repository exists and none is introduced.
+- Failure handling: if user creation fails, the error is shown and nothing else runs. If person creation fails after the account exists, login still completes and post-login routing lands the user on person setup — the flow self-heals without backend transactions. A backend hook creating the person atomically was rejected because the users create endpoint has no name/DOB fields to carry the person data.
+
+**Post-login routing** (`/user/+page.ts`):
+
+The existing unconditional redirect to `/user/properties/list` becomes conditional. The load function constructs `PersonService` and calls `getPersonByUserId(authUserId)`:
+
+| Linked person | Redirect |
+|---|---|
+| found | `/user/properties/list` |
+| none | `/user/persons/setup` |
+
+Both the login page and the register page navigate to `/user`, so one decision point covers both entry paths as well as direct navigation.
+
+**Person setup page** (`/user/persons/setup/`):
+
+A form collecting name and date of birth for the user's own person. On submit it calls `PersonService.createPerson(name, dob, authUserId)` and navigates to `/user/properties/list`. If the user already has a linked person, the page redirects to the property list. It is deliberately separate from `/user/persons/add/`: that page creates unlinked persons (owners registering tenants who have no account); reusing it would leave the new person unlinked and re-trigger setup on every login.
+
+New module: `PersonSetupModule` (`src/lib/modules/person/`) — holds name/DOB state, calls `PersonService`, exposes error state.
+
+**Layer changes:**
+
+- `PersonRepository.create(name, dob, userId?)` — sets `user` on the created record when given.
+- `PersonService.createPerson(name, dob, userId?)` — passes the link through after validation.
 
 ## 6. Error-handling approach
 

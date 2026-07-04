@@ -199,3 +199,26 @@ WHEN an authenticated user attempts to update a property record THE SYSTEM SHALL
 WHEN an authenticated user attempts to delete a property record THE SYSTEM SHALL allow it only if they are a person owner or cobrand owner of that property.
 WHEN a cobrand manager, tenant, household member, or agent attempts to update or delete a property record THE SYSTEM SHALL reject it with 403.
 
+## 7. User onboarding
+
+### 7.1 Registration creates a person
+
+WHEN a user submits the registration form THE SYSTEM SHALL collect name, date of birth, email, password, and password confirmation.
+WHEN a user submits a valid registration form THE SYSTEM SHALL create the user account (email only), authenticate the new user, and create a persons record with the given name and date of birth whose user field links to the new account.
+WHEN the user account cannot be created (e.g. email already registered) THE SYSTEM SHALL display the error and not create a persons record.
+WHEN the persons record cannot be created after the user account has been created THE SYSTEM SHALL still complete login and rely on post-login routing to offer person setup.
+WHEN registration completes THE SYSTEM SHALL navigate to /user and apply post-login routing.
+
+### 7.2 Post-login routing
+
+WHEN an authenticated user arrives at /user and a persons record linked to their account exists THE SYSTEM SHALL redirect to the property list page.
+WHEN an authenticated user arrives at /user and no persons record is linked to their account THE SYSTEM SHALL redirect to the person setup page.
+WHEN the linked-person lookup fails THE SYSTEM SHALL display an error instead of redirecting.
+
+### 7.3 Person setup page
+
+WHEN a user with no linked person opens the person setup page THE SYSTEM SHALL display a form collecting name and date of birth.
+WHEN a user submits a valid person setup form THE SYSTEM SHALL create a persons record linked to their account and navigate to the property list page.
+WHEN a user submits a person setup form with a missing name or date of birth THE SYSTEM SHALL display a validation error and not create a record.
+WHEN a user who already has a linked person opens the person setup page THE SYSTEM SHALL redirect to the property list page.
+
