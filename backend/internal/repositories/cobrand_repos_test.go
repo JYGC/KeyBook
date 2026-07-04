@@ -73,6 +73,9 @@ func TestCobrandAdminRepository_CRUD(t *testing.T) {
 	if created.Cobrand != cobrand.GetId() {
 		t.Errorf("Cobrand: want %s, got %s", cobrand.GetId(), created.Cobrand)
 	}
+	if created.Approved {
+		t.Error("Approved: want false on creation, got true")
+	}
 
 	// Get by ID
 	got, err := repo.GetCobrandAdminById(created.Id)
@@ -81,6 +84,9 @@ func TestCobrandAdminRepository_CRUD(t *testing.T) {
 	}
 	if got.Cobrand != cobrand.GetId() {
 		t.Errorf("Cobrand: want %s, got %s", cobrand.GetId(), got.Cobrand)
+	}
+	if got.Approved {
+		t.Error("Approved: want false, got true")
 	}
 
 	// Get by cobrand ID

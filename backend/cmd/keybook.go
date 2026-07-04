@@ -2,13 +2,14 @@ package main
 
 import (
 	"errors"
-	_ "keybook/backend/migrations"
 	"keybook/backend/internal/application"
 	"keybook/backend/internal/repositories"
 	"keybook/backend/internal/services"
+	_ "keybook/backend/migrations"
 	"log"
 
 	"github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"go.uber.org/dig"
 )
@@ -96,7 +97,21 @@ func startBackend() {
 			if err != nil {
 				return err
 			}
-			return cobrandSvc.EnsureAdminIsUnique(existing, e.Record.GetString("user"))
+			if err := cobrandSvc.EnsureAdminIsUnique(existing, e.Record.GetString("user")); err != nil {
+				return err
+			}
+
+			// PocketBase superusers bypass the inviter-approval check below —
+			// they have no cobrandAdmins record of their own to check.
+			info := apis.RequestInfo(e.HttpContext)
+			if info.Admin != nil {
+				return nil
+			}
+			inviterId := ""
+			if info.AuthRecord != nil {
+				inviterId = info.AuthRecord.Id
+			}
+			return cobrandSvc.EnsureInviterIsApprovedAdmin(existing, inviterId)
 		})
 
 		app.OnRecordBeforeCreateRequest("personPropertyOwners").Add(func(e *core.RecordCreateEvent) error {

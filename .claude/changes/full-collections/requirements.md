@@ -12,7 +12,7 @@ WHEN an unauthenticated request attempts to list, view, create, update, or delet
 WHEN an authenticated user attempts to list or view an items record THE SYSTEM SHALL allow it only if they are a person-owner of that item, a person owner or cobrand owner or cobrand manager of a property it is assigned to, or a tenant, household member, or agent at such a property.
 WHEN an authenticated user attempts to create an items record THE SYSTEM SHALL allow it regardless of existing associations.
 WHEN an authenticated user attempts to update or delete an items record THE SYSTEM SHALL allow it only if they are a person-owner of that item, or a person owner, cobrand owner, or cobrand manager of a property it is assigned to.
-WHEN the cobrand owner or cobrand manager authorizing an items update or delete has approved = false on their cobrandAdmins record THE SYSTEM SHALL reject the request with 403.
+Note: the actual PocketBase implementation only enforces the person-owner clause here — cobrand-owner/manager access requires a relation chain deeper than PocketBase v0.22 supports, so that clause was never implemented (see design.md section 2.3). The cobrand approval gate (section 4.2) therefore has nothing to restrict on this collection.
 
 ### 1.2 Person item ownership
 
@@ -24,7 +24,7 @@ WHEN an unauthenticated request attempts to list, view, create, update, or delet
 WHEN an authenticated user attempts to list or view a personItems record THE SYSTEM SHALL allow it only if they are the linked person, or a person owner, cobrand owner, or cobrand manager of a property where that item is located.
 WHEN an authenticated user attempts to create a personItems record THE SYSTEM SHALL allow it regardless of existing associations.
 WHEN an authenticated user attempts to update or delete a personItems record THE SYSTEM SHALL allow it only if they are the linked person, or a person owner, cobrand owner, or cobrand manager of a property where that item is located.
-WHEN the cobrand owner or cobrand manager authorizing a personItems update or delete has approved = false on their cobrandAdmins record THE SYSTEM SHALL reject the request with 403.
+Note: as with items, the actual implementation only enforces the person clause — the cobrand-owner/manager clause requires a relation chain deeper than PocketBase v0.22 supports and was never implemented. The cobrand approval gate has nothing to restrict on this collection.
 
 ### 1.3 Property item inventory
 
@@ -49,7 +49,7 @@ WHEN a user views entry devices for a property THE SYSTEM SHALL list all items t
 WHEN an unauthenticated request attempts to list, view, create, update, or delete an entryDevices record THE SYSTEM SHALL reject it with 403.
 WHEN an authenticated user attempts to list or view an entryDevices record THE SYSTEM SHALL allow it only if they are a person-owner of the linked item, or a person owner, cobrand owner, cobrand manager, tenant, household member, or agent of a property the item is assigned to.
 WHEN an authenticated user attempts to create, update, or delete an entryDevices record THE SYSTEM SHALL allow it only if they are a person-owner of the linked item, or a person owner, cobrand owner, or cobrand manager of a property the item is assigned to.
-WHEN the cobrand owner or cobrand manager authorizing an entryDevices create, update, or delete has approved = false on their cobrandAdmins record THE SYSTEM SHALL reject the request with 403.
+Note: as with items, the actual implementation only enforces the person-owner clause for create/update/delete — the cobrand-owner/manager clause requires a relation chain deeper than PocketBase v0.22 supports and was never implemented. The cobrand approval gate has nothing to restrict on this collection.
 
 ## 2. Real Estate Agent Management
 

@@ -54,8 +54,8 @@ func TestCobrandApplicationService_AdminUniqueness(t *testing.T) {
 	cobrand := createRecord(t, app, "cobrands", map[string]any{"name": "Test Co"})
 	const userID = "testuser00000001"
 
-	// Add admin — first time succeeds
-	admin, err := svc.AddCobrandAdmin(userID, cobrand.GetId())
+	// Add admin — first time succeeds (bootstrap: inviter == invitee)
+	admin, err := svc.AddCobrandAdmin(userID, cobrand.GetId(), userID)
 	if err != nil {
 		t.Fatalf("AddCobrandAdmin: %v", err)
 	}
@@ -64,13 +64,65 @@ func TestCobrandApplicationService_AdminUniqueness(t *testing.T) {
 	}
 
 	// Add admin — duplicate fails
-	if _, err := svc.AddCobrandAdmin(userID, cobrand.GetId()); err == nil {
+	if _, err := svc.AddCobrandAdmin(userID, cobrand.GetId(), userID); err == nil {
 		t.Error("expected error for duplicate admin, got nil")
 	}
 
 	// Remove admin
 	if err := svc.RemoveCobrandAdmin(admin.Id); err != nil {
 		t.Fatalf("RemoveCobrandAdmin: %v", err)
+	}
+}
+
+func TestCobrandApplicationService_InviterMustBeApprovedAdmin(t *testing.T) {
+	app := newApp(t)
+	cobrandAdminRepo := repositories.NewCobrandAdminRepository(app)
+	svc := application.NewCobrandApplicationService(
+		services.NewCobrandService(),
+		repositories.NewCobrandRepository(app),
+		cobrandAdminRepo,
+		repositories.NewCobrandPropertyManagerRepository(app),
+	)
+
+	cobrand := createRecord(t, app, "cobrands", map[string]any{"name": "Approval Co"})
+	const bootstrapUserID = "testuser00000002"
+
+	// Bootstrap: no existing admins, any inviter (here, self) succeeds
+	// regardless of approval — approval cannot exist yet for a brand-new
+	// cobrand.
+	bootstrapAdmin, err := svc.AddCobrandAdmin(bootstrapUserID, cobrand.GetId(), bootstrapUserID)
+	if err != nil {
+		t.Fatalf("bootstrap AddCobrandAdmin: %v", err)
+	}
+
+	// The bootstrap admin defaults to unapproved (approval is a KeyBook
+	// staff-only action), so they cannot yet invite a second admin.
+	const secondUserID = "testuser00000003"
+	if _, err := svc.AddCobrandAdmin(secondUserID, cobrand.GetId(), bootstrapUserID); err == nil {
+		t.Error("expected error inviting via an unapproved admin, got nil")
+	}
+
+	// Approve the bootstrap admin directly via the DAO (simulating a KeyBook
+	// staff action, since there is no app-facing update path).
+	record, err := app.Dao().FindRecordById("cobrandAdmins", bootstrapAdmin.Id)
+	if err != nil {
+		t.Fatalf("find bootstrap admin record: %v", err)
+	}
+	record.Set("approved", true)
+	if err := app.Dao().SaveRecord(record); err != nil {
+		t.Fatalf("approve bootstrap admin: %v", err)
+	}
+
+	// Now that the inviter is approved, inviting a second admin succeeds.
+	if _, err := svc.AddCobrandAdmin(secondUserID, cobrand.GetId(), bootstrapUserID); err != nil {
+		t.Errorf("expected approved admin to invite successfully, got error: %v", err)
+	}
+
+	// A non-admin (unrelated user) cannot invite anyone.
+	const thirdUserID = "testuser00000004"
+	const unrelatedUserID = "testuser00000005"
+	if _, err := svc.AddCobrandAdmin(thirdUserID, cobrand.GetId(), unrelatedUserID); err == nil {
+		t.Error("expected error inviting via a non-admin, got nil")
 	}
 }
 

@@ -20,44 +20,46 @@ import (
 
 // tokens holds auth tokens for each user type in the fixture set.
 type tokens struct {
-	admin        string
-	userOwner    string
-	cobrandAdmin string
-	manager      string
-	tenant       string
-	household    string
-	agent        string
-	unrelated    string
+	admin           string
+	userOwner       string
+	cobrandAdmin    string
+	unapprovedAdmin string
+	manager         string
+	tenant          string
+	household       string
+	agent           string
+	unrelated       string
 }
 
 // ids holds record IDs for all created fixture records.
 type ids struct {
-	property              string
-	propertyOwner         string
-	personOwner           string
-	personPropertyOwner   string
-	cobrand               string
-	cobrandAdmin          string
-	cobrandPropertyOwner  string
-	cobrandPropertyMgr    string
-	personTenant          string
-	personHousehold       string
-	personAgent           string
-	tenant                string
-	household             string
-	agent                 string
-	propertyAgent         string
-	item                  string
-	personItem            string
-	propertyItem          string
-	entryDevice           string
+	property               string
+	propertyOwner          string
+	personOwner            string
+	personPropertyOwner    string
+	cobrand                string
+	cobrandAdmin           string
+	unapprovedCobrandAdmin string
+	cobrandPropertyOwner   string
+	cobrandPropertyMgr     string
+	personTenant           string
+	personHousehold        string
+	personAgent            string
+	tenant                 string
+	household              string
+	agent                  string
+	propertyAgent          string
+	item                   string
+	personItem             string
+	propertyItem           string
+	entryDevice            string
 }
 
 type testEnv struct {
-	e      *echo.Echo
-	tok    tokens
-	ids    ids
-	app    *tests.TestApp
+	e   *echo.Echo
+	tok tokens
+	ids ids
+	app *tests.TestApp
 }
 
 // newTestEnv boots a fresh PocketBase instance with our migrations applied,
@@ -98,6 +100,7 @@ func newTestEnv(t *testing.T) *testEnv {
 	}{
 		{"owner@test.com", "Pass12345678!", &env.tok.userOwner},
 		{"cobrand@test.com", "Pass12345678!", &env.tok.cobrandAdmin},
+		{"unapproved@test.com", "Pass12345678!", &env.tok.unapprovedAdmin},
 		{"manager@test.com", "Pass12345678!", &env.tok.manager},
 		{"tenant@test.com", "Pass12345678!", &env.tok.tenant},
 		{"household@test.com", "Pass12345678!", &env.tok.household},
@@ -112,6 +115,7 @@ func newTestEnv(t *testing.T) *testEnv {
 
 	userOwnerID := env.userIdByEmail(t, "owner@test.com")
 	userCobrandAdminID := env.userIdByEmail(t, "cobrand@test.com")
+	userUnapprovedAdminID := env.userIdByEmail(t, "unapproved@test.com")
 	userManagerID := env.userIdByEmail(t, "manager@test.com")
 	userTenantID := env.userIdByEmail(t, "tenant@test.com")
 	userHouseholdID := env.userIdByEmail(t, "household@test.com")
@@ -150,7 +154,10 @@ func newTestEnv(t *testing.T) *testEnv {
 		map[string]any{"name": "Test Co"})
 
 	env.ids.cobrandAdmin = env.createRecord(t, "cobrandAdmins",
-		map[string]any{"user": userCobrandAdminID, "cobrand": env.ids.cobrand})
+		map[string]any{"user": userCobrandAdminID, "cobrand": env.ids.cobrand, "approved": true})
+
+	env.ids.unapprovedCobrandAdmin = env.createRecord(t, "cobrandAdmins",
+		map[string]any{"user": userUnapprovedAdminID, "cobrand": env.ids.cobrand, "approved": false})
 
 	env.ids.cobrandPropertyOwner = env.createRecord(t, "cobrandPropertyOwners",
 		map[string]any{"cobrand": env.ids.cobrand, "propertyOwner": env.ids.propertyOwner})

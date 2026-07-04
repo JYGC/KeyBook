@@ -56,3 +56,35 @@ func TestCobrandService_EnsureAdminIsUnique(t *testing.T) {
 		})
 	}
 }
+
+func TestCobrandService_EnsureInviterIsApprovedAdmin(t *testing.T) {
+	svc := services.NewCobrandService()
+
+	approvedAdmin := []dtos.CobrandAdminDto{
+		{Id: "ca1", User: "user1", Cobrand: "cobrand1", Approved: true},
+	}
+	unapprovedAdmin := []dtos.CobrandAdminDto{
+		{Id: "ca1", User: "user1", Cobrand: "cobrand1", Approved: false},
+	}
+
+	tests := []struct {
+		name      string
+		admins    []dtos.CobrandAdminDto
+		inviterId string
+		wantErr   bool
+	}{
+		{"bootstrap — no existing admins", []dtos.CobrandAdminDto{}, "anyone", false},
+		{"approved existing admin invites", approvedAdmin, "user1", false},
+		{"unapproved existing admin invites", unapprovedAdmin, "user1", true},
+		{"non-admin attempts to invite", approvedAdmin, "user2", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := svc.EnsureInviterIsApprovedAdmin(tt.admins, tt.inviterId)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("EnsureInviterIsApprovedAdmin(_, %q) error = %v, wantErr %v", tt.inviterId, err, tt.wantErr)
+			}
+		})
+	}
+}

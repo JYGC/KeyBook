@@ -95,8 +95,11 @@ func TestCobrandAdmins_Unauthenticated_Returns403(t *testing.T) {
 		env.assertStatus(t, resp, http.StatusBadRequest)
 	})
 	t.Run("PATCH", func(t *testing.T) {
+		// cobrandAdmins.updateRule is locked to superusers only (nil) as of
+		// the approval-gate migration, so PocketBase rejects with 403
+		// ("Only admins can perform this action") rather than 404.
 		resp := env.do("PATCH", fmt.Sprintf("/api/collections/cobrandAdmins/records/%s", id), "{}", "")
-		env.assertStatus(t, resp, http.StatusNotFound)
+		env.assertStatus(t, resp, http.StatusForbidden)
 	})
 	t.Run("DELETE", func(t *testing.T) {
 		resp := env.do("DELETE", fmt.Sprintf("/api/collections/cobrandAdmins/records/%s", id), "", "")

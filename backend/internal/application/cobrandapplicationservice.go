@@ -10,7 +10,7 @@ type ICobrandApplicationService interface {
 	CreateCobrand(name string) (dtos.CobrandDto, error)
 	UpdateCobrand(id, name string) error
 	DeleteCobrand(id string) error
-	AddCobrandAdmin(userId, cobrandId string) (dtos.CobrandAdminDto, error)
+	AddCobrandAdmin(userId, cobrandId, inviterUserId string) (dtos.CobrandAdminDto, error)
 	RemoveCobrandAdmin(id string) error
 	AddPropertyManager(cobrandId, propertyId string) (dtos.CobrandPropertyManagerDto, error)
 	RemovePropertyManager(id string) error
@@ -50,12 +50,15 @@ func (s *CobrandApplicationService) DeleteCobrand(id string) error {
 	return s.cobrandRepo.DeleteCobrand(id)
 }
 
-func (s *CobrandApplicationService) AddCobrandAdmin(userId, cobrandId string) (dtos.CobrandAdminDto, error) {
+func (s *CobrandApplicationService) AddCobrandAdmin(userId, cobrandId, inviterUserId string) (dtos.CobrandAdminDto, error) {
 	existing, err := s.cobrandAdminRepo.GetCobrandAdminsByCobrandId(cobrandId)
 	if err != nil {
 		return dtos.CobrandAdminDto{}, err
 	}
 	if err := s.cobrandService.EnsureAdminIsUnique(existing, userId); err != nil {
+		return dtos.CobrandAdminDto{}, err
+	}
+	if err := s.cobrandService.EnsureInviterIsApprovedAdmin(existing, inviterUserId); err != nil {
 		return dtos.CobrandAdminDto{}, err
 	}
 	return s.cobrandAdminRepo.CreateCobrandAdmin(userId, cobrandId)

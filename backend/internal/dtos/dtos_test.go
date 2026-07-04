@@ -125,12 +125,37 @@ func TestCobrandDto_Unmarshal(t *testing.T) {
 
 // ── CobrandAdminDto ───────────────────────────────────────────────────────────
 
+// CobrandAdminDto mixes string and bool fields, so it is marshaled to
+// map[string]any here rather than reusing the map[string]string helper above.
 func TestCobrandAdminDto_FieldMapping(t *testing.T) {
-	dto := dtos.CobrandAdminDto{Id: "ca1", User: "u1", Cobrand: "cb1"}
-	m := marshal(t, dto)
-	assertField(t, m, "id", "ca1")
-	assertField(t, m, "user", "u1")
-	assertField(t, m, "cobrand", "cb1")
+	dto := dtos.CobrandAdminDto{Id: "ca1", User: "u1", Cobrand: "cb1", Approved: true}
+	data, err := json.Marshal(dto)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		t.Fatalf("unmarshal to map: %v", err)
+	}
+	if m["id"] != "ca1" {
+		t.Errorf("id: want ca1, got %v", m["id"])
+	}
+	if m["user"] != "u1" {
+		t.Errorf("user: want u1, got %v", m["user"])
+	}
+	if m["cobrand"] != "cb1" {
+		t.Errorf("cobrand: want cb1, got %v", m["cobrand"])
+	}
+	if m["approved"] != true {
+		t.Errorf("approved: want true, got %v", m["approved"])
+	}
+}
+
+func TestCobrandAdminDto_ApprovedDefaultsFalse(t *testing.T) {
+	dto := dtos.CobrandAdminDto{Id: "ca2", User: "u2", Cobrand: "cb2"}
+	if dto.Approved {
+		t.Error("Approved: want false zero-value, got true")
+	}
 }
 
 // ── CobrandPropertyManagerDto ─────────────────────────────────────────────────

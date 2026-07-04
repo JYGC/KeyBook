@@ -7,6 +7,7 @@ export interface ICobrandAdminModel {
   id: string;
   user: string;
   cobrand: string;
+  approved: boolean;
 }
 
 export interface ICobrandPropertyManagerModel {

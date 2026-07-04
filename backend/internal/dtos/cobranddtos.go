@@ -6,9 +6,10 @@ type CobrandDto struct {
 }
 
 type CobrandAdminDto struct {
-	Id      string `db:"id" json:"id"`
-	User    string `db:"user" json:"user"`
-	Cobrand string `db:"cobrand" json:"cobrand"`
+	Id       string `db:"id" json:"id"`
+	User     string `db:"user" json:"user"`
+	Cobrand  string `db:"cobrand" json:"cobrand"`
+	Approved bool   `db:"approved" json:"approved"`
 }
 
 type CobrandPropertyManagerDto struct {

@@ -19,6 +19,7 @@
   };
 
   const pb = getBackendClient();
+  const currentUserId = pb.authStore.record?.id ?? '';
   const cobrandRepo = new CobrandRepository(pb);
   const cobrandAdminRepo = new CobrandAdminRepository(pb);
   const cobrandManagerRepo = new CobrandPropertyManagerRepository(pb);
@@ -40,7 +41,7 @@
 
 <br />
 
-<CobrandAdminList {cobrandId} {cobrandDetailModule} />
+<CobrandAdminList {cobrandId} {cobrandDetailModule} {currentUserId} />
 
 <br />
 

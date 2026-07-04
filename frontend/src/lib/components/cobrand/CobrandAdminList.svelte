@@ -5,9 +5,11 @@
   let {
     cobrandId,
     cobrandDetailModule,
+    currentUserId,
   } = $props<{
     cobrandId: string;
     cobrandDetailModule: ICobrandDetailModule;
+    currentUserId: string;
   }>();
 
   const addAdminAction = cobrandDetailModule.getAddAdminAction();
@@ -21,9 +23,15 @@
 {#await cobrandDetailModule.adminsAsync}
   <Tile>...getting admins</Tile>
 {:then admins}
+  {@const ownAdmin = admins.find((a) => a.user === currentUserId)}
+  {#if ownAdmin && !ownAdmin.approved}
+    <Tile>Pending approval — contact KeyBook to activate management access for this cobrand.</Tile>
+    <br />
+  {/if}
   <DataTable
     headers={[
       { key: 'user', value: 'User ID' },
+      { key: 'approved', value: 'Approved' },
       { key: 'id', empty: true },
     ]}
     rows={admins}
@@ -33,6 +41,8 @@
         <ButtonSet>
           <Button kind="danger" onclick={() => removeAdminAction(cell.value)}>Remove</Button>
         </ButtonSet>
+      {:else if cell.key === 'approved'}
+        {cell.value ? 'Yes' : 'Pending'}
       {:else}
         {cell.value}
       {/if}

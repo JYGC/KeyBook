@@ -68,8 +68,9 @@ func (r *CobrandAdminRepository) DeleteCobrandAdmin(id string) error {
 
 func cobrandAdminRecordToDto(r *models.Record) dtos.CobrandAdminDto {
 	return dtos.CobrandAdminDto{
-		Id:      r.GetId(),
-		User:    r.GetString("user"),
-		Cobrand: r.GetString("cobrand"),
+		Id:       r.GetId(),
+		User:     r.GetString("user"),
+		Cobrand:  r.GetString("cobrand"),
+		Approved: r.GetBool("approved"),
 	}
 }
