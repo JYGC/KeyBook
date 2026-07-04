@@ -4,14 +4,18 @@ Start or stop the backend and frontend dev servers on the OpenBSD server.
 
 ## Usage
 
-`/start-dev-openbsd [--stop]`
+`/start-dev-openbsd [--stop] [--rebuild]`
 
 - No flag (default): stop any running instances, then start both services in the background.
 - `--stop`: stop both services only; do not start them.
+- `--rebuild`: rebuild the backend binary before starting (implies restart; incompatible with `--stop`).
 
 ## Steps
 
-1. Read `$ARGUMENTS` to determine the mode. If `--stop` is present, set mode to **stop-only**; otherwise set mode to **restart** (stop then start).
+1. Read `$ARGUMENTS` to determine the mode:
+   - If `--stop` is present → **stop-only**
+   - If `--rebuild` is present → **rebuild-and-restart**
+   - Otherwise → **restart** (stop then start)
 
 2. Read `CLAUDE.local.md` to obtain all connection details:
    - `SSH_USER` — SSH login username
@@ -36,7 +40,16 @@ Start or stop the backend and frontend dev servers on the OpenBSD server.
 
 5. **If mode is stop-only**: report both services stopped and exit.
 
-6. Start the backend in the background:
+6. **If mode is rebuild-and-restart**: build the backend binary on the server:
+   ```sh
+   $SSHPASS_BIN -p '$SSH_PASS' $SSH_BIN -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST '
+     cd $REPO_PATH/backend &&
+     go build -o build/keybook ./cmd/
+   '
+   ```
+   Report success or failure. If the build fails, stop here and report the error.
+
+7. Start the backend in the background:
    ```sh
    $SSHPASS_BIN -p '$SSH_PASS' $SSH_BIN -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST '
      cd $REPO_PATH/backend/build &&
@@ -46,7 +59,7 @@ Start or stop the backend and frontend dev servers on the OpenBSD server.
    ```
    Report the printed PID.
 
-7. Start the frontend dev server in the background:
+8. Start the frontend dev server in the background:
    ```sh
    $SSHPASS_BIN -p '$SSH_PASS' $SSH_BIN -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST '
      cd $REPO_PATH/frontend &&
@@ -56,7 +69,7 @@ Start or stop the backend and frontend dev servers on the OpenBSD server.
    ```
    Report the printed PID.
 
-8. Report both services as running with their addresses:
+9. Report both services as running with their addresses:
    - Backend: `http://$BACKEND_ADDRESS`
    - Frontend: `http://$FRONTEND_ADDRESS`
 
@@ -64,6 +77,6 @@ Start or stop the backend and frontend dev servers on the OpenBSD server.
 
 All connection details (SSH host, user, password, binary paths, repo path, addresses) are in `CLAUDE.local.md`, which is gitignored. Do not hardcode any of those values here.
 
-- The backend binary must already exist at `$REPO_PATH/backend/build/keybook`. If it does not, build it first with `go build -o build/keybook ./cmd/` from `$REPO_PATH/backend`.
+- The backend binary must exist at `$REPO_PATH/backend/build/keybook` before starting. Use `--rebuild` to build it on the server first.
 - Both processes are started with `nohup` so they survive SSH session close.
 - Logs: backend → `$REPO_PATH/backend/build/keybook.log`, frontend → `$REPO_PATH/frontend/dev.log`.
