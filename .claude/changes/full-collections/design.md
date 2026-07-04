@@ -8,7 +8,7 @@ The old database is dropped and replaced from scratch. Columns from old collecti
 
 All new backend and frontend code follows the layered architecture defined in `CLAUDE.md`: API → Application → Service → Repository → Store. This change introduces `internal/application/` (backend) and `src/lib/services/`, `src/lib/repositories/` (frontend) as new layers.
 
-Registration is extended to create a `persons` record linked to the new user account, and post-login routing sends users with a linked person to their property list and users without one to a person setup page (section 5.7).
+Registration creates only the user account. Post-login routing then sends the user to their property list (linked person), their cobrand list (linked cobrandAdmins record), or an account-setup choice page offering either path (neither) — section 5.7. Cobrand admins are additionally gated by an `approved` flag (sections 2.1, 2.4) that only a KeyBook staff member can set; an unapproved admin can view their own pending cobrand but cannot create, update, or delete cobrand-scoped records.
 
 ## 2. Schema changes
 
@@ -66,6 +66,7 @@ All columns listed. Columns marked *(carried over)* come from the old schema. Re
 |---|---|---|
 | `user` | relation → users, required | |
 | `cobrand` | relation → cobrands, required | |
+| `approved` | bool, default `false` | gates cobrand-management access (section 2.4); settable only by a KeyBook staff member via the PocketBase superuser dashboard — no app-facing update path exists |
 
 ---
 
@@ -208,6 +209,8 @@ The three groups this covers:
 
 Update and delete are restricted to the user account linked to that person (`persons.user`). Property owners manage their relationship to a person via the association collections (`tenants`, `households`, etc.), not by editing the person record itself.
 
+List/view visibility here is unaffected by cobrand approval status — an unapproved cobrand admin/manager can still see tenants and item-holders at properties their (pending) cobrand touches, same as any other read.
+
 #### `properties` access rules
 
 | Operation | Rule |
@@ -241,10 +244,10 @@ The six groups this covers:
 
 ```
 propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
 ```
 
-Cobrand managers, tenants, household members, and agents can view but not modify the property record itself.
+Cobrand managers, tenants, household members, and agents can view but not modify the property record itself. An unapproved cobrand owner is likewise blocked (section 2.4).
 
 #### `propertyOwners` access rules
 
@@ -277,10 +280,10 @@ Tenants, household members, and agents do not see ownership records.
 
 ```
 property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
 ```
 
-Cobrand managers may not modify or remove ownership records. The application service must additionally prevent deletion of the last remaining owner record for a property.
+Cobrand managers may not modify or remove ownership records, nor may an unapproved cobrand owner. The application service must additionally prevent deletion of the last remaining owner record for a property.
 
 #### `cobrands` access rules
 
@@ -299,12 +302,14 @@ cobrandAdmins.user.id = @request.auth.id
 || agents.person.user.id = @request.auth.id
 ```
 
-**create** is open to any authenticated user so that a person can form a new cobrand and bootstrap themselves as its first admin.
+Visibility is unaffected by approval status — an unapproved admin still needs to see their own pending cobrand.
 
-**update / delete** — restricted to cobrand admins only; agents may not modify the cobrand record:
+**create** is open to any authenticated user so that a person can form a new cobrand and bootstrap themselves as its first (unapproved) admin.
+
+**update / delete** — restricted to approved cobrand admins only; agents may not modify the cobrand record:
 
 ```
-cobrandAdmins.user.id = @request.auth.id
+cobrandAdmins.user.id = @request.auth.id && cobrandAdmins.approved = true
 ```
 
 #### `cobrandAdmins` access rules
@@ -314,8 +319,8 @@ cobrandAdmins.user.id = @request.auth.id
 | list | *(see below)* |
 | view | *(see below — same as list)* |
 | create | `@request.auth.id != ""` |
-| update | *(see below)* |
-| delete | *(see below — differs from update)* |
+| update | `null` (superusers only) |
+| delete | *(see below)* |
 
 **list / view** — visible to existing admins of the same cobrand and to agents of that cobrand:
 
@@ -324,20 +329,16 @@ cobrand.cobrandAdmins.user.id = @request.auth.id
 || cobrand.agents.person.user.id = @request.auth.id
 ```
 
-Agents need to know who their principals are; they can already see the cobrand record itself.
+Agents need to know who their principals are; they can already see the cobrand record itself. Visibility is unaffected by approval status.
 
-**create** is open to any authenticated user. `CobrandApplicationService` enforces the bootstrap rule (the first admin is created atomically with the cobrand) and the existing-admin rule (only an existing admin may add further admins to an already-administered cobrand). The access rule alone cannot express the bootstrap case without a chicken-and-egg failure on the first record.
+**create** is open to any authenticated user. `CobrandApplicationService` enforces the bootstrap rule (the first admin is created atomically with the cobrand, regardless of approval, since none can exist yet) and the existing-admin rule (only an existing admin may add further admins to an already-administered cobrand, and that inviting admin's own `approved` must be `true` — section 2.4). The access rule alone cannot express the bootstrap case without a chicken-and-egg failure on the first record.
 
-**update** — restricted to existing cobrand admins:
+**update** — locked to PocketBase superusers (`null` rule). No authenticated app user, including existing admins, may update this collection through the API. This is the only mechanism for setting `approved` (section 2.4), and it is deliberately kept outside the app's write path — "contact KeyBook" means a staff member flips the field directly in the PocketBase dashboard.
 
-```
-cobrand.cobrandAdmins.user.id = @request.auth.id
-```
-
-**delete** — existing cobrand admins may remove any admin record; additionally, the linked user may remove themselves (resignation):
+**delete** — existing *approved* cobrand admins may remove any admin record; additionally, the linked user may remove themselves (resignation) regardless of approval:
 
 ```
-cobrand.cobrandAdmins.user.id = @request.auth.id
+(cobrand.cobrandAdmins.user.id = @request.auth.id && cobrand.cobrandAdmins.approved = true)
 || user.id = @request.auth.id
 ```
 
@@ -361,11 +362,11 @@ propertyOwner.property.propertyOwners.personPropertyOwners.person.user.id = @req
 
 Tenants, household members, and agents do not see ownership sub-records.
 
-**create / update / delete** — restricted to current owners only; managers may not modify who is linked as an owner:
+**create / update / delete** — restricted to current owners only; managers may not modify who is linked as an owner, nor may an unapproved cobrand owner:
 
 ```
 propertyOwner.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
 ```
 
 #### `cobrandPropertyOwners` access rules
@@ -386,18 +387,18 @@ propertyOwner.property.propertyOwners.personPropertyOwners.person.user.id = @req
 || propertyOwner.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
 ```
 
-**create / update** — restricted to current property owners only:
+**create / update** — restricted to current property owners only; an unapproved cobrand owner may not act here:
 
 ```
 propertyOwner.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
 ```
 
-**delete** — property owners may remove a cobrand owner; additionally, the cobrand being removed may resign its own ownership:
+**delete** — property owners may remove a cobrand owner (an unapproved cobrand owner may not remove a *different* cobrand's ownership); additionally, the cobrand being removed may resign its own ownership regardless of approval:
 
 ```
 propertyOwner.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && propertyOwner.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
 || cobrand.cobrandAdmins.user.id = @request.auth.id
 ```
 
@@ -424,18 +425,18 @@ The three groups:
 - **Cobrand owners** — cobrand admins of cobrands that own the linked property.
 - **Managing cobrand admins** — admins of the cobrand that holds this management record; they need to see the properties they manage.
 
-**create / update** — only property owners may appoint or change managers:
+**create / update** — only property owners may appoint or change managers; an unapproved cobrand owner may not:
 
 ```
 property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
 ```
 
-**delete** — property owners may revoke management; the managing cobrand's admins may resign:
+**delete** — property owners may revoke management (an unapproved cobrand owner may not); the managing cobrand's admins may resign regardless of approval:
 
 ```
 property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
 || cobrand.cobrandAdmins.user.id = @request.auth.id
 ```
 
@@ -459,16 +460,16 @@ cobrand.cobrandAdmins.user.id = @request.auth.id
 || propertyAgents.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
 ```
 
-**create / update** — only cobrand admins may register a person as an agent of their cobrand or change that record:
+**create / update** — only *approved* cobrand admins may register a person as an agent of their cobrand or change that record:
 
 ```
-cobrand.cobrandAdmins.user.id = @request.auth.id
+cobrand.cobrandAdmins.user.id = @request.auth.id && cobrand.cobrandAdmins.approved = true
 ```
 
-**delete** — cobrand admins may remove any agent; the agent themselves may resign:
+**delete** — approved cobrand admins may remove any agent; the agent themselves may resign regardless of the cobrand's approval status:
 
 ```
-cobrand.cobrandAdmins.user.id = @request.auth.id
+(cobrand.cobrandAdmins.user.id = @request.auth.id && cobrand.cobrandAdmins.approved = true)
 || person.user.id = @request.auth.id
 ```
 
@@ -492,22 +493,22 @@ property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
 || agent.cobrand.cobrandAdmins.user.id = @request.auth.id
 ```
 
-**create / update** — either side may initiate or change the assignment: property owners, cobrand owners, cobrand property managers, or the agent's cobrand admins:
+**create / update** — either side may initiate or change the assignment: property owners, cobrand owners, cobrand property managers, or the agent's cobrand admins — each cobrand-based party must be approved:
 
 ```
 property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
-|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
-|| agent.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
+|| (property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id && property.cobrandPropertyManagers.cobrand.cobrandAdmins.approved = true)
+|| (agent.cobrand.cobrandAdmins.user.id = @request.auth.id && agent.cobrand.cobrandAdmins.approved = true)
 ```
 
-**delete** — same as create, plus the agent themselves (resignation):
+**delete** — same approval-gated parties as create/update, plus the agent themselves (resignation, ungated):
 
 ```
 property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
-|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
-|| agent.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
+|| (property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id && property.cobrandPropertyManagers.cobrand.cobrandAdmins.approved = true)
+|| (agent.cobrand.cobrandAdmins.user.id = @request.auth.id && agent.cobrand.cobrandAdmins.approved = true)
 || agent.person.user.id = @request.auth.id
 ```
 
@@ -535,13 +536,13 @@ personItems.person.user.id = @request.auth.id
 
 **create** is open to any authenticated user so a person can register a new item before any association records exist. The `PersonApplicationService` atomically creates the `personItems` record in the same request.
 
-**update / delete** — restricted to person-owners and property owners/managers; residents may not modify item records:
+**update / delete** — restricted to person-owners and property owners/managers; residents may not modify item records, nor may an unapproved cobrand owner or manager:
 
 ```
 personItems.person.user.id = @request.auth.id
 || propertyItems.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
-|| propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
+|| (propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id && propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.approved = true)
 ```
 
 #### `entryDevices` access rules
@@ -566,13 +567,13 @@ item.personItems.person.user.id = @request.auth.id
 || item.propertyItems.property.propertyAgents.agent.person.user.id = @request.auth.id
 ```
 
-**create / update / delete** — restricted to person-owners and property owners/managers; residents may not designate, modify, or remove entry device records:
+**create / update / delete** — restricted to person-owners and property owners/managers; residents may not designate, modify, or remove entry device records, nor may an unapproved cobrand owner or manager:
 
 ```
 item.personItems.person.user.id = @request.auth.id
 || item.propertyItems.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| item.propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
-|| item.propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (item.propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && item.propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
+|| (item.propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id && item.propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.approved = true)
 ```
 
 #### `propertyItems` access rules
@@ -597,12 +598,12 @@ property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
 || property.propertyAgents.agent.person.user.id = @request.auth.id
 ```
 
-**create / update / delete** — either side may place or remove an item: property owners/managers or the item's person-owners:
+**create / update / delete** — either side may place or remove an item: property owners/managers or the item's person-owners; an unapproved cobrand owner or manager may not:
 
 ```
 property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
-|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
+|| (property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id && property.cobrandPropertyManagers.cobrand.cobrandAdmins.approved = true)
 || item.personItems.person.user.id = @request.auth.id
 ```
 
@@ -627,13 +628,13 @@ person.user.id = @request.auth.id
 
 **create** is open to any authenticated user. On first creation of a `personItems` record the item has no property associations yet, so a property-owner check cannot be used; the `ItemApplicationService` enforces who may claim ownership.
 
-**update / delete** — the person themselves or property owners/managers of properties holding that item:
+**update / delete** — the person themselves or property owners/managers of properties holding that item; an unapproved cobrand owner or manager may not:
 
 ```
 person.user.id = @request.auth.id
 || item.propertyItems.property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| item.propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
-|| item.propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (item.propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && item.propertyItems.property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
+|| (item.propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id && item.propertyItems.property.cobrandPropertyManagers.cobrand.cobrandAdmins.approved = true)
 ```
 
 #### `households` access rules
@@ -658,20 +659,20 @@ property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
 
 `property.households.person.user.id = @request.auth.id` covers the member themselves (since their own record is included in the back-reference traversal) as well as co-members of the same household.
 
-**create / update** — only property owners and managers may add or change household members:
+**create / update** — only property owners and managers may add or change household members; an unapproved cobrand owner or manager may not:
 
 ```
 property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
-|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
+|| (property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id && property.cobrandPropertyManagers.cobrand.cobrandAdmins.approved = true)
 ```
 
-**delete** — owners and managers may remove any member; the member themselves may leave:
+**delete** — owners and managers may remove any member (an unapproved cobrand owner or manager may not); the member themselves may leave regardless:
 
 ```
 property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
-|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
+|| (property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id && property.cobrandPropertyManagers.cobrand.cobrandAdmins.approved = true)
 || person.user.id = @request.auth.id
 ```
 
@@ -695,22 +696,36 @@ property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
 || property.households.person.user.id = @request.auth.id
 ```
 
-**create / update** — only property owners and managers may add or change tenants:
+**create / update** — only property owners and managers may add or change tenants; an unapproved cobrand owner or manager may not:
 
 ```
 property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
-|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
+|| (property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id && property.cobrandPropertyManagers.cobrand.cobrandAdmins.approved = true)
 ```
 
-**delete** — owners and managers may remove any tenant; the tenant themselves may vacate:
+**delete** — owners and managers may remove any tenant (an unapproved cobrand owner or manager may not); the tenant themselves may vacate regardless:
 
 ```
 property.propertyOwners.personPropertyOwners.person.user.id = @request.auth.id
-|| property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id
-|| property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id
+|| (property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.user.id = @request.auth.id && property.propertyOwners.cobrandPropertyOwners.cobrand.cobrandAdmins.approved = true)
+|| (property.cobrandPropertyManagers.cobrand.cobrandAdmins.user.id = @request.auth.id && property.cobrandPropertyManagers.cobrand.cobrandAdmins.approved = true)
 || person.user.id = @request.auth.id
 ```
+
+### 2.4 Cobrand approval gate
+
+`cobrandAdmins.approved` defaults to `false` and gates every write action a cobrand admin takes *as* their cobrand — creating or updating the cobrand itself, appointing agents or property managers, claiming property or item ownership, and so on. It does not gate:
+
+- **Visibility.** List/view rules are unchanged throughout section 2.3 — an unapproved admin can still see their own cobrand, its (empty) admin/agent/property lists, and confirm the pending state.
+- **Resignation.** Any clause where a cobrand admin, agent, or manager removes *their own* association (`user.id = @request.auth.id`, `person.user.id = @request.auth.id`, or a managing/owning cobrand backing out of a role it holds on someone else's property) is exempt — approval status should never trap someone into a role they want to leave.
+- **Bootstrap.** The first `cobrandAdmins` record for a brand-new cobrand is created before any admin can be approved, so it is exempt by necessity.
+
+Every other place `cobrandAdmins.user.id = @request.auth.id` (at any relation depth) authorizes a create, update, or delete elsewhere in section 2.3 is rewritten as `(...cobrandAdmins.user.id = @request.auth.id && ...cobrandAdmins.approved = true)`, using the identical relation-path prefix for both conditions so PocketBase resolves them against the same joined `cobrandAdmins` row rather than any co-admin's row happening to satisfy one half.
+
+`approved` can only be changed by a KeyBook staff member with PocketBase superuser access — the `cobrandAdmins` update rule is locked (`null`) rather than left open to existing admins, since that's the only field on the record worth changing after creation and it must not be self-service. Approving a cobrand is therefore an out-of-band support action, not an app feature.
+
+Existing `cobrandAdmins` rows created before this gate was introduced are backfilled to `approved = true` in the same migration that adds the column (section 8), so already-established admins are not retroactively locked out.
 
 ## 3. Collection relationship diagram
 
@@ -771,7 +786,7 @@ One service per entity group, containing business logic and validation. Applicat
 One application service per entity group, coordinating service calls without containing business logic. Each is injected with its required services via the `dig` container.
 
 - `ItemApplicationService` — orchestrates item CRUD, entry device designation, and person/property item associations
-- `CobrandApplicationService` — orchestrates cobrand CRUD, admin assignment, and property manager assignment
+- `CobrandApplicationService` — orchestrates cobrand CRUD, admin assignment, and property manager assignment; enforces that an admin inviting another admin to an already-administered cobrand is themselves approved (section 2.4)
 - `AgentApplicationService` — orchestrates agent registration and property assignment
 - `PropertyOwnerApplicationService` — orchestrates property owner creation and person/cobrand owner linkage
 - `PersonApplicationService` — orchestrates person CRUD and user account linking
@@ -799,6 +814,7 @@ Add DTOs for each new collection. Update `PersonDtos` and `PropertyDtos` to refl
 | `/user/cobrands/[id]/` | Cobrand detail (admins, agents, managed/owned properties) |
 | `/user/agents/` | Agent list, add |
 | `/user/agents/[id]/` | Agent detail with assigned properties |
+| `/user/setup/` | Account setup choice (onboarding) — pick person or cobrand admin |
 | `/user/persons/setup/` | Person setup (onboarding) — create the logged-in user's own linked person |
 
 ### 5.2 New application modules (`src/lib/modules/`)
@@ -825,7 +841,7 @@ Modules are the Application layer: they orchestrate use cases and hold reactive 
 One service per entity group, containing business logic and validation:
 
 - `ItemService` — item validation, entry device state transitions, defunct reason validation
-- `CobrandService` — cobrand validation, admin uniqueness enforcement
+- `CobrandService` — cobrand validation, admin uniqueness enforcement, resolving a user's admin record
 - `AgentService` — agent registration rules, property assignment validation
 - `PropertyOwnerService` — ownership validation, duplicate owner prevention
 - `PersonService` — person validation, role derivation from relation collections
@@ -847,44 +863,51 @@ Repositories are the only layer that calls the PocketBase JS SDK.
 
 ### 5.7 User onboarding flow
 
-Registration creates a person together with the user, and `/user` routes by linked-person existence. Both flows are frontend-only — no backend or schema changes. The `persons` create rule (`@request.auth.id != ""`) already permits the authenticated new user to create their own person, and the unique constraint on `persons.user` prevents a second linked person.
+Registration creates only the user account. Post-login routing at `/user` then branches three ways by what's already linked to the account, and an account-setup page offers the choice when neither exists. All of this is frontend-only — no backend or schema changes beyond the `approved` field itself (sections 2.1, 2.4).
 
-**Registration sequence** (`/auth/register`):
+**Registration** (`/auth/register`):
 
 ```
-RegisterForm (name, DOB, email, password, passwordConfirm)
+RegisterForm (email, password, passwordConfirm)
   → RegisterModule.callApi()
       1. users.create({ email, password, passwordConfirm })   — SDK (auth collection)
       2. users.authWithPassword(email, password)              — SDK
-      3. PersonService.createPerson(name, DOB, userId)        — persons record with user link
   → page stores the returned auth cookie → goto /user → post-login routing
 ```
 
-- `RegisterModule` gains a `dob` field and orchestrates the full use case. It no longer sends `name` to the users collection — that field was removed from `users` (section 2.1), so today the entered name is silently dropped; it now lands on the person record instead.
-- `RegisterModule` takes `IPersonService` as a constructor dependency alongside the PocketBase client. Calls to the users auth collection stay on the SDK directly, matching `LoginModule` — no users repository exists and none is introduced.
-- Failure handling: if user creation fails, the error is shown and nothing else runs. If person creation fails after the account exists, login still completes and post-login routing lands the user on person setup — the flow self-heals without backend transactions. A backend hook creating the person atomically was rejected because the users create endpoint has no name/DOB fields to carry the person data.
+`RegisterModule` is unchanged from its original shape (email/password/passwordConfirm only), except that it must stop sending `name` to `users.create()` — that field was removed from `users` (section 2.1), so it is silently dropped today. `RegisterForm` drops its name input to match. No person or cobrand is created at registration time; onboarding happens after login, driven by routing.
 
 **Post-login routing** (`/user/+page.ts`):
 
-The existing unconditional redirect to `/user/properties/list` becomes conditional. The load function constructs `PersonService` and calls `getPersonByUserId(authUserId)`:
+The existing unconditional redirect to `/user/properties/list` becomes a three-way branch. The load function resolves `PersonService.getPersonByUserId(authUserId)` first and only falls through to the cobrand-admin check if no person is linked:
 
-| Linked person | Redirect |
-|---|---|
-| found | `/user/properties/list` |
-| none | `/user/persons/setup` |
+| Linked person | Linked cobrandAdmins | Redirect |
+|---|---|---|
+| found | — | `/user/properties/list` |
+| none | found | `/user/cobrands/` |
+| none | none | `/user/setup` |
 
-Both the login page and the register page navigate to `/user`, so one decision point covers both entry paths as well as direct navigation.
+Both the login page and the register page navigate to `/user`, so this one decision point covers both entry paths as well as direct navigation. `CobrandService` gains `getAdminRecordForUserId(userId): Promise<ICobrandAdminModel | null>`, wrapping a new `CobrandAdminRepository.getByUserId(userId)` — the same shape as `PersonRepository.getByUserId` / `PersonService.getPersonByUserId`.
+
+**Account setup choice** (`/user/setup/`):
+
+A page offering two buttons: "Set up my person profile" (→ `/user/persons/setup/`) and "Set up my company" (→ `/user/cobrands/add/`, the existing Phase 8 cobrand-creation route — no new cobrand UI is introduced). If the user already resolves to a person or a cobrand admin (e.g. reached via the back button after already onboarding), the page redirects per the table above instead of showing the choice.
+
+New module: `AccountSetupModule` (`src/lib/modules/user/`) — resolves the same two lookups as the `/user/+page.ts` load function to decide whether to show the choice or redirect away.
 
 **Person setup page** (`/user/persons/setup/`):
 
-A form collecting name and date of birth for the user's own person. On submit it calls `PersonService.createPerson(name, dob, authUserId)` and navigates to `/user/properties/list`. If the user already has a linked person, the page redirects to the property list. It is deliberately separate from `/user/persons/add/`: that page creates unlinked persons (owners registering tenants who have no account); reusing it would leave the new person unlinked and re-trigger setup on every login.
+Unchanged from the prior design: a form collecting name and date of birth for the user's own person. On submit it calls `PersonService.createPerson(name, dob, authUserId)` and navigates to `/user/properties/list`. If the user already has a linked person, the page redirects to the property list. It remains deliberately separate from `/user/persons/add/`, which creates unlinked persons (owners registering tenants who have no account).
 
-New module: `PersonSetupModule` (`src/lib/modules/person/`) — holds name/DOB state, calls `PersonService`, exposes error state.
+**Cobrand admin setup** (existing `/user/cobrands/add/`):
+
+No new route or component — the choice page links directly to the flow already built in Phase 8 (`CobrandAddModule`: create the cobrand, then call `CobrandService.addAdmin` to link the current user as its first admin). The only change is presentational: since `approved` defaults to `false`, the cobrand detail page must show a pending-approval notice ("Contact KeyBook to activate management access for this cobrand") whenever the viewing user's own admin record on that cobrand has `approved = false`. Because the underlying access rules already permit list/view regardless of approval, this is a display-only addition — no new query is needed beyond what the detail page already loads.
 
 **Layer changes:**
 
-- `PersonRepository.create(name, dob, userId?)` — sets `user` on the created record when given.
-- `PersonService.createPerson(name, dob, userId?)` — passes the link through after validation.
+- `CobrandAdminRepository.getByUserId(userId)` — new; mirrors `PersonRepository.getByUserId`.
+- `CobrandService.getAdminRecordForUserId(userId)` — new; wraps the repository method.
+- `PersonRepository.create` / `PersonService.createPerson` — unchanged from the prior design (still accept an optional `userId` to set the link); exercised by `/user/persons/setup/`, no longer by registration.
 
 ## 6. Error-handling approach
 
@@ -919,12 +942,14 @@ Contract tests are Go tests that start a real PocketBase HTTP server (`t.TempDir
 | `userHousehold` | users | linked to `personHousehold` |
 | `userAgent` | users | linked to `personAgent`; assigned to `property` via `propertyAgents` |
 | `userUnrelated` | users | no relationship to any entity |
+| `userUnapprovedAdmin` | users | a second admin of `cobrand`, not yet approved |
 | `personOwner` | persons | user = `userOwner` |
 | `personTenant` | persons | user = `userTenant` |
 | `personHousehold` | persons | user = `userHousehold` |
 | `personAgent` | persons | user = `userAgent` |
 | `cobrand` | cobrands | |
-| `cobrandAdmin` | cobrandAdmins | user = `userCobrandAdmin`, cobrand = `cobrand` |
+| `cobrandAdmin` | cobrandAdmins | user = `userCobrandAdmin`, cobrand = `cobrand`, `approved = true` |
+| `unapprovedCobrandAdmin` | cobrandAdmins | user = `userUnapprovedAdmin`, cobrand = `cobrand`, `approved = false` |
 | `property` | properties | |
 | `propertyOwner` | propertyOwners | property = `property` |
 | `personPropertyOwner` | personPropertyOwners | person = `personOwner`, propertyOwner = `propertyOwner` |
@@ -944,7 +969,7 @@ Contract tests are Go tests that start a real PocketBase HTTP server (`t.TempDir
 1. Unauthenticated requests to all five operations (list, view, create, update, delete) return 403.
 2. Each user type in the authorized group for that operation returns 200 (list/view), 201 (create), or 204 (update/delete).
 3. Each user type that should be blocked returns 403.
-4. Special cases (bootstrap, last-owner guard, self-removal, resignation) are tested as application-service-level behaviours — verify the correct HTTP status and error body returned by the application service, not a raw PocketBase access-rule rejection.
+4. Special cases (bootstrap, last-owner guard, self-removal, resignation, cobrand approval gate) are tested at whichever layer enforces them — application-service-level behaviours verify the correct HTTP status and error body returned by the application service; the approval gate is a raw access-rule behaviour and is asserted directly. For the approval gate specifically: `userUnapprovedAdmin` gets 403 on every create/update/delete gated in section 2.4 despite being a genuine admin of `cobrand`; `userCobrandAdmin` (approved) continues to succeed on those same operations (regression check against the original 1.1–1.3 expectations); both get 200 on list/view of `cobrand`; `userUnapprovedAdmin` can still delete their own `unapprovedCobrandAdmin` record (resignation); no authenticated user, including `userCobrandAdmin`, can update any `cobrandAdmins` record.
 
 Expected outcomes for each user type × collection × operation are derived directly from the EARS requirements in `requirements.md`.
 
@@ -961,3 +986,4 @@ Expected outcomes for each user type × collection × operation are derived dire
    - For each `persons` record with type `Household` → create `households` record.
    - For each `properties` record → create `propertyOwners` records from the `owners` relation.
 4. Update all PocketBase access rules to use the new ownership chain.
+5. A later migration (section 2.4) adds `cobrandAdmins.approved` (default `false`) and backfills existing rows to `approved = true` so already-established admins are not retroactively locked out; only rows created after this migration default to `false`. It also rewrites the access rules listed in section 2.3 to include the approval gate and locks the `cobrandAdmins` update rule to superusers only.
