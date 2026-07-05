@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import PocketBase from 'pocketbase';
 
 const PB_URL = 'http://192.168.8.144:8090';
@@ -17,6 +17,52 @@ async function adminAuth(): Promise<PocketBase> {
 	const data = await res.json();
 	pb.authStore.save(data.token, data.admin);
 	return pb;
+}
+
+const MONTH_NAMES = [
+	'January',
+	'February',
+	'March',
+	'April',
+	'May',
+	'June',
+	'July',
+	'August',
+	'September',
+	'October',
+	'November',
+	'December'
+];
+
+// The Date of Birth field is a read-only calendar picker (see full-collections
+// PersonEditor DOB fix) — dates must be selected via the flatpickr calendar UI
+// rather than typed, so tests navigate the calendar instead of using .fill().
+async function pickDate(page: Page, labelText: string, isoDate: string): Promise<void> {
+	const [year, month, day] = isoDate.split('-').map(Number);
+	await page.getByLabel(labelText).click();
+	const calendar = page.locator('.flatpickr-calendar.open');
+	await calendar.waitFor({ state: 'visible' });
+
+	const yearInput = calendar.locator('input.cur-year');
+	await yearInput.fill(String(year));
+	await yearInput.press('Enter');
+
+	for (let i = 0; i < 24; i++) {
+		const currentMonthName = (await calendar.locator('.cur-month').textContent())?.trim();
+		const currentYear = Number(await yearInput.inputValue());
+		if (currentMonthName === MONTH_NAMES[month - 1] && currentYear === year) break;
+		const currentIndex = MONTH_NAMES.indexOf(currentMonthName ?? '') + currentYear * 12;
+		const targetIndex = month - 1 + year * 12;
+		await calendar
+			.locator(targetIndex < currentIndex ? '.flatpickr-prev-month' : '.flatpickr-next-month')
+			.click();
+	}
+
+	await calendar
+		.locator('.flatpickr-day:not(.prevMonthDay):not(.nextMonthDay)', {
+			hasText: new RegExp(`^${day}$`)
+		})
+		.click();
 }
 
 async function cleanupTestPersons(pb: PocketBase): Promise<void> {
@@ -66,7 +112,7 @@ test('create person', async ({ page }) => {
 	await page.waitForURL(/\/user\/persons\/add/);
 
 	await page.getByLabel('Name').fill('E2E Persons Test Person');
-	await page.getByLabel('Date of Birth').fill('1990-06-15');
+	await pickDate(page, 'Date of Birth', '1990-06-15');
 	await page.getByRole('button', { name: 'Save' }).click();
 	await page.waitForURL(/\/user\/persons(\/)?$/);
 
