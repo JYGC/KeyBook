@@ -1,19 +1,7 @@
-export interface IEditPersonModel {
+export interface IPersonModel {
   id: string;
-  type: string;
   name: string;
-  property: string;
-}
-
-export interface IPersonIdNameTypeModel {
-  id: string;
-  type: string;
-  name: string;
-}
-
-export interface IPersonDeviceExpandPersonDevicePersonEditModel {
-  id: string;
-  expand: {
-    person: IPersonIdNameTypeModel
-  };
+  DOB: string;
+  user: string;
+  profileImage: string;
 }

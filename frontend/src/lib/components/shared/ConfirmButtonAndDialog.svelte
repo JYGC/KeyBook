@@ -9,7 +9,7 @@
     primaryButtonText = "Confirm",
     secondaryButtonText = "Cancel",
   } = $props<{
-    submitAction: () => null,
+    submitAction: () => void,
     buttonText?: string,
     modalHeading?: string,
     bodyMessage?: string,

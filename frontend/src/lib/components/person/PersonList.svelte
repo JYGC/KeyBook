@@ -1,48 +1,36 @@
 <script lang="ts">
-	import { goto } from "$app/navigation";
-	import type { IPersonListModule } from "$lib/modules/interfaces";
-	import { Button, DataTable, Tile } from "carbon-components-svelte";
-  
+  import { goto } from '$app/navigation';
+  import type { INewPersonListModule } from '$lib/modules/interfaces';
+  import { Button, ButtonSet, DataTable, Tile } from 'carbon-components-svelte';
+
   let {
     personListModule,
-    propertyId,
-    selectedPersonId = $bindable(),
   } = $props<{
-    personListModule: IPersonListModule,
-    propertyId: string,
-    selectedPersonId: string,
+    personListModule: INewPersonListModule;
   }>();
 
-  const gotoPersonDetails = (personId: string) => {
-    selectedPersonId = personId;
-    goto("/user/persons/edit");
+  const goToDetail = (personId: string) => {
+    goto(`/user/persons/detail?id=${personId}`);
   };
 </script>
 
 {#await personListModule.personListAsync}
-<Tile>...getting persons</Tile>
+  <Tile>...getting persons</Tile>
 {:then personList}
   <DataTable
     headers={[
-      { key: "personName", value: "Name" },
-      { key: "personType", value: "Type" },
-      { key: "holdingDeviceJsons", value: "Holding Devices Json" },
-      { key: "personId", empty: true },
+      { key: 'name', value: 'Name' },
+      { key: 'DOB', value: 'Date of Birth' },
+      { key: 'id', empty: true },
     ]}
     rows={personList}
   >
-    <strong slot="title">Persons for PropertyId: {propertyId } <!--Get property name--></strong>
+    <strong slot="title">Persons</strong>
     <svelte:fragment slot="cell" let:cell>
-      {#if cell.key === "personId"}
-        <Button onclick={() => gotoPersonDetails(cell.value)}>Person Details</Button>
-      {:else if cell.key === "holdingDeviceJsons"}
-        {#if cell.value !== null && cell.value instanceof Array}
-          {#each cell.value as holdingDevice}
-            {#if "deviceName" in holdingDevice}
-              <div>{holdingDevice.deviceName}</div>
-            {/if}
-          {/each}
-        {/if}
+      {#if cell.key === 'id'}
+        <ButtonSet>
+          <Button onclick={() => goToDetail(cell.value)}>Detail</Button>
+        </ButtonSet>
       {:else}
         {cell.value}
       {/if}

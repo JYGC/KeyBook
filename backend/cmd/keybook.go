@@ -1,99 +1,152 @@
 package main
 
 import (
-	"fmt"
+	"errors"
+	"keybook/backend/internal/application"
 	"keybook/backend/internal/repositories"
 	"keybook/backend/internal/services"
+	_ "keybook/backend/migrations"
 	"log"
 
 	"github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"go.uber.org/dig"
 )
 
 func startBackend() {
 	container := dig.New()
+	container.Provide(pocketbase.New)
+	container.Provide(func(app *pocketbase.PocketBase) core.App { return app })
 
-	var constructors []interface{}
+	// Repositories
+	container.Provide(repositories.NewPersonRepository)
+	container.Provide(repositories.NewPropertyRepository)
+	container.Provide(repositories.NewItemRepository)
+	container.Provide(repositories.NewPropertyItemRepository)
+	container.Provide(repositories.NewPersonItemRepository)
+	container.Provide(repositories.NewEntryDeviceRepository)
+	container.Provide(repositories.NewCobrandRepository)
+	container.Provide(repositories.NewCobrandAdminRepository)
+	container.Provide(repositories.NewCobrandPropertyManagerRepository)
+	container.Provide(repositories.NewCobrandPropertyOwnerRepository)
+	container.Provide(repositories.NewPropertyOwnerRepository)
+	container.Provide(repositories.NewPersonPropertyOwnerRepository)
+	container.Provide(repositories.NewAgentRepository)
+	container.Provide(repositories.NewPropertyAgentRepository)
+	container.Provide(repositories.NewHouseholdRepository)
+	container.Provide(repositories.NewTenantRepository)
 
-	constructors = append(constructors, pocketbase.New)
+	// Services
+	container.Provide(services.NewPersonService)
+	container.Provide(services.NewPropertyService)
+	container.Provide(services.NewItemService)
+	container.Provide(services.NewCobrandService)
+	container.Provide(services.NewAgentService)
+	container.Provide(services.NewPropertyOwnerService)
 
-	constructors = append(constructors, repositories.NewDeviceRepository)
-	constructors = append(constructors, repositories.NewPersonRepository)
-	constructors = append(constructors, repositories.NewPropertyRepository)
-	constructors = append(constructors, repositories.NewPropertyHistoryRepository)
-	constructors = append(constructors, repositories.NewDeviceHistoryRepository)
-	constructors = append(constructors, repositories.NewPersonHistoryRepository)
-	constructors = append(constructors, repositories.NewPersonDeviceHistoryRepository)
-
-	constructors = append(constructors, services.NewPropertyHistoryServices)
-	constructors = append(constructors, services.NewDeviceHistoryServices)
-	constructors = append(constructors, services.NewPersonHistoryServices)
-	constructors = append(constructors, services.NewPersonDeviceHistoryServices)
-
-	for _, constructor := range constructors {
-		provideConstructorErr := container.Provide(constructor)
-		if provideConstructorErr != nil {
-			fmt.Printf("provideConstructorErr: %v\n", provideConstructorErr)
-			return
-		}
-	}
+	// Application services
+	container.Provide(application.NewPersonApplicationService)
+	container.Provide(application.NewPropertyApplicationService)
+	container.Provide(application.NewItemApplicationService)
+	container.Provide(application.NewCobrandApplicationService)
+	container.Provide(application.NewAgentApplicationService)
+	container.Provide(application.NewPropertyOwnerApplicationService)
 
 	invokeErr := container.Invoke(func(
 		app *pocketbase.PocketBase,
-		propertyHistoryServices services.IPropertyHistoryServices,
-		deviceHistoryServices services.IDeviceHistoryServices,
-		personHistoryServices services.IPersonHistoryServices,
-		personDeviceHistoryServices services.IPersonDeviceHistoryServices,
+		personSvc services.IPersonService,
+		propertySvc services.IPropertyService,
+		itemSvc services.IItemService,
+		cobrandSvc services.ICobrandService,
+		agentSvc services.IAgentService,
+		propertyOwnerSvc services.IPropertyOwnerService,
+		entryDeviceRepo repositories.IEntryDeviceRepository,
+		cobrandAdminRepo repositories.ICobrandAdminRepository,
+		personPropertyOwnerRepo repositories.IPersonPropertyOwnerRepository,
+		cobrandPropertyOwnerRepo repositories.ICobrandPropertyOwnerRepository,
+		propertyAgentRepo repositories.IPropertyAgentRepository,
+		propertyOwnerRepo repositories.IPropertyOwnerRepository,
 	) {
-		app.OnModelAfterCreate("devices").Add(func(e *core.ModelEvent) error {
-			if updateErr := deviceHistoryServices.AddNewDeviceHistoryDueToCreateDeviceHook(e.Model); updateErr != nil {
-				return updateErr
+		app.OnRecordBeforeCreateRequest("persons").Add(func(e *core.RecordCreateEvent) error {
+			return personSvc.ValidatePerson(e.Record.GetString("name"), e.Record.GetString("DOB"))
+		})
+
+		app.OnRecordBeforeCreateRequest("properties").Add(func(e *core.RecordCreateEvent) error {
+			return propertySvc.ValidateProperty(e.Record.GetString("address"))
+		})
+
+		app.OnRecordBeforeCreateRequest("items").Add(func(e *core.RecordCreateEvent) error {
+			return itemSvc.ValidateItem(e.Record.GetString("name"))
+		})
+
+		app.OnRecordBeforeUpdateRequest("entryDevices").Add(func(e *core.RecordUpdateEvent) error {
+			current, err := entryDeviceRepo.GetEntryDeviceById(e.Record.GetId())
+			if err != nil {
+				return err
+			}
+			return itemSvc.ValidateEntryDeviceTransition(current.DefunctReason, e.Record.GetString("defunctReason"))
+		})
+
+		app.OnRecordBeforeCreateRequest("cobrands").Add(func(e *core.RecordCreateEvent) error {
+			return cobrandSvc.ValidateCobrand(e.Record.GetString("name"))
+		})
+
+		app.OnRecordBeforeCreateRequest("cobrandAdmins").Add(func(e *core.RecordCreateEvent) error {
+			existing, err := cobrandAdminRepo.GetCobrandAdminsByCobrandId(e.Record.GetString("cobrand"))
+			if err != nil {
+				return err
+			}
+			if err := cobrandSvc.EnsureAdminIsUnique(existing, e.Record.GetString("user")); err != nil {
+				return err
+			}
+
+			// PocketBase superusers bypass the inviter-approval check below —
+			// they have no cobrandAdmins record of their own to check.
+			info := apis.RequestInfo(e.HttpContext)
+			if info.Admin != nil {
+				return nil
+			}
+			inviterId := ""
+			if info.AuthRecord != nil {
+				inviterId = info.AuthRecord.Id
+			}
+			return cobrandSvc.EnsureInviterIsApprovedAdmin(existing, inviterId)
+		})
+
+		app.OnRecordBeforeCreateRequest("personPropertyOwners").Add(func(e *core.RecordCreateEvent) error {
+			existing, err := personPropertyOwnerRepo.GetPersonPropertyOwnersByPropertyOwnerId(e.Record.GetString("propertyOwner"))
+			if err != nil {
+				return err
+			}
+			return propertyOwnerSvc.EnsureNoDuplicatePersonOwner(existing, e.Record.GetString("person"))
+		})
+
+		app.OnRecordBeforeCreateRequest("cobrandPropertyOwners").Add(func(e *core.RecordCreateEvent) error {
+			existing, err := cobrandPropertyOwnerRepo.GetCobrandPropertyOwnersByPropertyOwnerId(e.Record.GetString("propertyOwner"))
+			if err != nil {
+				return err
+			}
+			return propertyOwnerSvc.EnsureNoDuplicateCobrandOwner(existing, e.Record.GetString("cobrand"))
+		})
+
+		app.OnRecordBeforeCreateRequest("propertyAgents").Add(func(e *core.RecordCreateEvent) error {
+			existing, err := propertyAgentRepo.GetPropertyAgentsByPropertyId(e.Record.GetString("property"))
+			if err != nil {
+				return err
+			}
+			return agentSvc.EnsureNoDuplicatePropertyAgent(existing, e.Record.GetString("agent"))
+		})
+
+		app.OnRecordBeforeDeleteRequest("propertyOwners").Add(func(e *core.RecordDeleteEvent) error {
+			owners, err := propertyOwnerRepo.GetPropertyOwnersByPropertyId(e.Record.GetString("property"))
+			if err != nil {
+				return err
+			}
+			if len(owners) <= 1 {
+				return errors.New("cannot delete the last property owner")
 			}
 			return nil
-		})
-
-		app.OnModelBeforeUpdate("devices").Add(func(e *core.ModelEvent) error {
-			if updateErr := deviceHistoryServices.AddNewDeviceHistoryDueToUpdateDeviceHook(e.Model); updateErr != nil {
-				return updateErr
-			}
-			return nil
-		})
-
-		app.OnModelAfterCreate("persons").Add(func(e *core.ModelEvent) error {
-			if updateErr := personHistoryServices.AddNewPersonHistoryDueToCreatePersonHook(e.Model); updateErr != nil {
-				return updateErr
-			}
-			return nil
-		})
-
-		app.OnModelBeforeUpdate("persons").Add(func(e *core.ModelEvent) error {
-			if updateErr := personHistoryServices.AddNewPersonHistoryDueToUpdatePersonHook(e.Model); updateErr != nil {
-				return updateErr
-			}
-			return nil
-		})
-
-		app.OnModelAfterCreate("persondevices").Add(func(e *core.ModelEvent) error {
-			if updateErr := personDeviceHistoryServices.AddNewPersonDeviceHistoryDueToCreatePersonDeviceHook(e.Model); updateErr != nil {
-				return updateErr
-			}
-			return nil
-		})
-
-		app.OnModelBeforeUpdate("persondevices").Add(func(e *core.ModelEvent) error {
-			if updateErr := personDeviceHistoryServices.AddNewPersonDeviceHistoryDueToUpdatePersonDeviceHook(e.Model); updateErr != nil {
-				return updateErr
-			}
-			return nil
-		})
-
-		app.OnModelAfterCreate("properties").Add(func(e *core.ModelEvent) error {
-			return propertyHistoryServices.AddPropertyHistoryDueToCreatePropertyHook(e.Model)
-		})
-
-		app.OnModelBeforeUpdate("properties").Add(func(e *core.ModelEvent) error {
-			return propertyHistoryServices.AddPropertyHistoryDueToUpdatePropertyHook(e.Model)
 		})
 
 		if err := app.Start(); err != nil {
@@ -101,8 +154,7 @@ func startBackend() {
 		}
 	})
 	if invokeErr != nil {
-		fmt.Printf("invokeErr: %v\n", invokeErr)
-		return
+		log.Fatal(invokeErr)
 	}
 }
 
