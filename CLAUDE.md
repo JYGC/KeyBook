@@ -158,7 +158,7 @@ Optional: **Domain** (pure entities and value objects, no dependencies), **DTO/S
 
 ### Mandate
 
-**All tests must be run on the OpenBSD server** (see `CLAUDE.local.md` for connection details). Do not run tests locally.
+**All tests must be run on the OpenBSD server** — use `/openbsd-run --test backend` and `/openbsd-run --test frontend`, which carry the connection details and the exact invocations. Do not run tests locally.
 
 **Unit tests must be written before the implementation code they cover (TDD).** Write the test, watch it fail, then write the minimum code to make it pass.
 
@@ -182,6 +182,8 @@ Every integration test exercises Svelte components together with their modules a
 
 Place unit/integration test files alongside the code they test (`*.test.ts` or `*.spec.ts`). E2E tests live in `tests/`.
 
+Both suites talk to a **live** dev backend — start it first. Vitest defaults to watch mode, so pass `-- --run` when invoking it non-interactively. The Playwright suite pins `channel: 'msedge'` and cannot run on the OpenBSD server; run it from a workstation on the same subnet.
+
 ### Backend tests
 
 Every integration test starts a real PocketBase HTTP server using a `t.TempDir()` data directory — no database mocking.
@@ -202,7 +204,7 @@ Place test files alongside the Go source (`*_test.go`). Use table-driven tests f
 Run from `frontend/`:
 
 ```sh
-npm run dev          # dev server — address in CLAUDE.local.md
+npm run dev          # dev server — binds 192.168.8.144:5173 per vite.config.ts
 npm run build        # production build → frontend/build/
 npm run check        # svelte-check + TypeScript
 npm run lint         # prettier + eslint (check only)
@@ -218,17 +220,18 @@ Code style: tabs, single quotes, 100-char line width (Prettier). TypeScript stri
 Run from `backend/`:
 
 ```sh
-go build -o build/keybook ./cmd/     # compile
-./build/keybook serve --dev --http <address>  # address in CLAUDE.local.md
-go test ./...                         # tests
+go build -o build/keybook ./cmd/                     # compile
+./build/keybook serve --dev --http 192.168.8.144:8090  # dev server
+go test ./...                                        # tests
 ```
 
-## Deploying to the OpenBSD server
+PocketBase is v0.22, so the admin CLI verb is `admin` (`./build/keybook admin create <email> <password>`), not `superuser`. Migrations registered in `backend/migrations/` run automatically on `serve`.
 
-Server addresses, credentials, and deployment steps are in `CLAUDE.local.md` (gitignored).
+## Running on the OpenBSD server
 
-**Key facts (non-sensitive):**
-- `sshpass` is installed in Cygwin — always use `/c/cygwin64/bin/sshpass` alongside Cygwin's `ssh`/`sftp`; it is not on the Git Bash PATH.
-- Use `git -c http.sslVerify=false push` on Windows if SSL verification errors occur.
+Everything — start, stop, status, build, test, lint, check, dependency installs — goes through the `/openbsd-run` command (`.claude/commands/openbsd-run.md`, untracked). It holds the connection details, the verified command forms, and the traps worth knowing about. Read it before driving the server by hand.
 
-@CLAUDE.local.md
+**Key facts:**
+- The dev stack runs as `junying` from `/home/junying/Source/KeyBook` and binds `192.168.8.144` — backend on `:8090`, Vite dev server on `:5173`. SSH is key auth to `192.168.8.145`; no password helper is involved.
+- `192.168.8.143` is the **same machine** but hosts another project's production PocketBase, also on port `:8090`. Only the address separates them, so never bind a wildcard address and never signal a process you do not own.
+- The frontend's effective backend URL comes from `frontend/.env.local` on the server (untracked); the tracked `frontend/.env` points at a dead port. An inline `PUBLIC_POCKETBASE_URL=…` overrides both, for `npm run dev` and `npm run build` alike.
