@@ -12,12 +12,16 @@ export class CobrandAdminRepository implements ICobrandAdminRepository {
 	constructor(private readonly backendClient: PocketBase) {}
 
 	async getCobrandAdminsByCobrandId(cobrandId: string): Promise<ICobrandAdminModel[]> {
-		const allCobrandAdmins = await this.backendClient.collection('cobrandAdmins').getFullList<ICobrandAdminModel>();
+		const allCobrandAdmins = await this.backendClient
+			.collection('cobrandAdmins')
+			.getFullList<ICobrandAdminModel>();
 		return allCobrandAdmins.filter((cobrandAdmin) => cobrandAdmin.cobrand === cobrandId);
 	}
 
 	async getCobrandAdminByUserId(userId: string): Promise<ICobrandAdminModel | null> {
-		const allCobrandAdmins = await this.backendClient.collection('cobrandAdmins').getFullList<ICobrandAdminModel>();
+		const allCobrandAdmins = await this.backendClient
+			.collection('cobrandAdmins')
+			.getFullList<ICobrandAdminModel>();
 		return allCobrandAdmins.find((cobrandAdmin) => cobrandAdmin.user === userId) ?? null;
 	}
 

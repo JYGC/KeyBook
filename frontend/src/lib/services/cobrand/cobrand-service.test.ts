@@ -27,7 +27,11 @@ const mockManagerRepository: ICobrandPropertyManagerRepository = {
 };
 
 describe('CobrandService.validateCobrandName', () => {
-	const cobrandService = new CobrandService(mockCobrandRepository, mockAdminRepository, mockManagerRepository);
+	const cobrandService = new CobrandService(
+		mockCobrandRepository,
+		mockAdminRepository,
+		mockManagerRepository
+	);
 
 	it('passes for a valid name', () => {
 		expect(() => cobrandService.validateCobrandName('Acme Real Estate')).not.toThrow();
@@ -43,7 +47,11 @@ describe('CobrandService.validateCobrandName', () => {
 });
 
 describe('CobrandService.validateAdminUniqueness', () => {
-	const cobrandService = new CobrandService(mockCobrandRepository, mockAdminRepository, mockManagerRepository);
+	const cobrandService = new CobrandService(
+		mockCobrandRepository,
+		mockAdminRepository,
+		mockManagerRepository
+	);
 
 	it('passes when user is not already an admin', () => {
 		const admins = [

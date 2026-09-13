@@ -84,14 +84,19 @@ export class CobrandService implements ICobrandService {
 	}
 
 	async getPropertyManagersForCobrand(cobrandId: string): Promise<ICobrandPropertyManagerModel[]> {
-		return await this.cobrandPropertyManagerRepository.getCobrandPropertyManagersByCobrandId(cobrandId);
+		return await this.cobrandPropertyManagerRepository.getCobrandPropertyManagersByCobrandId(
+			cobrandId
+		);
 	}
 
 	async addPropertyManager(
 		cobrandId: string,
 		propertyId: string
 	): Promise<ICobrandPropertyManagerModel> {
-		return await this.cobrandPropertyManagerRepository.createCobrandPropertyManager(cobrandId, propertyId);
+		return await this.cobrandPropertyManagerRepository.createCobrandPropertyManager(
+			cobrandId,
+			propertyId
+		);
 	}
 
 	async removePropertyManager(id: string): Promise<void> {

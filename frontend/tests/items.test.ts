@@ -20,9 +20,13 @@ async function adminAuth(): Promise<PocketBase> {
 }
 
 async function ensureTestPerson(backendClient: PocketBase): Promise<string> {
-	const users = await backendClient.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
+	const users = await backendClient
+		.collection('users')
+		.getFullList({ filter: `email = "${TEST_EMAIL}"` });
 	const testUser = users[0];
-	const persons = await backendClient.collection('persons').getFullList({ filter: `user = "${testUser.id}"` });
+	const persons = await backendClient
+		.collection('persons')
+		.getFullList({ filter: `user = "${testUser.id}"` });
 	if (persons.length > 0) return persons[0].id;
 	const person = await backendClient.collection('persons').create({
 		name: 'E2E Test Person',
@@ -33,9 +37,13 @@ async function ensureTestPerson(backendClient: PocketBase): Promise<string> {
 }
 
 async function cleanupTestUserItems(backendClient: PocketBase): Promise<void> {
-	const users = await backendClient.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
+	const users = await backendClient
+		.collection('users')
+		.getFullList({ filter: `email = "${TEST_EMAIL}"` });
 	if (users.length === 0) return;
-	const persons = await backendClient.collection('persons').getFullList({ filter: `user = "${users[0].id}"` });
+	const persons = await backendClient
+		.collection('persons')
+		.getFullList({ filter: `user = "${users[0].id}"` });
 	for (const person of persons) {
 		const personItems = await backendClient
 			.collection('personItems')
@@ -46,7 +54,8 @@ async function cleanupTestUserItems(backendClient: PocketBase): Promise<void> {
 				const entryDevices = await backendClient
 					.collection('entryDevices')
 					.getFullList({ filter: `item = "${itemId}"` });
-				for (const entryDevice of entryDevices) await backendClient.collection('entryDevices').delete(entryDevice.id);
+				for (const entryDevice of entryDevices)
+					await backendClient.collection('entryDevices').delete(entryDevice.id);
 			} catch {
 				/* ignore */
 			}
@@ -101,7 +110,9 @@ test('create item', async ({ page }) => {
 	await page.getByRole('button', { name: 'Save' }).click();
 	await page.waitForURL(/\/user\/items(\/)?$/);
 
-	const items = await backendClient.collection('items').getFullList({ filter: 'name = "Front Door Key"' });
+	const items = await backendClient
+		.collection('items')
+		.getFullList({ filter: 'name = "Front Door Key"' });
 	expect(items.length).toBe(1);
 	expect(items[0].description).toBe('Key to the front door');
 	await backendClient.collection('items').delete(items[0].id);
@@ -129,11 +140,17 @@ test('edit item name', async ({ page }) => {
 	await page.waitForURL(/\/user\/items(\/)?$/);
 	await expect(page.getByRole('cell', { name: 'E2E Edited Key' })).toBeVisible();
 
-	const items = await backendClient.collection('items').getFullList({ filter: 'name = "E2E Edited Key"' });
+	const items = await backendClient
+		.collection('items')
+		.getFullList({ filter: 'name = "E2E Edited Key"' });
 	await backendClient
 		.collection('personItems')
 		.delete(
-			(await backendClient.collection('personItems').getFullList({ filter: `item = "${items[0].id}"` }))[0].id
+			(
+				await backendClient
+					.collection('personItems')
+					.getFullList({ filter: `item = "${items[0].id}"` })
+			)[0].id
 		);
 	await backendClient.collection('items').delete(items[0].id);
 });
@@ -190,7 +207,9 @@ test('designate entry device', async ({ page }) => {
 	await backendClient
 		.collection('personItems')
 		.delete(
-			(await backendClient.collection('personItems').getFullList({ filter: `item = "${item.id}"` }))[0].id
+			(
+				await backendClient.collection('personItems').getFullList({ filter: `item = "${item.id}"` })
+			)[0].id
 		);
 	await backendClient.collection('items').delete(item.id);
 });
@@ -229,7 +248,9 @@ test('mark entry device defunct', async ({ page }) => {
 	await backendClient
 		.collection('personItems')
 		.delete(
-			(await backendClient.collection('personItems').getFullList({ filter: `item = "${item.id}"` }))[0].id
+			(
+				await backendClient.collection('personItems').getFullList({ filter: `item = "${item.id}"` })
+			)[0].id
 		);
 	await backendClient.collection('items').delete(item.id);
 });

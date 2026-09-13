@@ -64,8 +64,14 @@ async function adminAuth(): Promise<PocketBase> {
 	return backendClient;
 }
 
-async function ensureUser(backendClient: PocketBase, email: string, password: string): Promise<string> {
-	const existing = await backendClient.collection('users').getFullList({ filter: `email = "${email}"` });
+async function ensureUser(
+	backendClient: PocketBase,
+	email: string,
+	password: string
+): Promise<string> {
+	const existing = await backendClient
+		.collection('users')
+		.getFullList({ filter: `email = "${email}"` });
 	if (existing.length > 0) return existing[0].id;
 	const user = await backendClient
 		.collection('users')
@@ -74,17 +80,23 @@ async function ensureUser(backendClient: PocketBase, email: string, password: st
 }
 
 async function cleanupUserByEmail(backendClient: PocketBase, email: string): Promise<void> {
-	const users = await backendClient.collection('users').getFullList({ filter: `email = "${email}"` });
+	const users = await backendClient
+		.collection('users')
+		.getFullList({ filter: `email = "${email}"` });
 	for (const user of users) await backendClient.collection('users').delete(user.id);
 }
 
 async function cleanupPersonsFor(backendClient: PocketBase, userId: string): Promise<void> {
-	const persons = await backendClient.collection('persons').getFullList({ filter: `user = "${userId}"` });
+	const persons = await backendClient
+		.collection('persons')
+		.getFullList({ filter: `user = "${userId}"` });
 	for (const person of persons) await backendClient.collection('persons').delete(person.id);
 }
 
 async function cleanupCobrandsNamed(backendClient: PocketBase, name: string): Promise<void> {
-	const found = await backendClient.collection('cobrands').getFullList({ filter: `name = "${name}"` });
+	const found = await backendClient
+		.collection('cobrands')
+		.getFullList({ filter: `name = "${name}"` });
 	for (const cobrand of found) {
 		const admins = await backendClient
 			.collection('cobrandAdmins')
@@ -132,7 +144,9 @@ test('choosing person setup creates a linked person and lands on the property li
 
 	await page.waitForURL(/\/user\/properties\/list/);
 
-	const persons = await backendClient.collection('persons').getFullList({ filter: `user = "${userId}"` });
+	const persons = await backendClient
+		.collection('persons')
+		.getFullList({ filter: `user = "${userId}"` });
 	expect(persons.length).toBe(1);
 	expect(persons[0].name).toBe('E2E Onboarding Person');
 
@@ -219,7 +233,9 @@ test('a user with only a linked cobrandAdmins record lands on the cobrand list f
 	const cobrandName = `E2E Onboarding Existing Cobrand ${Date.now()}`;
 	const backendClient = await adminAuth();
 	const userId = await ensureUser(backendClient, email, TEST_PASSWORD);
-	const cobrand = await backendClient.collection('cobrands').create<{ id: string }>({ name: cobrandName });
+	const cobrand = await backendClient
+		.collection('cobrands')
+		.create<{ id: string }>({ name: cobrandName });
 	await backendClient.collection('cobrandAdmins').create({ user: userId, cobrand: cobrand.id });
 
 	await page.goto('/auth/login');

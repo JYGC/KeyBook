@@ -20,7 +20,9 @@ async function adminAuth(): Promise<PocketBase> {
 }
 
 async function ensureTestPerson(backendClient: PocketBase, userId: string): Promise<string> {
-	const persons = await backendClient.collection('persons').getFullList({ filter: `user = "${userId}"` });
+	const persons = await backendClient
+		.collection('persons')
+		.getFullList({ filter: `user = "${userId}"` });
 	if (persons.length > 0) return persons[0].id;
 	const person = await backendClient.collection('persons').create({
 		name: 'E2E Agents Test Person',
@@ -49,8 +51,11 @@ async function ensureTestCobrand(backendClient: PocketBase, userId: string): Pro
 async function cleanupTestAgents(backendClient: PocketBase): Promise<void> {
 	const agents = await backendClient.collection('agents').getFullList();
 	for (const agent of agents) {
-		const propertyAgents = await backendClient.collection('propertyAgents').getFullList({ filter: `agent = "${agent.id}"` });
-		for (const propertyAgent of propertyAgents) await backendClient.collection('propertyAgents').delete(propertyAgent.id);
+		const propertyAgents = await backendClient
+			.collection('propertyAgents')
+			.getFullList({ filter: `agent = "${agent.id}"` });
+		for (const propertyAgent of propertyAgents)
+			await backendClient.collection('propertyAgents').delete(propertyAgent.id);
 		await backendClient.collection('agents').delete(agent.id);
 	}
 	const found = await backendClient
@@ -93,7 +98,9 @@ test.beforeEach(async ({ page }) => {
 test('register agent', async ({ page }) => {
 	const backendClient = await adminAuth();
 
-	const users = await backendClient.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
+	const users = await backendClient
+		.collection('users')
+		.getFullList({ filter: `email = "${TEST_EMAIL}"` });
 	const testUserId = users[0].id;
 	const personId = await ensureTestPerson(backendClient, testUserId);
 	const cobrandId = await ensureTestCobrand(backendClient, testUserId);
@@ -119,7 +126,9 @@ test('register agent', async ({ page }) => {
 test('add property assignment to agent', async ({ page }) => {
 	const backendClient = await adminAuth();
 
-	const users = await backendClient.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
+	const users = await backendClient
+		.collection('users')
+		.getFullList({ filter: `email = "${TEST_EMAIL}"` });
 	const testUserId = users[0].id;
 	const personId = await ensureTestPerson(backendClient, testUserId);
 	const cobrandId = await ensureTestCobrand(backendClient, testUserId);
@@ -150,10 +159,12 @@ test('add property assignment to agent', async ({ page }) => {
 	expect(propertyAgents.some((propertyAgent) => propertyAgent.property === property.id)).toBe(true);
 
 	// Skip propertyOwner/property — the last-owner hook guard blocks deletion.
-	for (const propertyAgent of propertyAgents) await backendClient.collection('propertyAgents').delete(propertyAgent.id);
+	for (const propertyAgent of propertyAgents)
+		await backendClient.collection('propertyAgents').delete(propertyAgent.id);
 	await cleanupTestAgents(backendClient);
 	const personPropertyOwners = await backendClient
 		.collection('personPropertyOwners')
 		.getFullList({ filter: `propertyOwner = "${propertyOwner.id}"` });
-	for (const personPropertyOwner of personPropertyOwners) await backendClient.collection('personPropertyOwners').delete(personPropertyOwner.id);
+	for (const personPropertyOwner of personPropertyOwners)
+		await backendClient.collection('personPropertyOwners').delete(personPropertyOwner.id);
 });

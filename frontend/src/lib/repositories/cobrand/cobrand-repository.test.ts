@@ -34,7 +34,9 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-	const users = await backendClient.collection('users').getFullList({ filter: `email = "${INT_USER_EMAIL}"` });
+	const users = await backendClient
+		.collection('users')
+		.getFullList({ filter: `email = "${INT_USER_EMAIL}"` });
 	for (const user of users) await backendClient.collection('users').delete(user.id);
 });
 
@@ -103,15 +105,25 @@ describe('CobrandPropertyManagerRepository', () => {
 			address: '99 Manager Test Ave'
 		});
 
-		const created = await cobrandPropertyManagerRepository.createCobrandPropertyManager(cobrand.id, property.id);
+		const created = await cobrandPropertyManagerRepository.createCobrandPropertyManager(
+			cobrand.id,
+			property.id
+		);
 		expect(created.cobrand).toBe(cobrand.id);
 		expect(created.property).toBe(property.id);
 
-		const byCobrand = await cobrandPropertyManagerRepository.getCobrandPropertyManagersByCobrandId(cobrand.id);
-		expect(byCobrand.some((cobrandPropertyManager) => cobrandPropertyManager.id === created.id)).toBe(true);
+		const byCobrand = await cobrandPropertyManagerRepository.getCobrandPropertyManagersByCobrandId(
+			cobrand.id
+		);
+		expect(
+			byCobrand.some((cobrandPropertyManager) => cobrandPropertyManager.id === created.id)
+		).toBe(true);
 
-		const byProperty = await cobrandPropertyManagerRepository.getCobrandPropertyManagersByPropertyId(property.id);
-		expect(byProperty.some((cobrandPropertyManager) => cobrandPropertyManager.id === created.id)).toBe(true);
+		const byProperty =
+			await cobrandPropertyManagerRepository.getCobrandPropertyManagersByPropertyId(property.id);
+		expect(
+			byProperty.some((cobrandPropertyManager) => cobrandPropertyManager.id === created.id)
+		).toBe(true);
 
 		await cobrandPropertyManagerRepository.deleteCobrandPropertyManager(created.id);
 		await backendClient.collection('properties').delete(property.id);
@@ -132,15 +144,27 @@ describe('CobrandPropertyOwnerRepository', () => {
 			property: property.id
 		});
 
-		const created = await cobrandPropertyOwnerRepository.createCobrandPropertyOwner(cobrand.id, propertyOwner.id);
+		const created = await cobrandPropertyOwnerRepository.createCobrandPropertyOwner(
+			cobrand.id,
+			propertyOwner.id
+		);
 		expect(created.cobrand).toBe(cobrand.id);
 		expect(created.propertyOwner).toBe(propertyOwner.id);
 
-		const byCobrand = await cobrandPropertyOwnerRepository.getCobrandPropertyOwnersByCobrandId(cobrand.id);
-		expect(byCobrand.some((cobrandPropertyOwner) => cobrandPropertyOwner.id === created.id)).toBe(true);
+		const byCobrand = await cobrandPropertyOwnerRepository.getCobrandPropertyOwnersByCobrandId(
+			cobrand.id
+		);
+		expect(byCobrand.some((cobrandPropertyOwner) => cobrandPropertyOwner.id === created.id)).toBe(
+			true
+		);
 
-		const byPropertyOwner = await cobrandPropertyOwnerRepository.getCobrandPropertyOwnersByPropertyOwnerId(propertyOwner.id);
-		expect(byPropertyOwner.some((cobrandPropertyOwner) => cobrandPropertyOwner.id === created.id)).toBe(true);
+		const byPropertyOwner =
+			await cobrandPropertyOwnerRepository.getCobrandPropertyOwnersByPropertyOwnerId(
+				propertyOwner.id
+			);
+		expect(
+			byPropertyOwner.some((cobrandPropertyOwner) => cobrandPropertyOwner.id === created.id)
+		).toBe(true);
 
 		await cobrandPropertyOwnerRepository.deleteCobrandPropertyOwner(created.id);
 		// propertyOwner cannot be deleted when it is the last owner (backend hook guard),

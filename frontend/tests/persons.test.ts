@@ -70,10 +70,13 @@ async function cleanupTestPersons(backendClient: PocketBase): Promise<void> {
 		filter: 'name ~ "E2E Persons Test"'
 	});
 	for (const person of persons) {
-		const personPropertyOwners = await backendClient.collection('personPropertyOwners').getFullList({
-			filter: `person = "${person.id}"`
-		});
-		for (const personPropertyOwner of personPropertyOwners) await backendClient.collection('personPropertyOwners').delete(personPropertyOwner.id);
+		const personPropertyOwners = await backendClient
+			.collection('personPropertyOwners')
+			.getFullList({
+				filter: `person = "${person.id}"`
+			});
+		for (const personPropertyOwner of personPropertyOwners)
+			await backendClient.collection('personPropertyOwners').delete(personPropertyOwner.id);
 		await backendClient.collection('persons').delete(person.id);
 	}
 }
@@ -128,7 +131,9 @@ test('create person', async ({ page }) => {
 test('edit person and view roles', async ({ page }) => {
 	const backendClient = await adminAuth();
 
-	const users = await backendClient.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
+	const users = await backendClient
+		.collection('users')
+		.getFullList({ filter: `email = "${TEST_EMAIL}"` });
 	const testUserId = users[0].id;
 	const person = await backendClient.collection('persons').create<{ id: string }>({
 		name: 'E2E Persons Test Edit',

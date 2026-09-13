@@ -32,12 +32,18 @@ describe('PersonRepository', () => {
 		const allPersons = await personRepository.getAllPersons();
 		expect(allPersons.some((person) => person.id === created.id)).toBe(true);
 
-		const updated = await personRepository.updatePerson(created.id, 'Person Repo Test Updated', '1990-06-15');
+		const updated = await personRepository.updatePerson(
+			created.id,
+			'Person Repo Test Updated',
+			'1990-06-15'
+		);
 		expect(updated.name).toBe('Person Repo Test Updated');
 
 		await personRepository.deletePerson(created.id);
 		const allPersonsAfterDelete = await personRepository.getAllPersons();
-		expect(allPersonsAfterDelete.some((personsAfterDelete) => personsAfterDelete.id === created.id)).toBe(false);
+		expect(
+			allPersonsAfterDelete.some((personsAfterDelete) => personsAfterDelete.id === created.id)
+		).toBe(false);
 	});
 
 	it('links the person to a user when a userId is provided', async () => {
@@ -48,7 +54,11 @@ describe('PersonRepository', () => {
 			passwordConfirm: 'PersonRepoLink1!'
 		});
 
-		const created = await personRepository.createPerson('Person Repo Link Test', '1990-06-15', user.id);
+		const created = await personRepository.createPerson(
+			'Person Repo Link Test',
+			'1990-06-15',
+			user.id
+		);
 		expect(created.user).toBe(user.id);
 
 		const fetched = await personRepository.getPersonByUserId(user.id);
@@ -72,16 +82,28 @@ describe('PersonPropertyOwnerRepository', () => {
 			.collection('propertyOwners')
 			.create<{ id: string }>({ property: property.id });
 
-		const created = await personPropertyOwnerRepository.createPersonPropertyOwner(person.id, propertyOwner.id);
+		const created = await personPropertyOwnerRepository.createPersonPropertyOwner(
+			person.id,
+			propertyOwner.id
+		);
 		expect(created.person).toBe(person.id);
 		expect(created.propertyOwner).toBe(propertyOwner.id);
 		expect(created.id).toBeTruthy();
 
-		const byPerson = await personPropertyOwnerRepository.getPersonPropertyOwnersByPersonId(person.id);
-		expect(byPerson.some((personPropertyOwner) => personPropertyOwner.id === created.id)).toBe(true);
+		const byPerson = await personPropertyOwnerRepository.getPersonPropertyOwnersByPersonId(
+			person.id
+		);
+		expect(byPerson.some((personPropertyOwner) => personPropertyOwner.id === created.id)).toBe(
+			true
+		);
 
-		const byPropertyOwner = await personPropertyOwnerRepository.getPersonPropertyOwnersByPropertyOwnerId(propertyOwner.id);
-		expect(byPropertyOwner.some((personPropertyOwner) => personPropertyOwner.id === created.id)).toBe(true);
+		const byPropertyOwner =
+			await personPropertyOwnerRepository.getPersonPropertyOwnersByPropertyOwnerId(
+				propertyOwner.id
+			);
+		expect(
+			byPropertyOwner.some((personPropertyOwner) => personPropertyOwner.id === created.id)
+		).toBe(true);
 
 		await personPropertyOwnerRepository.deletePersonPropertyOwner(created.id);
 		await personRepository.deletePerson(person.id);

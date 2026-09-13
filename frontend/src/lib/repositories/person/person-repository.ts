@@ -36,7 +36,9 @@ export class PersonRepository implements IPersonRepository {
 	}
 
 	async updatePerson(id: string, name: string, dob: string): Promise<IPersonModel> {
-		return await this.backendClient.collection('persons').update<IPersonModel>(id, { name, DOB: dob });
+		return await this.backendClient
+			.collection('persons')
+			.update<IPersonModel>(id, { name, DOB: dob });
 	}
 
 	async deletePerson(id: string): Promise<void> {
