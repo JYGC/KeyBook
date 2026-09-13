@@ -1,5 +1,10 @@
 package dtos
 
+type PropertyDto struct {
+	Id      string `db:"id" json:"id"`
+	Address string `db:"address" json:"address"`
+}
+
 type PropertyIdAddressDto struct {
 	Id      string `db:"id" json:"id"`
 	Address string `db:"address" json:"address"`

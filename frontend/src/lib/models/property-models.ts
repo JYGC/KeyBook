@@ -1,11 +1,27 @@
-export interface IPropertyListItemModel {
+export interface IPropertyModel {
   id: string;
   address: string;
 }
 
-export interface IEditPropertyModel {
+export interface IPropertyOwnerModel {
   id: string;
-  address: string;
-  owners: Array<string>;
-  managers: Array<string>;
+  property: string;
+}
+
+export interface IPersonPropertyOwnerModel {
+  id: string;
+  person: string;
+  propertyOwner: string;
+}
+
+export interface ITenantModel {
+  id: string;
+  person: string;
+  property: string;
+}
+
+export interface IHouseholdModel {
+  id: string;
+  person: string;
+  property: string;
 }
