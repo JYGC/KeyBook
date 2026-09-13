@@ -9,8 +9,7 @@ import (
 	"github.com/pocketbase/pocketbase/tests"
 )
 
-// newApp creates a fresh PocketBase test instance with migrations applied.
-func newApp(t *testing.T) *tests.TestApp {
+func newTestAppWithMigrations(t *testing.T) *tests.TestApp {
 	t.Helper()
 	app, err := tests.NewTestApp(t.TempDir())
 	if err != nil {
@@ -20,19 +19,18 @@ func newApp(t *testing.T) *tests.TestApp {
 	return app
 }
 
-// createRecord inserts a record directly via the DAO (bypasses access rules).
-func createRecord(t *testing.T, app *tests.TestApp, collection string, fields map[string]any) *models.Record {
+func createRecordBypassingAccessRules(t *testing.T, app *tests.TestApp, collection string, fields map[string]any) *models.Record {
 	t.Helper()
-	col, err := app.Dao().FindCollectionByNameOrId(collection)
+	targetCollection, err := app.Dao().FindCollectionByNameOrId(collection)
 	if err != nil {
 		t.Fatalf("find collection %q: %v", collection, err)
 	}
-	r := models.NewRecord(col)
-	for k, v := range fields {
-		r.Set(k, v)
+	record := models.NewRecord(targetCollection)
+	for fieldName, fieldValue := range fields {
+		record.Set(fieldName, fieldValue)
 	}
-	if err := app.Dao().SaveRecord(r); err != nil {
+	if err := app.Dao().SaveRecord(record); err != nil {
 		t.Fatalf("save %q record: %v", collection, err)
 	}
-	return r
+	return record
 }

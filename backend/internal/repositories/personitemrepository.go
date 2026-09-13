@@ -51,11 +51,11 @@ func (r *PersonItemRepository) GetPersonItemsByItemId(itemId string) ([]dtos.Per
 }
 
 func (r *PersonItemRepository) CreatePersonItem(personId, itemId string) (dtos.PersonItemDto, error) {
-	col, err := r.app.Dao().FindCollectionByNameOrId("personItems")
+	personItemsCollection, err := r.app.Dao().FindCollectionByNameOrId("personItems")
 	if err != nil {
 		return dtos.PersonItemDto{}, err
 	}
-	record := models.NewRecord(col)
+	record := models.NewRecord(personItemsCollection)
 	record.Set("person", personId)
 	record.Set("item", itemId)
 	if err := r.app.Dao().SaveRecord(record); err != nil {
@@ -72,18 +72,18 @@ func (r *PersonItemRepository) DeletePersonItem(id string) error {
 	return r.app.Dao().DeleteRecord(record)
 }
 
-func personItemRecordToDto(r *models.Record) dtos.PersonItemDto {
+func personItemRecordToDto(record *models.Record) dtos.PersonItemDto {
 	return dtos.PersonItemDto{
-		Id:     r.GetId(),
-		Person: r.GetString("person"),
-		Item:   r.GetString("item"),
+		Id:     record.GetId(),
+		Person: record.GetString("person"),
+		Item:   record.GetString("item"),
 	}
 }
 
 func personItemRecordsToDtos(records []*models.Record) []dtos.PersonItemDto {
 	result := make([]dtos.PersonItemDto, 0, len(records))
-	for _, r := range records {
-		result = append(result, personItemRecordToDto(r))
+	for _, record := range records {
+		result = append(result, personItemRecordToDto(record))
 	}
 	return result
 }

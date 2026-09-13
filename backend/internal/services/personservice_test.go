@@ -7,7 +7,7 @@ import (
 )
 
 func TestPersonService_ValidatePerson(t *testing.T) {
-	svc := services.NewPersonService()
+	personService := services.NewPersonService()
 
 	tests := []struct {
 		name    string
@@ -23,7 +23,7 @@ func TestPersonService_ValidatePerson(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := svc.ValidatePerson(tt.pName, tt.dob)
+			err := personService.ValidatePerson(tt.pName, tt.dob)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ValidatePerson(%q, %q) error = %v, wantErr %v", tt.pName, tt.dob, err, tt.wantErr)
 			}

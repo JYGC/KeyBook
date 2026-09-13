@@ -12,19 +12,19 @@ describe('PropertyListModule', () => {
       { id: 'pr1', address: '1 Main St' },
       { id: 'pr2', address: '2 Oak Ave' },
     ];
-    const svc = { getAllProperties: vi.fn().mockResolvedValue(properties) } as unknown as IPropertyService;
+    const propertyService = { getAllProperties: vi.fn().mockResolvedValue(properties) } as unknown as IPropertyService;
 
-    const module = new PropertyListModule(svc);
+    const module = new PropertyListModule(propertyService);
     await expect(module.propertyListAsync).resolves.toEqual(properties);
-    expect(svc.getAllProperties).toHaveBeenCalledOnce();
+    expect(propertyService.getAllProperties).toHaveBeenCalledOnce();
   });
 
   it('returns empty array when service throws', async () => {
-    const svc = {
+    const propertyService = {
       getAllProperties: vi.fn().mockRejectedValue(new Error('network error')),
     } as unknown as IPropertyService;
 
-    const module = new PropertyListModule(svc);
+    const module = new PropertyListModule(propertyService);
     await expect(module.propertyListAsync).resolves.toEqual([]);
   });
 });

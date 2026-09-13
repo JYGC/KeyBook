@@ -26,8 +26,8 @@ func (s *PropertyService) ValidateProperty(address string) error {
 }
 
 func (s *PropertyService) IsPersonOwner(owners []dtos.PersonPropertyOwnerDto, personId string) bool {
-	for _, o := range owners {
-		if o.Person == personId {
+	for _, personOwner := range owners {
+		if personOwner.Person == personId {
 			return true
 		}
 	}
@@ -35,8 +35,8 @@ func (s *PropertyService) IsPersonOwner(owners []dtos.PersonPropertyOwnerDto, pe
 }
 
 func (s *PropertyService) IsCobrandOwner(owners []dtos.CobrandPropertyOwnerDto, cobrandId string) bool {
-	for _, o := range owners {
-		if o.Cobrand == cobrandId {
+	for _, cobrandOwner := range owners {
+		if cobrandOwner.Cobrand == cobrandId {
 			return true
 		}
 	}

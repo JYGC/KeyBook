@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import type { IPersonService } from '$lib/services/person/person-service';
 import { PersonSetupModule } from './person-setup-module.svelte';
 
-const makeSvc = (overrides: Partial<IPersonService> = {}) =>
+const makePersonService = (overrides: Partial<IPersonService> = {}) =>
 	({
 		createPerson: vi
 			.fn()
@@ -18,30 +18,30 @@ const makeSvc = (overrides: Partial<IPersonService> = {}) =>
 
 describe('PersonSetupModule', () => {
 	it('isAdd returns true', () => {
-		const module = new PersonSetupModule(makeSvc(), 'u1', vi.fn());
+		const module = new PersonSetupModule(makePersonService(), 'u1', vi.fn());
 		expect(module.isAdd).toBe(true);
 	});
 
 	it('resolves personAsync to an empty person model', async () => {
-		const module = new PersonSetupModule(makeSvc(), 'u1', vi.fn());
+		const module = new PersonSetupModule(makePersonService(), 'u1', vi.fn());
 		const person = await module.personAsync;
 		expect(person).toMatchObject({ id: '', name: '', DOB: '' });
 	});
 
 	it('starts with no error', () => {
-		const module = new PersonSetupModule(makeSvc(), 'u1', vi.fn());
+		const module = new PersonSetupModule(makePersonService(), 'u1', vi.fn());
 		expect(module.error).toBe('');
 	});
 
 	it('getDeletePersonAction returns null', () => {
-		const module = new PersonSetupModule(makeSvc(), 'u1', vi.fn());
+		const module = new PersonSetupModule(makePersonService(), 'u1', vi.fn());
 		expect(module.getDeletePersonAction()).toBeNull();
 	});
 
 	it('getSavePersonAction creates a person linked to the authenticated user and signals success', async () => {
-		const back = vi.fn();
-		const svc = makeSvc();
-		const module = new PersonSetupModule(svc, 'u1', back);
+		const backAction = vi.fn();
+		const personService = makePersonService();
+		const module = new PersonSetupModule(personService, 'u1', backAction);
 
 		await module.getSavePersonAction()({
 			id: '',
@@ -51,16 +51,16 @@ describe('PersonSetupModule', () => {
 			profileImage: ''
 		});
 
-		expect(svc.createPerson).toHaveBeenCalledWith('Alice', '1990-01-01', 'u1');
-		expect(back).toHaveBeenCalledOnce();
+		expect(personService.createPerson).toHaveBeenCalledWith('Alice', '1990-01-01', 'u1');
+		expect(backAction).toHaveBeenCalledOnce();
 	});
 
 	it('exposes validation errors as reactive state instead of navigating away', async () => {
-		const back = vi.fn();
-		const svc = makeSvc({
+		const backAction = vi.fn();
+		const personService = makePersonService({
 			createPerson: vi.fn().mockRejectedValue(new Error('person name is required'))
 		});
-		const module = new PersonSetupModule(svc, 'u1', back);
+		const module = new PersonSetupModule(personService, 'u1', backAction);
 
 		await module.getSavePersonAction()({
 			id: '',
@@ -71,15 +71,15 @@ describe('PersonSetupModule', () => {
 		});
 
 		expect(module.error).toContain('person name is required');
-		expect(back).not.toHaveBeenCalled();
+		expect(backAction).not.toHaveBeenCalled();
 	});
 
 	it('exposes creation errors as reactive state', async () => {
-		const back = vi.fn();
-		const svc = makeSvc({
+		const backAction = vi.fn();
+		const personService = makePersonService({
 			createPerson: vi.fn().mockRejectedValue(new Error('server unavailable'))
 		});
-		const module = new PersonSetupModule(svc, 'u1', back);
+		const module = new PersonSetupModule(personService, 'u1', backAction);
 
 		await module.getSavePersonAction()({
 			id: '',
@@ -90,6 +90,6 @@ describe('PersonSetupModule', () => {
 		});
 
 		expect(module.error).toContain('server unavailable');
-		expect(back).not.toHaveBeenCalled();
+		expect(backAction).not.toHaveBeenCalled();
 	});
 });

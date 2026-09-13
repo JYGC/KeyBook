@@ -19,7 +19,6 @@ func startBackend() {
 	container.Provide(pocketbase.New)
 	container.Provide(func(app *pocketbase.PocketBase) core.App { return app })
 
-	// Repositories
 	container.Provide(repositories.NewPersonRepository)
 	container.Provide(repositories.NewPropertyRepository)
 	container.Provide(repositories.NewItemRepository)
@@ -37,7 +36,6 @@ func startBackend() {
 	container.Provide(repositories.NewHouseholdRepository)
 	container.Provide(repositories.NewTenantRepository)
 
-	// Services
 	container.Provide(services.NewPersonService)
 	container.Provide(services.NewPropertyService)
 	container.Provide(services.NewItemService)
@@ -45,7 +43,6 @@ func startBackend() {
 	container.Provide(services.NewAgentService)
 	container.Provide(services.NewPropertyOwnerService)
 
-	// Application services
 	container.Provide(application.NewPersonApplicationService)
 	container.Provide(application.NewPropertyApplicationService)
 	container.Provide(application.NewItemApplicationService)
@@ -55,95 +52,123 @@ func startBackend() {
 
 	invokeErr := container.Invoke(func(
 		app *pocketbase.PocketBase,
-		personSvc services.IPersonService,
-		propertySvc services.IPropertyService,
-		itemSvc services.IItemService,
-		cobrandSvc services.ICobrandService,
-		agentSvc services.IAgentService,
-		propertyOwnerSvc services.IPropertyOwnerService,
-		entryDeviceRepo repositories.IEntryDeviceRepository,
-		cobrandAdminRepo repositories.ICobrandAdminRepository,
-		personPropertyOwnerRepo repositories.IPersonPropertyOwnerRepository,
-		cobrandPropertyOwnerRepo repositories.ICobrandPropertyOwnerRepository,
-		propertyAgentRepo repositories.IPropertyAgentRepository,
-		propertyOwnerRepo repositories.IPropertyOwnerRepository,
+		personService services.IPersonService,
+		propertyService services.IPropertyService,
+		itemService services.IItemService,
+		cobrandService services.ICobrandService,
+		agentService services.IAgentService,
+		propertyOwnerService services.IPropertyOwnerService,
+		entryDeviceRepository repositories.IEntryDeviceRepository,
+		cobrandAdminRepository repositories.ICobrandAdminRepository,
+		personPropertyOwnerRepository repositories.IPersonPropertyOwnerRepository,
+		cobrandPropertyOwnerRepository repositories.ICobrandPropertyOwnerRepository,
+		propertyAgentRepository repositories.IPropertyAgentRepository,
+		propertyOwnerRepository repositories.IPropertyOwnerRepository,
 	) {
-		app.OnRecordBeforeCreateRequest("persons").Add(func(e *core.RecordCreateEvent) error {
-			return personSvc.ValidatePerson(e.Record.GetString("name"), e.Record.GetString("DOB"))
+		app.OnRecordBeforeCreateRequest("persons").Add(func(personCreateEvent *core.RecordCreateEvent) error {
+			return personService.ValidatePerson(
+				personCreateEvent.Record.GetString("name"),
+				personCreateEvent.Record.GetString("DOB"),
+			)
 		})
 
-		app.OnRecordBeforeCreateRequest("properties").Add(func(e *core.RecordCreateEvent) error {
-			return propertySvc.ValidateProperty(e.Record.GetString("address"))
+		app.OnRecordBeforeCreateRequest("properties").Add(func(propertyCreateEvent *core.RecordCreateEvent) error {
+			return propertyService.ValidateProperty(propertyCreateEvent.Record.GetString("address"))
 		})
 
-		app.OnRecordBeforeCreateRequest("items").Add(func(e *core.RecordCreateEvent) error {
-			return itemSvc.ValidateItem(e.Record.GetString("name"))
+		app.OnRecordBeforeCreateRequest("items").Add(func(itemCreateEvent *core.RecordCreateEvent) error {
+			return itemService.ValidateItem(itemCreateEvent.Record.GetString("name"))
 		})
 
-		app.OnRecordBeforeUpdateRequest("entryDevices").Add(func(e *core.RecordUpdateEvent) error {
-			current, err := entryDeviceRepo.GetEntryDeviceById(e.Record.GetId())
+		app.OnRecordBeforeUpdateRequest("entryDevices").Add(func(entryDeviceUpdateEvent *core.RecordUpdateEvent) error {
+			currentEntryDevice, err := entryDeviceRepository.GetEntryDeviceById(entryDeviceUpdateEvent.Record.GetId())
 			if err != nil {
 				return err
 			}
-			return itemSvc.ValidateEntryDeviceTransition(current.DefunctReason, e.Record.GetString("defunctReason"))
+			return itemService.ValidateEntryDeviceTransition(
+				currentEntryDevice.DefunctReason,
+				entryDeviceUpdateEvent.Record.GetString("defunctReason"),
+			)
 		})
 
-		app.OnRecordBeforeCreateRequest("cobrands").Add(func(e *core.RecordCreateEvent) error {
-			return cobrandSvc.ValidateCobrand(e.Record.GetString("name"))
+		app.OnRecordBeforeCreateRequest("cobrands").Add(func(cobrandCreateEvent *core.RecordCreateEvent) error {
+			return cobrandService.ValidateCobrand(cobrandCreateEvent.Record.GetString("name"))
 		})
 
-		app.OnRecordBeforeCreateRequest("cobrandAdmins").Add(func(e *core.RecordCreateEvent) error {
-			existing, err := cobrandAdminRepo.GetCobrandAdminsByCobrandId(e.Record.GetString("cobrand"))
+		app.OnRecordBeforeCreateRequest("cobrandAdmins").Add(func(cobrandAdminCreateEvent *core.RecordCreateEvent) error {
+			existingAdmins, err := cobrandAdminRepository.GetCobrandAdminsByCobrandId(
+				cobrandAdminCreateEvent.Record.GetString("cobrand"),
+			)
 			if err != nil {
 				return err
 			}
-			if err := cobrandSvc.EnsureAdminIsUnique(existing, e.Record.GetString("user")); err != nil {
+			if err := cobrandService.EnsureAdminIsUnique(
+				existingAdmins,
+				cobrandAdminCreateEvent.Record.GetString("user"),
+			); err != nil {
 				return err
 			}
 
 			// PocketBase superusers bypass the inviter-approval check below —
 			// they have no cobrandAdmins record of their own to check.
-			info := apis.RequestInfo(e.HttpContext)
-			if info.Admin != nil {
+			requestInfo := apis.RequestInfo(cobrandAdminCreateEvent.HttpContext)
+			if requestInfo.Admin != nil {
 				return nil
 			}
-			inviterId := ""
-			if info.AuthRecord != nil {
-				inviterId = info.AuthRecord.Id
+			inviterUserId := ""
+			if requestInfo.AuthRecord != nil {
+				inviterUserId = requestInfo.AuthRecord.Id
 			}
-			return cobrandSvc.EnsureInviterIsApprovedAdmin(existing, inviterId)
+			return cobrandService.EnsureInviterIsApprovedAdmin(existingAdmins, inviterUserId)
 		})
 
-		app.OnRecordBeforeCreateRequest("personPropertyOwners").Add(func(e *core.RecordCreateEvent) error {
-			existing, err := personPropertyOwnerRepo.GetPersonPropertyOwnersByPropertyOwnerId(e.Record.GetString("propertyOwner"))
+		app.OnRecordBeforeCreateRequest("personPropertyOwners").Add(func(personPropertyOwnerCreateEvent *core.RecordCreateEvent) error {
+			existingPersonOwners, err := personPropertyOwnerRepository.GetPersonPropertyOwnersByPropertyOwnerId(
+				personPropertyOwnerCreateEvent.Record.GetString("propertyOwner"),
+			)
 			if err != nil {
 				return err
 			}
-			return propertyOwnerSvc.EnsureNoDuplicatePersonOwner(existing, e.Record.GetString("person"))
+			return propertyOwnerService.EnsureNoDuplicatePersonOwner(
+				existingPersonOwners,
+				personPropertyOwnerCreateEvent.Record.GetString("person"),
+			)
 		})
 
-		app.OnRecordBeforeCreateRequest("cobrandPropertyOwners").Add(func(e *core.RecordCreateEvent) error {
-			existing, err := cobrandPropertyOwnerRepo.GetCobrandPropertyOwnersByPropertyOwnerId(e.Record.GetString("propertyOwner"))
+		app.OnRecordBeforeCreateRequest("cobrandPropertyOwners").Add(func(cobrandPropertyOwnerCreateEvent *core.RecordCreateEvent) error {
+			existingCobrandOwners, err := cobrandPropertyOwnerRepository.GetCobrandPropertyOwnersByPropertyOwnerId(
+				cobrandPropertyOwnerCreateEvent.Record.GetString("propertyOwner"),
+			)
 			if err != nil {
 				return err
 			}
-			return propertyOwnerSvc.EnsureNoDuplicateCobrandOwner(existing, e.Record.GetString("cobrand"))
+			return propertyOwnerService.EnsureNoDuplicateCobrandOwner(
+				existingCobrandOwners,
+				cobrandPropertyOwnerCreateEvent.Record.GetString("cobrand"),
+			)
 		})
 
-		app.OnRecordBeforeCreateRequest("propertyAgents").Add(func(e *core.RecordCreateEvent) error {
-			existing, err := propertyAgentRepo.GetPropertyAgentsByPropertyId(e.Record.GetString("property"))
+		app.OnRecordBeforeCreateRequest("propertyAgents").Add(func(propertyAgentCreateEvent *core.RecordCreateEvent) error {
+			existingPropertyAgents, err := propertyAgentRepository.GetPropertyAgentsByPropertyId(
+				propertyAgentCreateEvent.Record.GetString("property"),
+			)
 			if err != nil {
 				return err
 			}
-			return agentSvc.EnsureNoDuplicatePropertyAgent(existing, e.Record.GetString("agent"))
+			return agentService.EnsureNoDuplicatePropertyAgent(
+				existingPropertyAgents,
+				propertyAgentCreateEvent.Record.GetString("agent"),
+			)
 		})
 
-		app.OnRecordBeforeDeleteRequest("propertyOwners").Add(func(e *core.RecordDeleteEvent) error {
-			owners, err := propertyOwnerRepo.GetPropertyOwnersByPropertyId(e.Record.GetString("property"))
+		app.OnRecordBeforeDeleteRequest("propertyOwners").Add(func(propertyOwnerDeleteEvent *core.RecordDeleteEvent) error {
+			ownersOfSameProperty, err := propertyOwnerRepository.GetPropertyOwnersByPropertyId(
+				propertyOwnerDeleteEvent.Record.GetString("property"),
+			)
 			if err != nil {
 				return err
 			}
-			if len(owners) <= 1 {
+			if len(ownersOfSameProperty) <= 1 {
 				return errors.New("cannot delete the last property owner")
 			}
 			return nil

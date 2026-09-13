@@ -51,11 +51,11 @@ func (r *PropertyItemRepository) GetPropertyItemsByItemId(itemId string) ([]dtos
 }
 
 func (r *PropertyItemRepository) CreatePropertyItem(itemId, propertyId string) (dtos.PropertyItemDto, error) {
-	col, err := r.app.Dao().FindCollectionByNameOrId("propertyItems")
+	propertyItemsCollection, err := r.app.Dao().FindCollectionByNameOrId("propertyItems")
 	if err != nil {
 		return dtos.PropertyItemDto{}, err
 	}
-	record := models.NewRecord(col)
+	record := models.NewRecord(propertyItemsCollection)
 	record.Set("item", itemId)
 	record.Set("property", propertyId)
 	if err := r.app.Dao().SaveRecord(record); err != nil {
@@ -72,18 +72,18 @@ func (r *PropertyItemRepository) DeletePropertyItem(id string) error {
 	return r.app.Dao().DeleteRecord(record)
 }
 
-func propertyItemRecordToDto(r *models.Record) dtos.PropertyItemDto {
+func propertyItemRecordToDto(record *models.Record) dtos.PropertyItemDto {
 	return dtos.PropertyItemDto{
-		Id:       r.GetId(),
-		Item:     r.GetString("item"),
-		Property: r.GetString("property"),
+		Id:       record.GetId(),
+		Item:     record.GetString("item"),
+		Property: record.GetString("property"),
 	}
 }
 
 func propertyItemRecordsToDtos(records []*models.Record) []dtos.PropertyItemDto {
 	result := make([]dtos.PropertyItemDto, 0, len(records))
-	for _, r := range records {
-		result = append(result, propertyItemRecordToDto(r))
+	for _, record := range records {
+		result = append(result, propertyItemRecordToDto(record))
 	}
 	return result
 }

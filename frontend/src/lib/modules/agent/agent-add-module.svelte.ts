@@ -20,8 +20,8 @@ export class AgentAddModule implements IAgentEditorModule {
     try {
       await this.__agentService.createAgent(agent.person, agent.cobrand);
       this.__backAction();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 

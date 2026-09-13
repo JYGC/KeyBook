@@ -12,19 +12,19 @@
 
 	const goToProperties = () => goto('/user/properties/list');
 
-	const pb = getBackendClient();
-	const currentUserId = pb.authStore.record?.id ?? '';
-	const personRepo = new PersonRepository(pb);
-	const ppoRepo = new PersonPropertyOwnerRepository(pb);
-	const tenantRepo = new TenantRepository(pb);
-	const householdRepo = new HouseholdRepository(pb);
-	const agentRepo = new AgentRepository(pb);
+	const backendClient = getBackendClient();
+	const currentUserId = backendClient.authStore.record?.id ?? '';
+	const personRepository = new PersonRepository(backendClient);
+	const personPropertyOwnerRepository = new PersonPropertyOwnerRepository(backendClient);
+	const tenantRepository = new TenantRepository(backendClient);
+	const householdRepository = new HouseholdRepository(backendClient);
+	const agentRepository = new AgentRepository(backendClient);
 	const personService = new PersonService(
-		personRepo,
-		ppoRepo,
-		tenantRepo,
-		householdRepo,
-		agentRepo
+		personRepository,
+		personPropertyOwnerRepository,
+		tenantRepository,
+		householdRepository,
+		agentRepository
 	);
 	const personSetupModule = new PersonSetupModule(personService, currentUserId, goToProperties);
 </script>

@@ -3,35 +3,35 @@ import { ItemService } from './item-service';
 import type { IItemRepository } from '$lib/repositories/item/item-repository';
 import type { IEntryDeviceRepository } from '$lib/repositories/item/entry-device-repository';
 
-const mockItemRepo: IItemRepository = {
-  getAll: vi.fn(),
-  getById: vi.fn(),
-  create: vi.fn(),
-  update: vi.fn(),
-  delete: vi.fn(),
+const mockItemRepository: IItemRepository = {
+  getAllItems: vi.fn(),
+  getItemById: vi.fn(),
+  createItem: vi.fn(),
+  updateItem: vi.fn(),
+  deleteItem: vi.fn(),
 };
 
-const mockEntryDeviceRepo: IEntryDeviceRepository = {
-  getById: vi.fn(),
-  getByItemId: vi.fn(),
-  create: vi.fn(),
-  update: vi.fn(),
-  delete: vi.fn(),
+const mockEntryDeviceRepository: IEntryDeviceRepository = {
+  getEntryDeviceById: vi.fn(),
+  getEntryDeviceByItemId: vi.fn(),
+  createEntryDevice: vi.fn(),
+  updateEntryDevice: vi.fn(),
+  deleteEntryDevice: vi.fn(),
 };
 
 describe('ItemService.validateItemName', () => {
-  const svc = new ItemService(mockItemRepo, mockEntryDeviceRepo);
+  const itemService = new ItemService(mockItemRepository, mockEntryDeviceRepository);
 
   it('passes for a valid name', () => {
-    expect(() => svc.validateItemName('Front Door Key')).not.toThrow();
+    expect(() => itemService.validateItemName('Front Door Key')).not.toThrow();
   });
 
   it('throws for empty string', () => {
-    expect(() => svc.validateItemName('')).toThrow('item name is required');
+    expect(() => itemService.validateItemName('')).toThrow('item name is required');
   });
 
   it('throws for whitespace-only string', () => {
-    expect(() => svc.validateItemName('   ')).toThrow('item name is required');
+    expect(() => itemService.validateItemName('   ')).toThrow('item name is required');
   });
 });
 
@@ -46,13 +46,13 @@ describe('ItemService.validateEntryDeviceTransition', () => {
     ['defunct to active — blocked', 'Lost', 'None', true],
     ['defunct to empty — blocked', 'Damaged', '', true],
   ])('%s: current=%s next=%s throws=%s', (_label, current, next, shouldThrow) => {
-    const svc = new ItemService(mockItemRepo, mockEntryDeviceRepo);
+    const itemService = new ItemService(mockItemRepository, mockEntryDeviceRepository);
     if (shouldThrow) {
-      expect(() => svc.validateEntryDeviceTransition(current, next)).toThrow(
+      expect(() => itemService.validateEntryDeviceTransition(current, next)).toThrow(
         'cannot reactivate a defunct entry device'
       );
     } else {
-      expect(() => svc.validateEntryDeviceTransition(current, next)).not.toThrow();
+      expect(() => itemService.validateEntryDeviceTransition(current, next)).not.toThrow();
     }
   });
 });

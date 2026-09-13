@@ -12,7 +12,7 @@ const mockTenants = [{ id: 't1', person: 'p2', property: 'pr1' }];
 const mockHousehold = [{ id: 'h1', person: 'p3', property: 'pr1' }];
 const mockPropertyAgents = [{ id: 'pa1', agent: 'ag1', property: 'pr1' }];
 
-const makeSvc = (overrides: Partial<IPropertyService> = {}) =>
+const makePropertyService = (overrides: Partial<IPropertyService> = {}) =>
   ({
     getPropertyById: vi.fn().mockResolvedValue(mockProperty),
     getPersonOwnersForProperty: vi.fn().mockResolvedValue(mockPersonOwners),
@@ -30,89 +30,89 @@ const makeSvc = (overrides: Partial<IPropertyService> = {}) =>
 
 describe('PropertyDetailModule', () => {
   it('isAdd returns false', () => {
-    const module = new PropertyDetailModule(makeSvc(), 'pr1', vi.fn());
+    const module = new PropertyDetailModule(makePropertyService(), 'pr1', vi.fn());
     expect(module.isAdd).toBe(false);
   });
 
   it('callBackAction calls the provided callback', () => {
-    const back = vi.fn();
-    const module = new PropertyDetailModule(makeSvc(), 'pr1', back);
+    const backAction = vi.fn();
+    const module = new PropertyDetailModule(makePropertyService(), 'pr1', backAction);
     module.callBackAction();
-    expect(back).toHaveBeenCalledOnce();
+    expect(backAction).toHaveBeenCalledOnce();
   });
 
   it('resolves property from service', async () => {
-    const module = new PropertyDetailModule(makeSvc(), 'pr1', vi.fn());
+    const module = new PropertyDetailModule(makePropertyService(), 'pr1', vi.fn());
     await expect(module.propertyAsync).resolves.toEqual(mockProperty);
   });
 
   it('resolves personOwners from service', async () => {
-    const module = new PropertyDetailModule(makeSvc(), 'pr1', vi.fn());
+    const module = new PropertyDetailModule(makePropertyService(), 'pr1', vi.fn());
     await expect(module.personOwnersAsync).resolves.toEqual(mockPersonOwners);
   });
 
   it('resolves tenants from service', async () => {
-    const module = new PropertyDetailModule(makeSvc(), 'pr1', vi.fn());
+    const module = new PropertyDetailModule(makePropertyService(), 'pr1', vi.fn());
     await expect(module.tenantsAsync).resolves.toEqual(mockTenants);
   });
 
   it('resolves householdMembers from service', async () => {
-    const module = new PropertyDetailModule(makeSvc(), 'pr1', vi.fn());
+    const module = new PropertyDetailModule(makePropertyService(), 'pr1', vi.fn());
     await expect(module.householdMembersAsync).resolves.toEqual(mockHousehold);
   });
 
   it('resolves propertyAgents from service', async () => {
-    const module = new PropertyDetailModule(makeSvc(), 'pr1', vi.fn());
+    const module = new PropertyDetailModule(makePropertyService(), 'pr1', vi.fn());
     await expect(module.propertyAgentsAsync).resolves.toEqual(mockPropertyAgents);
   });
 
   it('getSavePropertyAction calls updateProperty and navigates back', async () => {
-    const back = vi.fn();
-    const svc = makeSvc();
-    const module = new PropertyDetailModule(svc, 'pr1', back);
+    const backAction = vi.fn();
+    const propertyService = makePropertyService();
+    const module = new PropertyDetailModule(propertyService, 'pr1', backAction);
     await module.getSavePropertyAction()(mockProperty);
-    expect(svc.updateProperty).toHaveBeenCalledWith('pr1', '1 Main St');
-    expect(back).toHaveBeenCalledOnce();
+    expect(propertyService.updateProperty).toHaveBeenCalledWith('pr1', '1 Main St');
+    expect(backAction).toHaveBeenCalledOnce();
   });
 
   it('getDeletePropertyAction calls deleteProperty and navigates back', async () => {
-    const back = vi.fn();
-    const svc = makeSvc();
-    const module = new PropertyDetailModule(svc, 'pr1', back);
+    const backAction = vi.fn();
+    const propertyService = makePropertyService();
+    const module = new PropertyDetailModule(propertyService, 'pr1', backAction);
     await module.getDeletePropertyAction()!('pr1');
-    expect(svc.deleteProperty).toHaveBeenCalledWith('pr1');
-    expect(back).toHaveBeenCalledOnce();
+    expect(propertyService.deleteProperty).toHaveBeenCalledWith('pr1');
+    expect(backAction).toHaveBeenCalledOnce();
   });
 
   it('getAddTenantAction calls service and refreshes tenants', async () => {
-    const svc = makeSvc();
-    const module = new PropertyDetailModule(svc, 'pr1', vi.fn());
+    const propertyService = makePropertyService();
+    const module = new PropertyDetailModule(propertyService, 'pr1', vi.fn());
     await module.getAddTenantAction()('p4', 'pr1');
-    expect(svc.addTenant).toHaveBeenCalledWith('p4', 'pr1');
-    expect(svc.getTenantsForProperty).toHaveBeenCalledTimes(2);
+    expect(propertyService.addTenant).toHaveBeenCalledWith('p4', 'pr1');
+    expect(propertyService.getTenantsForProperty).toHaveBeenCalledTimes(2);
   });
 
   it('getRemoveTenantAction calls service and refreshes tenants', async () => {
-    const svc = makeSvc();
-    const module = new PropertyDetailModule(svc, 'pr1', vi.fn());
+    const propertyService = makePropertyService();
+    const module = new PropertyDetailModule(propertyService, 'pr1', vi.fn());
     await module.getRemoveTenantAction()('t1');
-    expect(svc.removeTenant).toHaveBeenCalledWith('t1');
-    expect(svc.getTenantsForProperty).toHaveBeenCalledTimes(2);
+    expect(propertyService.removeTenant).toHaveBeenCalledWith('t1');
+    expect(propertyService.getTenantsForProperty).toHaveBeenCalledTimes(2);
   });
 
   it('getAddHouseholdMemberAction calls service and refreshes householdMembers', async () => {
-    const svc = makeSvc();
-    const module = new PropertyDetailModule(svc, 'pr1', vi.fn());
+    const propertyService = makePropertyService();
+    const module = new PropertyDetailModule(propertyService, 'pr1', vi.fn());
     await module.getAddHouseholdMemberAction()('p5', 'pr1');
-    expect(svc.addHouseholdMember).toHaveBeenCalledWith('p5', 'pr1');
-    expect(svc.getHouseholdMembersForProperty).toHaveBeenCalledTimes(2);
+    expect(propertyService.addHouseholdMember).toHaveBeenCalledWith('p5', 'pr1');
+    expect(propertyService.getHouseholdMembersForProperty).toHaveBeenCalledTimes(2);
   });
 
   it('getRemoveHouseholdMemberAction calls service and refreshes householdMembers', async () => {
-    const svc = makeSvc();
-    const module = new PropertyDetailModule(svc, 'pr1', vi.fn());
+    const propertyService = makePropertyService();
+    const module = new PropertyDetailModule(propertyService, 'pr1', vi.fn());
     await module.getRemoveHouseholdMemberAction()('h1');
-    expect(svc.removeHouseholdMember).toHaveBeenCalledWith('h1');
-    expect(svc.getHouseholdMembersForProperty).toHaveBeenCalledTimes(2);
+    expect(propertyService.removeHouseholdMember).toHaveBeenCalledWith('h1');
+    expect(propertyService.getHouseholdMembersForProperty).toHaveBeenCalledTimes(2);
   });
 });

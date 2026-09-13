@@ -2,34 +2,34 @@ import PocketBase from 'pocketbase';
 import type { IEntryDeviceModel } from '$lib/models/item-models';
 
 export interface IEntryDeviceRepository {
-  getById(id: string): Promise<IEntryDeviceModel>;
-  getByItemId(itemId: string): Promise<IEntryDeviceModel | null>;
-  create(itemId: string, deviceType: string, identifier: string, defunctReason: string): Promise<IEntryDeviceModel>;
-  update(id: string, deviceType: string, identifier: string, defunctReason: string): Promise<void>;
-  delete(id: string): Promise<void>;
+  getEntryDeviceById(id: string): Promise<IEntryDeviceModel>;
+  getEntryDeviceByItemId(itemId: string): Promise<IEntryDeviceModel | null>;
+  createEntryDevice(itemId: string, deviceType: string, identifier: string, defunctReason: string): Promise<IEntryDeviceModel>;
+  updateEntryDevice(id: string, deviceType: string, identifier: string, defunctReason: string): Promise<void>;
+  deleteEntryDevice(id: string): Promise<void>;
 }
 
 export class EntryDeviceRepository implements IEntryDeviceRepository {
-  constructor(private readonly pb: PocketBase) {}
+  constructor(private readonly backendClient: PocketBase) {}
 
-  async getById(id: string): Promise<IEntryDeviceModel> {
-    return await this.pb.collection('entryDevices').getOne<IEntryDeviceModel>(id);
+  async getEntryDeviceById(id: string): Promise<IEntryDeviceModel> {
+    return await this.backendClient.collection('entryDevices').getOne<IEntryDeviceModel>(id);
   }
 
-  async getByItemId(itemId: string): Promise<IEntryDeviceModel | null> {
+  async getEntryDeviceByItemId(itemId: string): Promise<IEntryDeviceModel | null> {
     // PocketBase v0.22: combining an explicit item= filter with the listRule (which also
     // traverses item) produces incorrect SQL. Fetch all and match client-side.
-    const results = await this.pb.collection('entryDevices').getFullList<IEntryDeviceModel>();
-    return results.find(e => e.item === itemId) ?? null;
+    const allEntryDevices = await this.backendClient.collection('entryDevices').getFullList<IEntryDeviceModel>();
+    return allEntryDevices.find((entryDevice) => entryDevice.item === itemId) ?? null;
   }
 
-  async create(
+  async createEntryDevice(
     itemId: string,
     deviceType: string,
     identifier: string,
     defunctReason: string,
   ): Promise<IEntryDeviceModel> {
-    return await this.pb.collection('entryDevices').create<IEntryDeviceModel>({
+    return await this.backendClient.collection('entryDevices').create<IEntryDeviceModel>({
       item: itemId,
       deviceType,
       identifier,
@@ -37,11 +37,11 @@ export class EntryDeviceRepository implements IEntryDeviceRepository {
     });
   }
 
-  async update(id: string, deviceType: string, identifier: string, defunctReason: string): Promise<void> {
-    await this.pb.collection('entryDevices').update(id, { deviceType, identifier, defunctReason });
+  async updateEntryDevice(id: string, deviceType: string, identifier: string, defunctReason: string): Promise<void> {
+    await this.backendClient.collection('entryDevices').update(id, { deviceType, identifier, defunctReason });
   }
 
-  async delete(id: string): Promise<void> {
-    await this.pb.collection('entryDevices').delete(id);
+  async deleteEntryDevice(id: string): Promise<void> {
+    await this.backendClient.collection('entryDevices').delete(id);
   }
 }

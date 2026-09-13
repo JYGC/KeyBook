@@ -8,7 +8,7 @@ import (
 )
 
 func TestPropertyOwnerService_EnsureNoDuplicatePersonOwner(t *testing.T) {
-	svc := services.NewPropertyOwnerService()
+	propertyOwnerService := services.NewPropertyOwnerService()
 
 	existing := []dtos.PersonPropertyOwnerDto{
 		{Id: "ppo1", Person: "person1", PropertyOwner: "po1"},
@@ -27,7 +27,7 @@ func TestPropertyOwnerService_EnsureNoDuplicatePersonOwner(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := svc.EnsureNoDuplicatePersonOwner(tt.owners, tt.personId)
+			err := propertyOwnerService.EnsureNoDuplicatePersonOwner(tt.owners, tt.personId)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("EnsureNoDuplicatePersonOwner(_, %q) error = %v, wantErr %v", tt.personId, err, tt.wantErr)
 			}
@@ -36,7 +36,7 @@ func TestPropertyOwnerService_EnsureNoDuplicatePersonOwner(t *testing.T) {
 }
 
 func TestPropertyOwnerService_EnsureNoDuplicateCobrandOwner(t *testing.T) {
-	svc := services.NewPropertyOwnerService()
+	propertyOwnerService := services.NewPropertyOwnerService()
 
 	existing := []dtos.CobrandPropertyOwnerDto{
 		{Id: "cpo1", Cobrand: "cobrand1", PropertyOwner: "po1"},
@@ -55,7 +55,7 @@ func TestPropertyOwnerService_EnsureNoDuplicateCobrandOwner(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := svc.EnsureNoDuplicateCobrandOwner(tt.owners, tt.cobrandId)
+			err := propertyOwnerService.EnsureNoDuplicateCobrandOwner(tt.owners, tt.cobrandId)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("EnsureNoDuplicateCobrandOwner(_, %q) error = %v, wantErr %v", tt.cobrandId, err, tt.wantErr)
 			}

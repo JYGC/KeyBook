@@ -12,19 +12,19 @@ describe('ItemListModule', () => {
       { id: '1', name: 'Front Door Key', description: 'Key to front door' },
       { id: '2', name: 'Mailbox Key', description: 'Key to mailbox' },
     ];
-    const svc = { getAllItems: vi.fn().mockResolvedValue(items) } as unknown as IItemService;
+    const itemService = { getAllItems: vi.fn().mockResolvedValue(items) } as unknown as IItemService;
 
-    const module = new ItemListModule(svc);
+    const module = new ItemListModule(itemService);
     await expect(module.itemListAsync).resolves.toEqual(items);
-    expect(svc.getAllItems).toHaveBeenCalledOnce();
+    expect(itemService.getAllItems).toHaveBeenCalledOnce();
   });
 
   it('returns empty array when service throws', async () => {
-    const svc = {
+    const itemService = {
       getAllItems: vi.fn().mockRejectedValue(new Error('network error')),
     } as unknown as IItemService;
 
-    const module = new ItemListModule(svc);
+    const module = new ItemListModule(itemService);
     await expect(module.itemListAsync).resolves.toEqual([]);
   });
 });

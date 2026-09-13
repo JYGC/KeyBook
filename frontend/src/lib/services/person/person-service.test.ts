@@ -6,83 +6,83 @@ import type { IHouseholdRepository } from '$lib/repositories/property/household-
 import type { IAgentRepository } from '$lib/repositories/agent/agent-repository';
 import { PersonService } from './person-service';
 
-const makeRepos = (
+const makeRepositories = (
 	overrides: {
-		personRepo?: Partial<IPersonRepository>;
-		ppoRepo?: Partial<IPersonPropertyOwnerRepository>;
-		tenantRepo?: Partial<ITenantRepository>;
-		householdRepo?: Partial<IHouseholdRepository>;
-		agentRepo?: Partial<IAgentRepository>;
+		personRepository?: Partial<IPersonRepository>;
+		personPropertyOwnerRepository?: Partial<IPersonPropertyOwnerRepository>;
+		tenantRepository?: Partial<ITenantRepository>;
+		householdRepository?: Partial<IHouseholdRepository>;
+		agentRepository?: Partial<IAgentRepository>;
 	} = {}
 ) => ({
-	personRepo: {
-		getAll: vi.fn().mockResolvedValue([]),
-		getById: vi.fn().mockResolvedValue(null),
-		getByUserId: vi.fn().mockResolvedValue(null),
-		create: vi.fn().mockResolvedValue({ id: 'p1', name: '', DOB: '', user: '', profileImage: '' }),
-		update: vi.fn().mockResolvedValue({ id: 'p1', name: '', DOB: '', user: '', profileImage: '' }),
-		delete: vi.fn().mockResolvedValue(undefined),
-		...overrides.personRepo
+	personRepository: {
+		getAllPersons: vi.fn().mockResolvedValue([]),
+		getPersonById: vi.fn().mockResolvedValue(null),
+		getPersonByUserId: vi.fn().mockResolvedValue(null),
+		createPerson: vi.fn().mockResolvedValue({ id: 'p1', name: '', DOB: '', user: '', profileImage: '' }),
+		updatePerson: vi.fn().mockResolvedValue({ id: 'p1', name: '', DOB: '', user: '', profileImage: '' }),
+		deletePerson: vi.fn().mockResolvedValue(undefined),
+		...overrides.personRepository
 	} as unknown as IPersonRepository,
-	ppoRepo: {
-		getByPersonId: vi.fn().mockResolvedValue([]),
-		getByPropertyOwnerId: vi.fn().mockResolvedValue([]),
-		create: vi.fn().mockResolvedValue({ id: 'ppo1', person: 'p1', propertyOwner: 'po1' }),
-		delete: vi.fn().mockResolvedValue(undefined),
-		...overrides.ppoRepo
+	personPropertyOwnerRepository: {
+		getPersonPropertyOwnersByPersonId: vi.fn().mockResolvedValue([]),
+		getPersonPropertyOwnersByPropertyOwnerId: vi.fn().mockResolvedValue([]),
+		createPersonPropertyOwner: vi.fn().mockResolvedValue({ id: 'ppo1', person: 'p1', propertyOwner: 'po1' }),
+		deletePersonPropertyOwner: vi.fn().mockResolvedValue(undefined),
+		...overrides.personPropertyOwnerRepository
 	} as unknown as IPersonPropertyOwnerRepository,
-	tenantRepo: {
-		getByPersonId: vi.fn().mockResolvedValue([]),
-		getByPropertyId: vi.fn().mockResolvedValue([]),
-		create: vi.fn().mockResolvedValue({ id: 't1', person: 'p1', property: 'pr1' }),
-		delete: vi.fn().mockResolvedValue(undefined),
-		...overrides.tenantRepo
+	tenantRepository: {
+		getTenantsByPersonId: vi.fn().mockResolvedValue([]),
+		getTenantsByPropertyId: vi.fn().mockResolvedValue([]),
+		createTenant: vi.fn().mockResolvedValue({ id: 't1', person: 'p1', property: 'pr1' }),
+		deleteTenant: vi.fn().mockResolvedValue(undefined),
+		...overrides.tenantRepository
 	} as unknown as ITenantRepository,
-	householdRepo: {
-		getByPersonId: vi.fn().mockResolvedValue([]),
-		getByPropertyId: vi.fn().mockResolvedValue([]),
-		create: vi.fn().mockResolvedValue({ id: 'h1', person: 'p1', property: 'pr1' }),
-		delete: vi.fn().mockResolvedValue(undefined),
-		...overrides.householdRepo
+	householdRepository: {
+		getHouseholdsByPersonId: vi.fn().mockResolvedValue([]),
+		getHouseholdsByPropertyId: vi.fn().mockResolvedValue([]),
+		createHousehold: vi.fn().mockResolvedValue({ id: 'h1', person: 'p1', property: 'pr1' }),
+		deleteHousehold: vi.fn().mockResolvedValue(undefined),
+		...overrides.householdRepository
 	} as unknown as IHouseholdRepository,
-	agentRepo: {
-		getAll: vi.fn().mockResolvedValue([]),
-		getById: vi.fn().mockResolvedValue(null),
-		getByPersonId: vi.fn().mockResolvedValue([]),
-		create: vi.fn().mockResolvedValue({ id: 'ag1', person: 'p1', cobrand: 'c1' }),
-		delete: vi.fn().mockResolvedValue(undefined),
-		...overrides.agentRepo
+	agentRepository: {
+		getAllAgents: vi.fn().mockResolvedValue([]),
+		getAgentById: vi.fn().mockResolvedValue(null),
+		getAgentsByPersonId: vi.fn().mockResolvedValue([]),
+		createAgent: vi.fn().mockResolvedValue({ id: 'ag1', person: 'p1', cobrand: 'c1' }),
+		deleteAgent: vi.fn().mockResolvedValue(undefined),
+		...overrides.agentRepository
 	} as unknown as IAgentRepository
 });
 
-const makeSvc = (overrides = {}) => {
-	const repos = makeRepos(overrides);
+const makePersonService = (overrides = {}) => {
+	const repositories = makeRepositories(overrides);
 	return new PersonService(
-		repos.personRepo,
-		repos.ppoRepo,
-		repos.tenantRepo,
-		repos.householdRepo,
-		repos.agentRepo
+		repositories.personRepository,
+		repositories.personPropertyOwnerRepository,
+		repositories.tenantRepository,
+		repositories.householdRepository,
+		repositories.agentRepository
 	);
 };
 
 describe('PersonService.validatePersonName', () => {
 	it('passes for a valid name', () => {
-		expect(() => makeSvc().validatePersonName('Alice')).not.toThrow();
+		expect(() => makePersonService().validatePersonName('Alice')).not.toThrow();
 	});
 
 	it('throws for empty string', () => {
-		expect(() => makeSvc().validatePersonName('')).toThrow('person name is required');
+		expect(() => makePersonService().validatePersonName('')).toThrow('person name is required');
 	});
 
 	it('throws for whitespace-only string', () => {
-		expect(() => makeSvc().validatePersonName('   ')).toThrow('person name is required');
+		expect(() => makePersonService().validatePersonName('   ')).toThrow('person name is required');
 	});
 });
 
 describe('PersonService.createPerson', () => {
 	it('creates a person without a userId when none is given', async () => {
-		const create = vi
+		const createPerson = vi
 			.fn()
 			.mockResolvedValue({
 				id: 'p1',
@@ -91,15 +91,15 @@ describe('PersonService.createPerson', () => {
 				user: '',
 				profileImage: ''
 			});
-		const svc = makeSvc({ personRepo: { create } });
+		const personService = makePersonService({ personRepository: { createPerson } });
 
-		await svc.createPerson('Alice', '1990-01-01');
+		await personService.createPerson('Alice', '1990-01-01');
 
-		expect(create).toHaveBeenCalledWith('Alice', '1990-01-01', undefined);
+		expect(createPerson).toHaveBeenCalledWith('Alice', '1990-01-01', undefined);
 	});
 
 	it('passes the userId through to the repository when linking to the authenticated user', async () => {
-		const create = vi
+		const createPerson = vi
 			.fn()
 			.mockResolvedValue({
 				id: 'p1',
@@ -108,17 +108,17 @@ describe('PersonService.createPerson', () => {
 				user: 'u1',
 				profileImage: ''
 			});
-		const svc = makeSvc({ personRepo: { create } });
+		const personService = makePersonService({ personRepository: { createPerson } });
 
-		const result = await svc.createPerson('Alice', '1990-01-01', 'u1');
+		const result = await personService.createPerson('Alice', '1990-01-01', 'u1');
 
-		expect(create).toHaveBeenCalledWith('Alice', '1990-01-01', 'u1');
+		expect(createPerson).toHaveBeenCalledWith('Alice', '1990-01-01', 'u1');
 		expect(result.user).toBe('u1');
 	});
 
 	it('still validates name and DOB before creating a linked person', async () => {
-		const svc = makeSvc();
-		await expect(svc.createPerson('', '1990-01-01', 'u1')).rejects.toThrow(
+		const personService = makePersonService();
+		await expect(personService.createPerson('', '1990-01-01', 'u1')).rejects.toThrow(
 			'person name is required'
 		);
 	});
@@ -126,72 +126,72 @@ describe('PersonService.createPerson', () => {
 
 describe('PersonService.validatePersonDOB', () => {
 	it('passes for a valid date', () => {
-		expect(() => makeSvc().validatePersonDOB('1990-01-01')).not.toThrow();
+		expect(() => makePersonService().validatePersonDOB('1990-01-01')).not.toThrow();
 	});
 
 	it('throws for empty string', () => {
-		expect(() => makeSvc().validatePersonDOB('')).toThrow('date of birth is required');
+		expect(() => makePersonService().validatePersonDOB('')).toThrow('date of birth is required');
 	});
 });
 
 describe('PersonService.getRolesForPerson', () => {
 	it('returns empty array when person has no roles', async () => {
-		const svc = makeSvc();
-		await expect(svc.getRolesForPerson('p1')).resolves.toEqual([]);
+		const personService = makePersonService();
+		await expect(personService.getRolesForPerson('p1')).resolves.toEqual([]);
 	});
 
 	it('returns Owner when person has personPropertyOwner records', async () => {
-		const svc = makeSvc({
-			ppoRepo: {
-				getByPersonId: vi
+		const personService = makePersonService({
+			personPropertyOwnerRepository: {
+				getPersonPropertyOwnersByPersonId: vi
 					.fn()
 					.mockResolvedValue([{ id: 'ppo1', person: 'p1', propertyOwner: 'po1' }])
 			}
 		});
-		const roles = await svc.getRolesForPerson('p1');
+		const roles = await personService.getRolesForPerson('p1');
 		expect(roles).toContain('Owner');
 	});
 
 	it('returns Tenant when person has tenant records', async () => {
-		const svc = makeSvc({
-			tenantRepo: {
-				getByPersonId: vi.fn().mockResolvedValue([{ id: 't1', person: 'p1', property: 'pr1' }])
+		const personService = makePersonService({
+			tenantRepository: {
+				getTenantsByPersonId: vi.fn().mockResolvedValue([{ id: 't1', person: 'p1', property: 'pr1' }])
 			}
 		});
-		const roles = await svc.getRolesForPerson('p1');
+		const roles = await personService.getRolesForPerson('p1');
 		expect(roles).toContain('Tenant');
 	});
 
 	it('returns Household when person has household records', async () => {
-		const svc = makeSvc({
-			householdRepo: {
-				getByPersonId: vi.fn().mockResolvedValue([{ id: 'h1', person: 'p1', property: 'pr1' }])
+		const personService = makePersonService({
+			householdRepository: {
+				getHouseholdsByPersonId: vi.fn().mockResolvedValue([{ id: 'h1', person: 'p1', property: 'pr1' }])
 			}
 		});
-		const roles = await svc.getRolesForPerson('p1');
+		const roles = await personService.getRolesForPerson('p1');
 		expect(roles).toContain('Household');
 	});
 
 	it('returns Agent when person has agent records', async () => {
-		const svc = makeSvc({
-			agentRepo: {
-				getByPersonId: vi.fn().mockResolvedValue([{ id: 'ag1', person: 'p1', cobrand: 'c1' }])
+		const personService = makePersonService({
+			agentRepository: {
+				getAgentsByPersonId: vi.fn().mockResolvedValue([{ id: 'ag1', person: 'p1', cobrand: 'c1' }])
 			}
 		});
-		const roles = await svc.getRolesForPerson('p1');
+		const roles = await personService.getRolesForPerson('p1');
 		expect(roles).toContain('Agent');
 	});
 
 	it('returns multiple roles when person has multiple roles', async () => {
-		const svc = makeSvc({
-			tenantRepo: {
-				getByPersonId: vi.fn().mockResolvedValue([{ id: 't1', person: 'p1', property: 'pr1' }])
+		const personService = makePersonService({
+			tenantRepository: {
+				getTenantsByPersonId: vi.fn().mockResolvedValue([{ id: 't1', person: 'p1', property: 'pr1' }])
 			},
-			householdRepo: {
-				getByPersonId: vi.fn().mockResolvedValue([{ id: 'h1', person: 'p1', property: 'pr2' }])
+			householdRepository: {
+				getHouseholdsByPersonId: vi.fn().mockResolvedValue([{ id: 'h1', person: 'p1', property: 'pr2' }])
 			}
 		});
-		const roles = await svc.getRolesForPerson('p1');
+		const roles = await personService.getRolesForPerson('p1');
 		expect(roles).toContain('Tenant');
 		expect(roles).toContain('Household');
 	});

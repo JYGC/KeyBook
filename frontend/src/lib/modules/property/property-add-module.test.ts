@@ -6,7 +6,7 @@ beforeAll(() => {
   vi.stubGlobal('alert', vi.fn());
 });
 
-const makeSvc = (overrides: Partial<IPropertyService> = {}) =>
+const makePropertyService = (overrides: Partial<IPropertyService> = {}) =>
   ({
     createPropertyWithOwner: vi.fn().mockResolvedValue({ id: 'pr1', address: '1 Main St' }),
     ...overrides,
@@ -14,34 +14,34 @@ const makeSvc = (overrides: Partial<IPropertyService> = {}) =>
 
 describe('PropertyAddModule', () => {
   it('isAdd returns true', () => {
-    const module = new PropertyAddModule(makeSvc(), 'person1', vi.fn());
+    const module = new PropertyAddModule(makePropertyService(), 'person1', vi.fn());
     expect(module.isAdd).toBe(true);
   });
 
   it('callBackAction calls the provided callback', () => {
-    const back = vi.fn();
-    const module = new PropertyAddModule(makeSvc(), 'person1', back);
+    const backAction = vi.fn();
+    const module = new PropertyAddModule(makePropertyService(), 'person1', backAction);
     module.callBackAction();
-    expect(back).toHaveBeenCalledOnce();
+    expect(backAction).toHaveBeenCalledOnce();
   });
 
   it('resolves propertyAsync to an empty property model', async () => {
-    const module = new PropertyAddModule(makeSvc(), 'person1', vi.fn());
+    const module = new PropertyAddModule(makePropertyService(), 'person1', vi.fn());
     const property = await module.propertyAsync;
     expect(property).toMatchObject({ id: '', address: '' });
   });
 
   it('getSavePropertyAction calls createPropertyWithOwner with currentPersonId and navigates back', async () => {
-    const back = vi.fn();
-    const svc = makeSvc();
-    const module = new PropertyAddModule(svc, 'person1', back);
+    const backAction = vi.fn();
+    const propertyService = makePropertyService();
+    const module = new PropertyAddModule(propertyService, 'person1', backAction);
     await module.getSavePropertyAction()({ id: '', address: '1 Main St' });
-    expect(svc.createPropertyWithOwner).toHaveBeenCalledWith('1 Main St', 'person1');
-    expect(back).toHaveBeenCalledOnce();
+    expect(propertyService.createPropertyWithOwner).toHaveBeenCalledWith('1 Main St', 'person1');
+    expect(backAction).toHaveBeenCalledOnce();
   });
 
   it('getDeletePropertyAction returns null', () => {
-    const module = new PropertyAddModule(makeSvc(), 'person1', vi.fn());
+    const module = new PropertyAddModule(makePropertyService(), 'person1', vi.fn());
     expect(module.getDeletePropertyAction()).toBeNull();
   });
 });

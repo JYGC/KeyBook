@@ -9,8 +9,8 @@ import (
 )
 
 func TestItemApplicationService_CRUD(t *testing.T) {
-	app := newApp(t)
-	svc := application.NewItemApplicationService(
+	app := newTestAppWithMigrations(t)
+	itemApplicationService := application.NewItemApplicationService(
 		services.NewItemService(),
 		repositories.NewItemRepository(app),
 		repositories.NewEntryDeviceRepository(app),
@@ -18,8 +18,7 @@ func TestItemApplicationService_CRUD(t *testing.T) {
 		repositories.NewPersonItemRepository(app),
 	)
 
-	// Create — valid
-	created, err := svc.CreateItem("Front Door Key", "Main entrance")
+	created, err := itemApplicationService.CreateItem("Front Door Key", "Main entrance")
 	if err != nil {
 		t.Fatalf("CreateItem: %v", err)
 	}
@@ -27,30 +26,26 @@ func TestItemApplicationService_CRUD(t *testing.T) {
 		t.Errorf("Name: want Front Door Key, got %s", created.Name)
 	}
 
-	// Create — validation failure
-	if _, err := svc.CreateItem("", "desc"); err == nil {
+	if _, err := itemApplicationService.CreateItem("", "desc"); err == nil {
 		t.Error("expected error for empty name, got nil")
 	}
 
-	// Update — valid
-	if err := svc.UpdateItem(created.Id, "Gate Key", "Side gate"); err != nil {
+	if err := itemApplicationService.UpdateItem(created.Id, "Gate Key", "Side gate"); err != nil {
 		t.Fatalf("UpdateItem: %v", err)
 	}
 
-	// Update — validation failure
-	if err := svc.UpdateItem(created.Id, "", "desc"); err == nil {
+	if err := itemApplicationService.UpdateItem(created.Id, "", "desc"); err == nil {
 		t.Error("expected error for empty name on update, got nil")
 	}
 
-	// Delete
-	if err := svc.DeleteItem(created.Id); err != nil {
+	if err := itemApplicationService.DeleteItem(created.Id); err != nil {
 		t.Fatalf("DeleteItem: %v", err)
 	}
 }
 
 func TestItemApplicationService_EntryDevice(t *testing.T) {
-	app := newApp(t)
-	svc := application.NewItemApplicationService(
+	app := newTestAppWithMigrations(t)
+	itemApplicationService := application.NewItemApplicationService(
 		services.NewItemService(),
 		repositories.NewItemRepository(app),
 		repositories.NewEntryDeviceRepository(app),
@@ -58,36 +53,32 @@ func TestItemApplicationService_EntryDevice(t *testing.T) {
 		repositories.NewPersonItemRepository(app),
 	)
 
-	item := createRecord(t, app, "items", map[string]any{"name": "Key", "description": "test"})
+	item := createRecordBypassingAccessRules(t, app, "items", map[string]any{"name": "Key", "description": "test"})
 
-	// Create entry device (active — "None")
-	ed, err := svc.CreateEntryDevice(item.GetId(), "Key", "KEY-001", "None")
+	entryDevice, err := itemApplicationService.CreateEntryDevice(item.GetId(), "Key", "KEY-001", "None")
 	if err != nil {
 		t.Fatalf("CreateEntryDevice: %v", err)
 	}
-	if ed.DefunctReason != "None" {
-		t.Errorf("DefunctReason: want None, got %s", ed.DefunctReason)
+	if entryDevice.DefunctReason != "None" {
+		t.Errorf("DefunctReason: want None, got %s", entryDevice.DefunctReason)
 	}
 
-	// Update — valid transition: active → defunct
-	if err := svc.UpdateEntryDevice(ed.Id, "Key", "KEY-001", "Lost"); err != nil {
+	if err := itemApplicationService.UpdateEntryDevice(entryDevice.Id, "Key", "KEY-001", "Lost"); err != nil {
 		t.Fatalf("UpdateEntryDevice active→defunct: %v", err)
 	}
 
-	// Update — invalid transition: defunct → active (reactivation)
-	if err := svc.UpdateEntryDevice(ed.Id, "Key", "KEY-001", "None"); err == nil {
+	if err := itemApplicationService.UpdateEntryDevice(entryDevice.Id, "Key", "KEY-001", "None"); err == nil {
 		t.Error("expected error for reactivation, got nil")
 	}
 
-	// Delete entry device
-	if err := svc.DeleteEntryDevice(ed.Id); err != nil {
+	if err := itemApplicationService.DeleteEntryDevice(entryDevice.Id); err != nil {
 		t.Fatalf("DeleteEntryDevice: %v", err)
 	}
 }
 
 func TestItemApplicationService_Associations(t *testing.T) {
-	app := newApp(t)
-	svc := application.NewItemApplicationService(
+	app := newTestAppWithMigrations(t)
+	itemApplicationService := application.NewItemApplicationService(
 		services.NewItemService(),
 		repositories.NewItemRepository(app),
 		repositories.NewEntryDeviceRepository(app),
@@ -95,25 +86,23 @@ func TestItemApplicationService_Associations(t *testing.T) {
 		repositories.NewPersonItemRepository(app),
 	)
 
-	item := createRecord(t, app, "items", map[string]any{"name": "Key", "description": "test"})
-	property := createRecord(t, app, "properties", map[string]any{"address": "1 Test St"})
-	person := createRecord(t, app, "persons", map[string]any{"name": "Alice", "DOB": "1990-01-01 00:00:00.000Z"})
+	item := createRecordBypassingAccessRules(t, app, "items", map[string]any{"name": "Key", "description": "test"})
+	property := createRecordBypassingAccessRules(t, app, "properties", map[string]any{"address": "1 Test St"})
+	person := createRecordBypassingAccessRules(t, app, "persons", map[string]any{"name": "Alice", "DOB": "1990-01-01 00:00:00.000Z"})
 
-	// Add and remove property item
-	pi, err := svc.AddPropertyItem(item.GetId(), property.GetId())
+	pi, err := itemApplicationService.AddPropertyItem(item.GetId(), property.GetId())
 	if err != nil {
 		t.Fatalf("AddPropertyItem: %v", err)
 	}
-	if err := svc.RemovePropertyItem(pi.Id); err != nil {
+	if err := itemApplicationService.RemovePropertyItem(pi.Id); err != nil {
 		t.Fatalf("RemovePropertyItem: %v", err)
 	}
 
-	// Add and remove person item
-	psi, err := svc.AddPersonItem(person.GetId(), item.GetId())
+	personItem, err := itemApplicationService.AddPersonItem(person.GetId(), item.GetId())
 	if err != nil {
 		t.Fatalf("AddPersonItem: %v", err)
 	}
-	if err := svc.RemovePersonItem(psi.Id); err != nil {
+	if err := itemApplicationService.RemovePersonItem(personItem.Id); err != nil {
 		t.Fatalf("RemovePersonItem: %v", err)
 	}
 }

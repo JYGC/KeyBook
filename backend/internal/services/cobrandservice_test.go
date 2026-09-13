@@ -8,7 +8,7 @@ import (
 )
 
 func TestCobrandService_ValidateCobrand(t *testing.T) {
-	svc := services.NewCobrandService()
+	cobrandService := services.NewCobrandService()
 
 	tests := []struct {
 		name    string
@@ -21,7 +21,7 @@ func TestCobrandService_ValidateCobrand(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := svc.ValidateCobrand(tt.cName)
+			err := cobrandService.ValidateCobrand(tt.cName)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ValidateCobrand(%q) error = %v, wantErr %v", tt.cName, err, tt.wantErr)
 			}
@@ -30,7 +30,7 @@ func TestCobrandService_ValidateCobrand(t *testing.T) {
 }
 
 func TestCobrandService_EnsureAdminIsUnique(t *testing.T) {
-	svc := services.NewCobrandService()
+	cobrandService := services.NewCobrandService()
 
 	existing := []dtos.CobrandAdminDto{
 		{Id: "ca1", User: "user1", Cobrand: "cobrand1"},
@@ -49,7 +49,7 @@ func TestCobrandService_EnsureAdminIsUnique(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := svc.EnsureAdminIsUnique(tt.admins, tt.userId)
+			err := cobrandService.EnsureAdminIsUnique(tt.admins, tt.userId)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("EnsureAdminIsUnique(_, %q) error = %v, wantErr %v", tt.userId, err, tt.wantErr)
 			}
@@ -58,7 +58,7 @@ func TestCobrandService_EnsureAdminIsUnique(t *testing.T) {
 }
 
 func TestCobrandService_EnsureInviterIsApprovedAdmin(t *testing.T) {
-	svc := services.NewCobrandService()
+	cobrandService := services.NewCobrandService()
 
 	approvedAdmin := []dtos.CobrandAdminDto{
 		{Id: "ca1", User: "user1", Cobrand: "cobrand1", Approved: true},
@@ -81,7 +81,7 @@ func TestCobrandService_EnsureInviterIsApprovedAdmin(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := svc.EnsureInviterIsApprovedAdmin(tt.admins, tt.inviterId)
+			err := cobrandService.EnsureInviterIsApprovedAdmin(tt.admins, tt.inviterId)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("EnsureInviterIsApprovedAdmin(_, %q) error = %v, wantErr %v", tt.inviterId, err, tt.wantErr)
 			}

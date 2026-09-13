@@ -14,38 +14,38 @@ type IAgentApplicationService interface {
 }
 
 type AgentApplicationService struct {
-	agentService      services.IAgentService
-	agentRepo         repositories.IAgentRepository
-	propertyAgentRepo repositories.IPropertyAgentRepository
+	agentService            services.IAgentService
+	agentRepository         repositories.IAgentRepository
+	propertyAgentRepository repositories.IPropertyAgentRepository
 }
 
 func NewAgentApplicationService(
 	agentService services.IAgentService,
-	agentRepo repositories.IAgentRepository,
-	propertyAgentRepo repositories.IPropertyAgentRepository,
+	agentRepository repositories.IAgentRepository,
+	propertyAgentRepository repositories.IPropertyAgentRepository,
 ) IAgentApplicationService {
-	return &AgentApplicationService{agentService, agentRepo, propertyAgentRepo}
+	return &AgentApplicationService{agentService, agentRepository, propertyAgentRepository}
 }
 
 func (s *AgentApplicationService) RegisterAgent(personId, cobrandId string) (dtos.AgentDto, error) {
-	return s.agentRepo.CreateAgent(personId, cobrandId)
+	return s.agentRepository.CreateAgent(personId, cobrandId)
 }
 
 func (s *AgentApplicationService) UnregisterAgent(id string) error {
-	return s.agentRepo.DeleteAgent(id)
+	return s.agentRepository.DeleteAgent(id)
 }
 
 func (s *AgentApplicationService) AssignToProperty(agentId, propertyId string) (dtos.PropertyAgentDto, error) {
-	existing, err := s.propertyAgentRepo.GetPropertyAgentsByPropertyId(propertyId)
+	existingPropertyAgents, err := s.propertyAgentRepository.GetPropertyAgentsByPropertyId(propertyId)
 	if err != nil {
 		return dtos.PropertyAgentDto{}, err
 	}
-	if err := s.agentService.EnsureNoDuplicatePropertyAgent(existing, agentId); err != nil {
+	if err := s.agentService.EnsureNoDuplicatePropertyAgent(existingPropertyAgents, agentId); err != nil {
 		return dtos.PropertyAgentDto{}, err
 	}
-	return s.propertyAgentRepo.CreatePropertyAgent(agentId, propertyId)
+	return s.propertyAgentRepository.CreatePropertyAgent(agentId, propertyId)
 }
 
 func (s *AgentApplicationService) ResignFromProperty(id string) error {
-	return s.propertyAgentRepo.DeletePropertyAgent(id)
+	return s.propertyAgentRepository.DeletePropertyAgent(id)
 }

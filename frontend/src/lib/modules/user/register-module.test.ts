@@ -40,7 +40,7 @@ describe('RegisterModule', () => {
 	it('callApi surfaces the error and returns false on failure', async () => {
 		// Shaped like a PocketBase ClientResponseError: `message` on the underlying
 		// Error is a generic constant, so the real detail lives in `response`, which
-		// is what JSON.stringify(ex) actually surfaces to the user.
+		// is what JSON.stringify(error) actually surfaces to the user.
 		const failure = {
 			status: 400,
 			response: { email: { message: 'email already taken' } }

@@ -45,11 +45,11 @@ func (r *HouseholdRepository) GetHouseholdsByPropertyId(propertyId string) ([]dt
 }
 
 func (r *HouseholdRepository) CreateHousehold(personId, propertyId string) (dtos.HouseholdDto, error) {
-	col, err := r.app.Dao().FindCollectionByNameOrId("households")
+	householdsCollection, err := r.app.Dao().FindCollectionByNameOrId("households")
 	if err != nil {
 		return dtos.HouseholdDto{}, err
 	}
-	record := models.NewRecord(col)
+	record := models.NewRecord(householdsCollection)
 	record.Set("person", personId)
 	record.Set("property", propertyId)
 	if err := r.app.Dao().SaveRecord(record); err != nil {
@@ -66,10 +66,10 @@ func (r *HouseholdRepository) DeleteHousehold(id string) error {
 	return r.app.Dao().DeleteRecord(record)
 }
 
-func householdRecordToDto(r *models.Record) dtos.HouseholdDto {
+func householdRecordToDto(record *models.Record) dtos.HouseholdDto {
 	return dtos.HouseholdDto{
-		Id:       r.GetId(),
-		Person:   r.GetString("person"),
-		Property: r.GetString("property"),
+		Id:       record.GetId(),
+		Person:   record.GetString("person"),
+		Property: record.GetString("property"),
 	}
 }

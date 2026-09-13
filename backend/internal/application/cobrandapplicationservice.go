@@ -17,61 +17,61 @@ type ICobrandApplicationService interface {
 }
 
 type CobrandApplicationService struct {
-	cobrandService             services.ICobrandService
-	cobrandRepo                repositories.ICobrandRepository
-	cobrandAdminRepo           repositories.ICobrandAdminRepository
-	cobrandPropertyManagerRepo repositories.ICobrandPropertyManagerRepository
+	cobrandService                   services.ICobrandService
+	cobrandRepository                repositories.ICobrandRepository
+	cobrandAdminRepository           repositories.ICobrandAdminRepository
+	cobrandPropertyManagerRepository repositories.ICobrandPropertyManagerRepository
 }
 
 func NewCobrandApplicationService(
 	cobrandService services.ICobrandService,
-	cobrandRepo repositories.ICobrandRepository,
-	cobrandAdminRepo repositories.ICobrandAdminRepository,
-	cobrandPropertyManagerRepo repositories.ICobrandPropertyManagerRepository,
+	cobrandRepository repositories.ICobrandRepository,
+	cobrandAdminRepository repositories.ICobrandAdminRepository,
+	cobrandPropertyManagerRepository repositories.ICobrandPropertyManagerRepository,
 ) ICobrandApplicationService {
-	return &CobrandApplicationService{cobrandService, cobrandRepo, cobrandAdminRepo, cobrandPropertyManagerRepo}
+	return &CobrandApplicationService{cobrandService, cobrandRepository, cobrandAdminRepository, cobrandPropertyManagerRepository}
 }
 
 func (s *CobrandApplicationService) CreateCobrand(name string) (dtos.CobrandDto, error) {
 	if err := s.cobrandService.ValidateCobrand(name); err != nil {
 		return dtos.CobrandDto{}, err
 	}
-	return s.cobrandRepo.CreateCobrand(name)
+	return s.cobrandRepository.CreateCobrand(name)
 }
 
 func (s *CobrandApplicationService) UpdateCobrand(id, name string) error {
 	if err := s.cobrandService.ValidateCobrand(name); err != nil {
 		return err
 	}
-	return s.cobrandRepo.UpdateCobrand(id, name)
+	return s.cobrandRepository.UpdateCobrand(id, name)
 }
 
 func (s *CobrandApplicationService) DeleteCobrand(id string) error {
-	return s.cobrandRepo.DeleteCobrand(id)
+	return s.cobrandRepository.DeleteCobrand(id)
 }
 
 func (s *CobrandApplicationService) AddCobrandAdmin(userId, cobrandId, inviterUserId string) (dtos.CobrandAdminDto, error) {
-	existing, err := s.cobrandAdminRepo.GetCobrandAdminsByCobrandId(cobrandId)
+	existingAdmins, err := s.cobrandAdminRepository.GetCobrandAdminsByCobrandId(cobrandId)
 	if err != nil {
 		return dtos.CobrandAdminDto{}, err
 	}
-	if err := s.cobrandService.EnsureAdminIsUnique(existing, userId); err != nil {
+	if err := s.cobrandService.EnsureAdminIsUnique(existingAdmins, userId); err != nil {
 		return dtos.CobrandAdminDto{}, err
 	}
-	if err := s.cobrandService.EnsureInviterIsApprovedAdmin(existing, inviterUserId); err != nil {
+	if err := s.cobrandService.EnsureInviterIsApprovedAdmin(existingAdmins, inviterUserId); err != nil {
 		return dtos.CobrandAdminDto{}, err
 	}
-	return s.cobrandAdminRepo.CreateCobrandAdmin(userId, cobrandId)
+	return s.cobrandAdminRepository.CreateCobrandAdmin(userId, cobrandId)
 }
 
 func (s *CobrandApplicationService) RemoveCobrandAdmin(id string) error {
-	return s.cobrandAdminRepo.DeleteCobrandAdmin(id)
+	return s.cobrandAdminRepository.DeleteCobrandAdmin(id)
 }
 
 func (s *CobrandApplicationService) AddPropertyManager(cobrandId, propertyId string) (dtos.CobrandPropertyManagerDto, error) {
-	return s.cobrandPropertyManagerRepo.CreateCobrandPropertyManager(cobrandId, propertyId)
+	return s.cobrandPropertyManagerRepository.CreateCobrandPropertyManager(cobrandId, propertyId)
 }
 
 func (s *CobrandApplicationService) RemovePropertyManager(id string) error {
-	return s.cobrandPropertyManagerRepo.DeleteCobrandPropertyManager(id)
+	return s.cobrandPropertyManagerRepository.DeleteCobrandPropertyManager(id)
 }

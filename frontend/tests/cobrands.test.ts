@@ -10,21 +10,21 @@ const TEST_EMAIL_2 = 'e2e_cobrands2@keybook.test';
 const TEST_PASSWORD_2 = 'E2Ecobrands2_test1';
 
 async function adminAuth(): Promise<PocketBase> {
-	const pb = new PocketBase(PB_URL);
-	const res = await fetch(`${PB_URL}/api/admins/auth-with-password`, {
+	const backendClient = new PocketBase(PB_URL);
+	const adminAuthResponse = await fetch(`${PB_URL}/api/admins/auth-with-password`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ identity: ADMIN_EMAIL, password: ADMIN_PASSWORD })
 	});
-	const data = await res.json();
-	pb.authStore.save(data.token, data.admin);
-	return pb;
+	const adminAuthResult = await adminAuthResponse.json();
+	backendClient.authStore.save(adminAuthResult.token, adminAuthResult.admin);
+	return backendClient;
 }
 
-async function ensureTestPerson(pb: PocketBase, userId: string): Promise<string> {
-	const persons = await pb.collection('persons').getFullList({ filter: `user = "${userId}"` });
+async function ensureTestPerson(backendClient: PocketBase, userId: string): Promise<string> {
+	const persons = await backendClient.collection('persons').getFullList({ filter: `user = "${userId}"` });
 	if (persons.length > 0) return persons[0].id;
-	const person = await pb.collection('persons').create({
+	const person = await backendClient.collection('persons').create({
 		name: 'E2E Cobrands Test Person',
 		DOB: '1990-01-01',
 		user: userId
@@ -32,32 +32,32 @@ async function ensureTestPerson(pb: PocketBase, userId: string): Promise<string>
 	return person.id;
 }
 
-async function cleanupTestCobrands(pb: PocketBase): Promise<void> {
+async function cleanupTestCobrands(backendClient: PocketBase): Promise<void> {
 	const testNames = ['E2E Test Cobrand', 'E2E Admin Test Cobrand', 'E2E Manager Test Cobrand'];
 	for (const name of testNames) {
-		const found = await pb.collection('cobrands').getFullList({ filter: `name = "${name}"` });
-		for (const c of found) {
-			const admins = await pb
+		const found = await backendClient.collection('cobrands').getFullList({ filter: `name = "${name}"` });
+		for (const cobrand of found) {
+			const admins = await backendClient
 				.collection('cobrandAdmins')
 				.getFullList({ filter: `cobrand = "${c.id}"` });
-			for (const a of admins) await pb.collection('cobrandAdmins').delete(a.id);
-			const managers = await pb
+			for (const admin of admins) await backendClient.collection('cobrandAdmins').delete(admin.id);
+			const managers = await backendClient
 				.collection('cobrandPropertyManagers')
 				.getFullList({ filter: `cobrand = "${c.id}"` });
-			for (const m of managers) await pb.collection('cobrandPropertyManagers').delete(m.id);
-			await pb.collection('cobrands').delete(c.id);
+			for (const manager of managers) await backendClient.collection('cobrandPropertyManagers').delete(manager.id);
+			await backendClient.collection('cobrands').delete(c.id);
 		}
 	}
 }
 
 test.beforeAll(async () => {
-	const pb = await adminAuth();
+	const backendClient = await adminAuth();
 	for (const [email, password] of [
 		[TEST_EMAIL, TEST_PASSWORD],
 		[TEST_EMAIL_2, TEST_PASSWORD_2]
 	]) {
 		try {
-			await pb.collection('users').create({
+			await backendClient.collection('users').create({
 				email,
 				password,
 				passwordConfirm: password
@@ -66,7 +66,7 @@ test.beforeAll(async () => {
 			// user already exists
 		}
 	}
-	await cleanupTestCobrands(pb);
+	await cleanupTestCobrands(backendClient);
 });
 
 test.beforeEach(async ({ page }) => {
@@ -81,7 +81,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('create cobrand', async ({ page }) => {
-	const pb = await adminAuth();
+	const backendClient = await adminAuth();
 
 	await page.goto('/user/cobrands');
 	await page.waitForLoadState('networkidle');
@@ -91,28 +91,28 @@ test('create cobrand', async ({ page }) => {
 	await page.getByRole('button', { name: 'Save' }).click();
 	await page.waitForURL(/\/user\/cobrands(\/)?$/);
 
-	const cobrands = await pb
+	const cobrands = await backendClient
 		.collection('cobrands')
 		.getFullList({ filter: 'name = "E2E Test Cobrand"' });
 	expect(cobrands.length).toBe(1);
 
-	await cleanupTestCobrands(pb);
+	await cleanupTestCobrands(backendClient);
 });
 
 test('add admin to cobrand', async ({ page }) => {
-	const pb = await adminAuth();
+	const backendClient = await adminAuth();
 
-	const users1 = await pb.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
-	const users2 = await pb.collection('users').getFullList({ filter: `email = "${TEST_EMAIL_2}"` });
+	const users1 = await backendClient.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
+	const users2 = await backendClient.collection('users').getFullList({ filter: `email = "${TEST_EMAIL_2}"` });
 	const testUserId = users1[0].id;
 	const secondUserId = users2[0].id;
 
-	const cobrand = await pb
+	const cobrand = await backendClient
 		.collection('cobrands')
 		.create<{ id: string }>({ name: 'E2E Admin Test Cobrand' });
 	// approved: true — inviting a co-admin requires the inviter to be an approved
 	// admin themselves (Phase 12's approval gate).
-	await pb
+	await backendClient
 		.collection('cobrandAdmins')
 		.create({ user: testUserId, cobrand: cobrand.id, approved: true });
 
@@ -123,33 +123,33 @@ test('add admin to cobrand', async ({ page }) => {
 	await page.getByRole('button', { name: 'Add Admin' }).click();
 	await page.waitForTimeout(1000);
 
-	const admins = await pb
+	const admins = await backendClient
 		.collection('cobrandAdmins')
 		.getFullList({ filter: `cobrand = "${cobrand.id}"` });
-	expect(admins.some((a) => a.user === secondUserId)).toBe(true);
+	expect(admins.some((admin) => admin.user === secondUserId)).toBe(true);
 
-	await cleanupTestCobrands(pb);
+	await cleanupTestCobrands(backendClient);
 });
 
 test('add property manager to cobrand', async ({ page }) => {
-	const pb = await adminAuth();
+	const backendClient = await adminAuth();
 
-	const users1 = await pb.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
+	const users1 = await backendClient.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
 	const testUserId = users1[0].id;
-	const personId = await ensureTestPerson(pb, testUserId);
+	const personId = await ensureTestPerson(backendClient, testUserId);
 
-	const cobrand = await pb
+	const cobrand = await backendClient
 		.collection('cobrands')
 		.create<{ id: string }>({ name: 'E2E Manager Test Cobrand' });
-	await pb.collection('cobrandAdmins').create({ user: testUserId, cobrand: cobrand.id });
+	await backendClient.collection('cobrandAdmins').create({ user: testUserId, cobrand: cobrand.id });
 
-	const property = await pb
+	const property = await backendClient
 		.collection('properties')
 		.create<{ id: string }>({ address: '77 E2E Manager Ave' });
-	const propertyOwner = await pb
+	const propertyOwner = await backendClient
 		.collection('propertyOwners')
 		.create<{ id: string }>({ property: property.id });
-	await pb
+	await backendClient
 		.collection('personPropertyOwners')
 		.create({ propertyOwner: propertyOwner.id, person: personId });
 
@@ -160,17 +160,16 @@ test('add property manager to cobrand', async ({ page }) => {
 	await page.getByRole('button', { name: 'Add Property Manager' }).click();
 	await page.waitForTimeout(1000);
 
-	const managers = await pb
+	const managers = await backendClient
 		.collection('cobrandPropertyManagers')
 		.getFullList({ filter: `cobrand = "${cobrand.id}"` });
-	expect(managers.some((m) => m.property === property.id)).toBe(true);
+	expect(managers.some((manager) => manager.property === property.id)).toBe(true);
 
-	// Cleanup cobrandPropertyManagers and cobrand
-	for (const m of managers) await pb.collection('cobrandPropertyManagers').delete(m.id);
-	await cleanupTestCobrands(pb);
-	// Clean up personPropertyOwner; skip propertyOwner+property due to last-owner hook guard
-	const ppos = await pb
+	for (const manager of managers) await backendClient.collection('cobrandPropertyManagers').delete(manager.id);
+	await cleanupTestCobrands(backendClient);
+	// Skip propertyOwner/property — the last-owner hook guard blocks deletion.
+	const personPropertyOwners = await backendClient
 		.collection('personPropertyOwners')
 		.getFullList({ filter: `propertyOwner = "${propertyOwner.id}"` });
-	for (const ppo of ppos) await pb.collection('personPropertyOwners').delete(ppo.id);
+	for (const personPropertyOwner of personPropertyOwners) await backendClient.collection('personPropertyOwners').delete(personPropertyOwner.id);
 });

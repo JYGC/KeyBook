@@ -8,10 +8,10 @@
   import { AgentListModule } from '$lib/modules/agent/agent-list-module.svelte';
   import { Button } from 'carbon-components-svelte';
 
-  const pb = getBackendClient();
-  const agentRepo = new AgentRepository(pb);
-  const propertyAgentRepo = new PropertyAgentRepository(pb);
-  const agentService = new AgentService(agentRepo, propertyAgentRepo);
+  const backendClient = getBackendClient();
+  const agentRepository = new AgentRepository(backendClient);
+  const propertyAgentRepository = new PropertyAgentRepository(backendClient);
+  const agentService = new AgentService(agentRepository, propertyAgentRepository);
   const agentListModule = new AgentListModule(agentService);
 
   const gotoAddAgent = () => {

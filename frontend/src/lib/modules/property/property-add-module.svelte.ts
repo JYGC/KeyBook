@@ -21,8 +21,8 @@ export class PropertyAddModule implements INewPropertyEditorModule {
     try {
       await this.__propertyService.createPropertyWithOwner(property.address, this.__currentPersonId);
       this.__backAction();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 

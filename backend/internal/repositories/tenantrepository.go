@@ -45,11 +45,11 @@ func (r *TenantRepository) GetTenantsByPropertyId(propertyId string) ([]dtos.Ten
 }
 
 func (r *TenantRepository) CreateTenant(personId, propertyId string) (dtos.TenantDto, error) {
-	col, err := r.app.Dao().FindCollectionByNameOrId("tenants")
+	tenantsCollection, err := r.app.Dao().FindCollectionByNameOrId("tenants")
 	if err != nil {
 		return dtos.TenantDto{}, err
 	}
-	record := models.NewRecord(col)
+	record := models.NewRecord(tenantsCollection)
 	record.Set("person", personId)
 	record.Set("property", propertyId)
 	if err := r.app.Dao().SaveRecord(record); err != nil {
@@ -66,10 +66,10 @@ func (r *TenantRepository) DeleteTenant(id string) error {
 	return r.app.Dao().DeleteRecord(record)
 }
 
-func tenantRecordToDto(r *models.Record) dtos.TenantDto {
+func tenantRecordToDto(record *models.Record) dtos.TenantDto {
 	return dtos.TenantDto{
-		Id:       r.GetId(),
-		Person:   r.GetString("person"),
-		Property: r.GetString("property"),
+		Id:       record.GetId(),
+		Person:   record.GetString("person"),
+		Property: record.GetString("property"),
 	}
 }

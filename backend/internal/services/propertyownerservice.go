@@ -18,8 +18,8 @@ func NewPropertyOwnerService() IPropertyOwnerService {
 }
 
 func (s *PropertyOwnerService) EnsureNoDuplicatePersonOwner(existing []dtos.PersonPropertyOwnerDto, personId string) error {
-	for _, o := range existing {
-		if o.Person == personId {
+	for _, existingPersonOwner := range existing {
+		if existingPersonOwner.Person == personId {
 			return errors.New("person is already an owner via this property owner record")
 		}
 	}
@@ -27,8 +27,8 @@ func (s *PropertyOwnerService) EnsureNoDuplicatePersonOwner(existing []dtos.Pers
 }
 
 func (s *PropertyOwnerService) EnsureNoDuplicateCobrandOwner(existing []dtos.CobrandPropertyOwnerDto, cobrandId string) error {
-	for _, o := range existing {
-		if o.Cobrand == cobrandId {
+	for _, existingCobrandOwner := range existing {
+		if existingCobrandOwner.Cobrand == cobrandId {
 			return errors.New("cobrand is already an owner via this property owner record")
 		}
 	}

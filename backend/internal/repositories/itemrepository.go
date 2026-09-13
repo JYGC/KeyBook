@@ -31,11 +31,11 @@ func (r *ItemRepository) GetItemById(id string) (dtos.ItemDto, error) {
 }
 
 func (r *ItemRepository) CreateItem(name, description string) (dtos.ItemDto, error) {
-	col, err := r.app.Dao().FindCollectionByNameOrId("items")
+	itemsCollection, err := r.app.Dao().FindCollectionByNameOrId("items")
 	if err != nil {
 		return dtos.ItemDto{}, err
 	}
-	record := models.NewRecord(col)
+	record := models.NewRecord(itemsCollection)
 	record.Set("name", name)
 	record.Set("description", description)
 	if err := r.app.Dao().SaveRecord(record); err != nil {
@@ -62,11 +62,11 @@ func (r *ItemRepository) DeleteItem(id string) error {
 	return r.app.Dao().DeleteRecord(record)
 }
 
-func itemRecordToDto(r *models.Record) dtos.ItemDto {
+func itemRecordToDto(record *models.Record) dtos.ItemDto {
 	return dtos.ItemDto{
-		Id:          r.GetId(),
-		Name:        r.GetString("name"),
-		Description: r.GetString("description"),
-		Picture:     r.GetString("picture"),
+		Id:          record.GetId(),
+		Name:        record.GetString("name"),
+		Description: record.GetString("description"),
+		Picture:     record.GetString("picture"),
 	}
 }

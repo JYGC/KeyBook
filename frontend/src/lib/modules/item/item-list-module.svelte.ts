@@ -8,8 +8,8 @@ export class ItemListModule implements IItemListModule {
   public itemListAsync = $derived.by<Promise<IItemModel[]>>(async () => {
     try {
       return await this.__itemService.getAllItems();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
       return [];
     }
   });

@@ -45,11 +45,11 @@ func (r *PropertyOwnerRepository) GetPropertyOwnersByPropertyId(propertyId strin
 }
 
 func (r *PropertyOwnerRepository) CreatePropertyOwner(propertyId string) (dtos.PropertyOwnerDto, error) {
-	col, err := r.app.Dao().FindCollectionByNameOrId("propertyOwners")
+	propertyOwnersCollection, err := r.app.Dao().FindCollectionByNameOrId("propertyOwners")
 	if err != nil {
 		return dtos.PropertyOwnerDto{}, err
 	}
-	record := models.NewRecord(col)
+	record := models.NewRecord(propertyOwnersCollection)
 	record.Set("property", propertyId)
 	if err := r.app.Dao().SaveRecord(record); err != nil {
 		return dtos.PropertyOwnerDto{}, err
@@ -65,9 +65,9 @@ func (r *PropertyOwnerRepository) DeletePropertyOwner(id string) error {
 	return r.app.Dao().DeleteRecord(record)
 }
 
-func propertyOwnerRecordToDto(r *models.Record) dtos.PropertyOwnerDto {
+func propertyOwnerRecordToDto(record *models.Record) dtos.PropertyOwnerDto {
 	return dtos.PropertyOwnerDto{
-		Id:       r.GetId(),
-		Property: r.GetString("property"),
+		Id:       record.GetId(),
+		Property: record.GetString("property"),
 	}
 }

@@ -41,11 +41,11 @@ func (r *PersonRepository) GetPersonById(personId string) (dtos.PersonDto, error
 }
 
 func (r *PersonRepository) CreatePerson(name, DOB, userID string) (dtos.PersonDto, error) {
-	col, err := r.app.Dao().FindCollectionByNameOrId("persons")
+	personsCollection, err := r.app.Dao().FindCollectionByNameOrId("persons")
 	if err != nil {
 		return dtos.PersonDto{}, err
 	}
-	record := models.NewRecord(col)
+	record := models.NewRecord(personsCollection)
 	record.Set("name", name)
 	record.Set("DOB", DOB)
 	if userID != "" {

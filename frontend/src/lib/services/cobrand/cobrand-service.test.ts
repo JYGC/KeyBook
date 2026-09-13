@@ -4,62 +4,62 @@ import type { ICobrandRepository } from '$lib/repositories/cobrand/cobrand-repos
 import type { ICobrandAdminRepository } from '$lib/repositories/cobrand/cobrand-admin-repository';
 import type { ICobrandPropertyManagerRepository } from '$lib/repositories/cobrand/cobrand-property-manager-repository';
 
-const mockCobrandRepo: ICobrandRepository = {
-	getAll: vi.fn(),
-	getById: vi.fn(),
-	create: vi.fn(),
-	update: vi.fn(),
-	delete: vi.fn()
+const mockCobrandRepository: ICobrandRepository = {
+	getAllCobrands: vi.fn(),
+	getCobrandById: vi.fn(),
+	createCobrand: vi.fn(),
+	updateCobrand: vi.fn(),
+	deleteCobrand: vi.fn()
 };
 
-const mockAdminRepo: ICobrandAdminRepository = {
-	getByCobrandId: vi.fn(),
-	getByUserId: vi.fn(),
-	create: vi.fn(),
-	delete: vi.fn()
+const mockAdminRepository: ICobrandAdminRepository = {
+	getCobrandAdminsByCobrandId: vi.fn(),
+	getCobrandAdminByUserId: vi.fn(),
+	createCobrandAdmin: vi.fn(),
+	deleteCobrandAdmin: vi.fn()
 };
 
-const mockManagerRepo: ICobrandPropertyManagerRepository = {
-	getByCobrandId: vi.fn(),
-	getByPropertyId: vi.fn(),
-	create: vi.fn(),
-	delete: vi.fn()
+const mockManagerRepository: ICobrandPropertyManagerRepository = {
+	getCobrandPropertyManagersByCobrandId: vi.fn(),
+	getCobrandPropertyManagersByPropertyId: vi.fn(),
+	createCobrandPropertyManager: vi.fn(),
+	deleteCobrandPropertyManager: vi.fn()
 };
 
 describe('CobrandService.validateCobrandName', () => {
-	const svc = new CobrandService(mockCobrandRepo, mockAdminRepo, mockManagerRepo);
+	const cobrandService = new CobrandService(mockCobrandRepository, mockAdminRepository, mockManagerRepository);
 
 	it('passes for a valid name', () => {
-		expect(() => svc.validateCobrandName('Acme Real Estate')).not.toThrow();
+		expect(() => cobrandService.validateCobrandName('Acme Real Estate')).not.toThrow();
 	});
 
 	it('throws for empty string', () => {
-		expect(() => svc.validateCobrandName('')).toThrow('cobrand name is required');
+		expect(() => cobrandService.validateCobrandName('')).toThrow('cobrand name is required');
 	});
 
 	it('throws for whitespace-only string', () => {
-		expect(() => svc.validateCobrandName('   ')).toThrow('cobrand name is required');
+		expect(() => cobrandService.validateCobrandName('   ')).toThrow('cobrand name is required');
 	});
 });
 
 describe('CobrandService.validateAdminUniqueness', () => {
-	const svc = new CobrandService(mockCobrandRepo, mockAdminRepo, mockManagerRepo);
+	const cobrandService = new CobrandService(mockCobrandRepository, mockAdminRepository, mockManagerRepository);
 
 	it('passes when user is not already an admin', () => {
 		const admins = [
 			{ id: 'a1', user: 'u1', cobrand: 'c1', approved: true },
 			{ id: 'a2', user: 'u2', cobrand: 'c1', approved: true }
 		];
-		expect(() => svc.validateAdminUniqueness(admins, 'u3')).not.toThrow();
+		expect(() => cobrandService.validateAdminUniqueness(admins, 'u3')).not.toThrow();
 	});
 
 	it('passes for empty admin list', () => {
-		expect(() => svc.validateAdminUniqueness([], 'u1')).not.toThrow();
+		expect(() => cobrandService.validateAdminUniqueness([], 'u1')).not.toThrow();
 	});
 
 	it('throws when user is already an admin', () => {
 		const admins = [{ id: 'a1', user: 'u1', cobrand: 'c1', approved: true }];
-		expect(() => svc.validateAdminUniqueness(admins, 'u1')).toThrow(
+		expect(() => cobrandService.validateAdminUniqueness(admins, 'u1')).toThrow(
 			'user is already an admin of this cobrand'
 		);
 	});
@@ -68,17 +68,31 @@ describe('CobrandService.validateAdminUniqueness', () => {
 describe('CobrandService.getAdminRecordForUserId', () => {
 	it('returns the admin record from the repository when found', async () => {
 		const admin = { id: 'a1', user: 'u1', cobrand: 'c1', approved: true };
-		const repo = { ...mockAdminRepo, getByUserId: vi.fn().mockResolvedValue(admin) };
-		const svc = new CobrandService(mockCobrandRepo, repo, mockManagerRepo);
+		const adminRepositoryFindingTheUser = {
+			...mockAdminRepository,
+			getCobrandAdminByUserId: vi.fn().mockResolvedValue(admin)
+		};
+		const cobrandService = new CobrandService(
+			mockCobrandRepository,
+			adminRepositoryFindingTheUser,
+			mockManagerRepository
+		);
 
-		await expect(svc.getAdminRecordForUserId('u1')).resolves.toEqual(admin);
-		expect(repo.getByUserId).toHaveBeenCalledWith('u1');
+		await expect(cobrandService.getAdminRecordForUserId('u1')).resolves.toEqual(admin);
+		expect(adminRepositoryFindingTheUser.getCobrandAdminByUserId).toHaveBeenCalledWith('u1');
 	});
 
 	it('returns null when the user has no admin record', async () => {
-		const repo = { ...mockAdminRepo, getByUserId: vi.fn().mockResolvedValue(null) };
-		const svc = new CobrandService(mockCobrandRepo, repo, mockManagerRepo);
+		const adminRepositoryFindingNobody = {
+			...mockAdminRepository,
+			getCobrandAdminByUserId: vi.fn().mockResolvedValue(null)
+		};
+		const cobrandService = new CobrandService(
+			mockCobrandRepository,
+			adminRepositoryFindingNobody,
+			mockManagerRepository
+		);
 
-		await expect(svc.getAdminRecordForUserId('u2')).resolves.toBeNull();
+		await expect(cobrandService.getAdminRecordForUserId('u2')).resolves.toBeNull();
 	});
 });

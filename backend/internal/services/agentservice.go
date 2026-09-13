@@ -17,8 +17,8 @@ func NewAgentService() IAgentService {
 }
 
 func (s *AgentService) EnsureNoDuplicatePropertyAgent(existing []dtos.PropertyAgentDto, agentId string) error {
-	for _, a := range existing {
-		if a.Agent == agentId {
+	for _, existingPropertyAgent := range existing {
+		if existingPropertyAgent.Agent == agentId {
 			return errors.New("agent is already assigned to this property")
 		}
 	}

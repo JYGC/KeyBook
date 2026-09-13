@@ -34,7 +34,7 @@ async function pickDate(page: Page, labelText: string, isoDate: string): Promise
 	await yearInput.fill(String(year));
 	await yearInput.press('Enter');
 
-	for (let i = 0; i < 24; i++) {
+	for (let monthStepAttempt = 0; monthStepAttempt < 24; monthStepAttempt++) {
 		const currentMonthName = (await calendar.locator('.cur-month').textContent())?.trim();
 		const currentYear = Number(await yearInput.inputValue());
 		if (currentMonthName === MONTH_NAMES[month - 1] && currentYear === year) break;
@@ -53,44 +53,44 @@ async function pickDate(page: Page, labelText: string, isoDate: string): Promise
 }
 
 async function adminAuth(): Promise<PocketBase> {
-	const pb = new PocketBase(PB_URL);
-	const res = await fetch(`${PB_URL}/api/admins/auth-with-password`, {
+	const backendClient = new PocketBase(PB_URL);
+	const adminAuthResponse = await fetch(`${PB_URL}/api/admins/auth-with-password`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ identity: ADMIN_EMAIL, password: ADMIN_PASSWORD })
 	});
-	const data = await res.json();
-	pb.authStore.save(data.token, data.admin);
-	return pb;
+	const adminAuthResult = await adminAuthResponse.json();
+	backendClient.authStore.save(adminAuthResult.token, adminAuthResult.admin);
+	return backendClient;
 }
 
-async function ensureUser(pb: PocketBase, email: string, password: string): Promise<string> {
-	const existing = await pb.collection('users').getFullList({ filter: `email = "${email}"` });
+async function ensureUser(backendClient: PocketBase, email: string, password: string): Promise<string> {
+	const existing = await backendClient.collection('users').getFullList({ filter: `email = "${email}"` });
 	if (existing.length > 0) return existing[0].id;
-	const user = await pb
+	const user = await backendClient
 		.collection('users')
 		.create<{ id: string }>({ email, password, passwordConfirm: password });
 	return user.id;
 }
 
-async function cleanupUserByEmail(pb: PocketBase, email: string): Promise<void> {
-	const users = await pb.collection('users').getFullList({ filter: `email = "${email}"` });
-	for (const u of users) await pb.collection('users').delete(u.id);
+async function cleanupUserByEmail(backendClient: PocketBase, email: string): Promise<void> {
+	const users = await backendClient.collection('users').getFullList({ filter: `email = "${email}"` });
+	for (const user of users) await backendClient.collection('users').delete(user.id);
 }
 
-async function cleanupPersonsFor(pb: PocketBase, userId: string): Promise<void> {
-	const persons = await pb.collection('persons').getFullList({ filter: `user = "${userId}"` });
-	for (const p of persons) await pb.collection('persons').delete(p.id);
+async function cleanupPersonsFor(backendClient: PocketBase, userId: string): Promise<void> {
+	const persons = await backendClient.collection('persons').getFullList({ filter: `user = "${userId}"` });
+	for (const person of persons) await backendClient.collection('persons').delete(person.id);
 }
 
-async function cleanupCobrandsNamed(pb: PocketBase, name: string): Promise<void> {
-	const found = await pb.collection('cobrands').getFullList({ filter: `name = "${name}"` });
-	for (const c of found) {
-		const admins = await pb
+async function cleanupCobrandsNamed(backendClient: PocketBase, name: string): Promise<void> {
+	const found = await backendClient.collection('cobrands').getFullList({ filter: `name = "${name}"` });
+	for (const cobrand of found) {
+		const admins = await backendClient
 			.collection('cobrandAdmins')
 			.getFullList({ filter: `cobrand = "${c.id}"` });
-		for (const a of admins) await pb.collection('cobrandAdmins').delete(a.id);
-		await pb.collection('cobrands').delete(c.id);
+		for (const admin of admins) await backendClient.collection('cobrandAdmins').delete(admin.id);
+		await backendClient.collection('cobrands').delete(c.id);
 	}
 }
 
@@ -107,16 +107,16 @@ test('register lands on the account setup choice page', async ({ page }) => {
 	await expect(page.getByRole('button', { name: 'Set up my person profile' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Set up my company' })).toBeVisible();
 
-	const pb = await adminAuth();
-	await cleanupUserByEmail(pb, email);
+	const backendClient = await adminAuth();
+	await cleanupUserByEmail(backendClient, email);
 });
 
 test('choosing person setup creates a linked person and lands on the property list', async ({
 	page
 }) => {
 	const email = `e2e_onboarding_person_${Date.now()}@keybook.test`;
-	const pb = await adminAuth();
-	const userId = await ensureUser(pb, email, TEST_PASSWORD);
+	const backendClient = await adminAuth();
+	const userId = await ensureUser(backendClient, email, TEST_PASSWORD);
 
 	await page.goto('/auth/login');
 	await page.getByLabel('Email').fill(email);
@@ -132,12 +132,12 @@ test('choosing person setup creates a linked person and lands on the property li
 
 	await page.waitForURL(/\/user\/properties\/list/);
 
-	const persons = await pb.collection('persons').getFullList({ filter: `user = "${userId}"` });
+	const persons = await backendClient.collection('persons').getFullList({ filter: `user = "${userId}"` });
 	expect(persons.length).toBe(1);
 	expect(persons[0].name).toBe('E2E Onboarding Person');
 
-	await cleanupPersonsFor(pb, userId);
-	await cleanupUserByEmail(pb, email);
+	await cleanupPersonsFor(backendClient, userId);
+	await cleanupUserByEmail(backendClient, email);
 });
 
 test('choosing cobrand setup creates the cobrand and shows the pending-approval notice', async ({
@@ -145,8 +145,8 @@ test('choosing cobrand setup creates the cobrand and shows the pending-approval 
 }) => {
 	const email = `e2e_onboarding_cobrand_${Date.now()}@keybook.test`;
 	const cobrandName = `E2E Onboarding Cobrand ${Date.now()}`;
-	const pb = await adminAuth();
-	await ensureUser(pb, email, TEST_PASSWORD);
+	const backendClient = await adminAuth();
+	await ensureUser(backendClient, email, TEST_PASSWORD);
 
 	await page.goto('/auth/login');
 	await page.getByLabel('Email').fill(email);
@@ -164,13 +164,13 @@ test('choosing cobrand setup creates the cobrand and shows the pending-approval 
 	// to /user/cobrands/ once it sees the new admin record.
 	await page.waitForURL(/\/user\/cobrands(\/)?$/, { timeout: 10000 });
 
-	const cobrands = await pb
+	const cobrands = await backendClient
 		.collection('cobrands')
 		.getFullList({ filter: `name = "${cobrandName}"` });
 	expect(cobrands.length).toBe(1);
 	const cobrandId = cobrands[0].id;
 
-	const admins = await pb
+	const admins = await backendClient
 		.collection('cobrandAdmins')
 		.getFullList({ filter: `cobrand = "${cobrandId}"` });
 	expect(admins.length).toBe(1);
@@ -180,17 +180,17 @@ test('choosing cobrand setup creates the cobrand and shows the pending-approval 
 	await page.waitForLoadState('networkidle');
 	await expect(page.getByText('Pending approval')).toBeVisible();
 
-	await cleanupCobrandsNamed(pb, cobrandName);
-	await cleanupUserByEmail(pb, email);
+	await cleanupCobrandsNamed(backendClient, cobrandName);
+	await cleanupUserByEmail(backendClient, email);
 });
 
 test('a user with a linked person always lands on the property list from /user, /user/setup, or /user/persons/setup', async ({
 	page
 }) => {
 	const email = `e2e_onboarding_haveperson_${Date.now()}@keybook.test`;
-	const pb = await adminAuth();
-	const userId = await ensureUser(pb, email, TEST_PASSWORD);
-	await pb.collection('persons').create({
+	const backendClient = await adminAuth();
+	const userId = await ensureUser(backendClient, email, TEST_PASSWORD);
+	await backendClient.collection('persons').create({
 		name: 'E2E Onboarding Existing Person',
 		DOB: '1990-01-01',
 		user: userId
@@ -208,8 +208,8 @@ test('a user with a linked person always lands on the property list from /user, 
 	await page.goto('/user/persons/setup');
 	await page.waitForURL(/\/user\/properties\/list/);
 
-	await cleanupPersonsFor(pb, userId);
-	await cleanupUserByEmail(pb, email);
+	await cleanupPersonsFor(backendClient, userId);
+	await cleanupUserByEmail(backendClient, email);
 });
 
 test('a user with only a linked cobrandAdmins record lands on the cobrand list from /user or /user/setup', async ({
@@ -217,10 +217,10 @@ test('a user with only a linked cobrandAdmins record lands on the cobrand list f
 }) => {
 	const email = `e2e_onboarding_haveadmin_${Date.now()}@keybook.test`;
 	const cobrandName = `E2E Onboarding Existing Cobrand ${Date.now()}`;
-	const pb = await adminAuth();
-	const userId = await ensureUser(pb, email, TEST_PASSWORD);
-	const cobrand = await pb.collection('cobrands').create<{ id: string }>({ name: cobrandName });
-	await pb.collection('cobrandAdmins').create({ user: userId, cobrand: cobrand.id });
+	const backendClient = await adminAuth();
+	const userId = await ensureUser(backendClient, email, TEST_PASSWORD);
+	const cobrand = await backendClient.collection('cobrands').create<{ id: string }>({ name: cobrandName });
+	await backendClient.collection('cobrandAdmins').create({ user: userId, cobrand: cobrand.id });
 
 	await page.goto('/auth/login');
 	await page.getByLabel('Email').fill(email);
@@ -231,6 +231,6 @@ test('a user with only a linked cobrandAdmins record lands on the cobrand list f
 	await page.goto('/user/setup');
 	await page.waitForURL(/\/user\/cobrands/);
 
-	await cleanupCobrandsNamed(pb, cobrandName);
-	await cleanupUserByEmail(pb, email);
+	await cleanupCobrandsNamed(backendClient, cobrandName);
+	await cleanupUserByEmail(backendClient, email);
 });

@@ -15,43 +15,43 @@ export interface IAgentService {
 
 export class AgentService implements IAgentService {
   constructor(
-    private readonly agentRepo: IAgentRepository,
-    private readonly propertyAgentRepo: IPropertyAgentRepository,
+    private readonly agentRepository: IAgentRepository,
+    private readonly propertyAgentRepository: IPropertyAgentRepository,
   ) {}
 
   validateDuplicatePropertyAgent(existing: IPropertyAgentModel[], agentId: string): void {
-    if (existing.some((pa) => pa.agent === agentId)) {
+    if (existing.some((existingPropertyAgent) => existingPropertyAgent.agent === agentId)) {
       throw new Error('agent is already assigned to this property');
     }
   }
 
   async getAllAgents(): Promise<IAgentModel[]> {
-    return await this.agentRepo.getAll();
+    return await this.agentRepository.getAllAgents();
   }
 
   async getAgentById(id: string): Promise<IAgentModel> {
-    return await this.agentRepo.getById(id);
+    return await this.agentRepository.getAgentById(id);
   }
 
   async createAgent(personId: string, cobrandId: string): Promise<IAgentModel> {
-    return await this.agentRepo.create(personId, cobrandId);
+    return await this.agentRepository.createAgent(personId, cobrandId);
   }
 
   async deleteAgent(id: string): Promise<void> {
-    await this.agentRepo.delete(id);
+    await this.agentRepository.deleteAgent(id);
   }
 
   async getPropertyAgentsForAgent(agentId: string): Promise<IPropertyAgentModel[]> {
-    return await this.propertyAgentRepo.getByAgentId(agentId);
+    return await this.propertyAgentRepository.getPropertyAgentsByAgentId(agentId);
   }
 
   async addPropertyAgent(agentId: string, propertyId: string): Promise<IPropertyAgentModel> {
-    const existingForProperty = await this.propertyAgentRepo.getByPropertyId(propertyId);
+    const existingForProperty = await this.propertyAgentRepository.getPropertyAgentsByPropertyId(propertyId);
     this.validateDuplicatePropertyAgent(existingForProperty, agentId);
-    return await this.propertyAgentRepo.create(agentId, propertyId);
+    return await this.propertyAgentRepository.createPropertyAgent(agentId, propertyId);
   }
 
   async removePropertyAgent(id: string): Promise<void> {
-    await this.propertyAgentRepo.delete(id);
+    await this.propertyAgentRepository.deletePropertyAgent(id);
   }
 }

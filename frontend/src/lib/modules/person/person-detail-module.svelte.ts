@@ -17,8 +17,8 @@ export class PersonDetailModule implements IPersonDetailModule {
   public callBackAction = () => this.__backAction();
 
   private refreshRoles() {
-    this.rolesAsync = this.__personService.getRolesForPerson(this.__personId).catch((ex) => {
-      alert(ex);
+    this.rolesAsync = this.__personService.getRolesForPerson(this.__personId).catch((error) => {
+      alert(error);
       return [];
     });
   }
@@ -27,8 +27,8 @@ export class PersonDetailModule implements IPersonDetailModule {
     try {
       await this.__personService.updatePerson(person.id, person.name, person.DOB);
       this.__backAction();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -36,8 +36,8 @@ export class PersonDetailModule implements IPersonDetailModule {
     try {
       await this.__personService.deletePerson(id);
       this.__backAction();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -46,8 +46,8 @@ export class PersonDetailModule implements IPersonDetailModule {
     this.__personId = personId;
     this.__backAction = backAction;
 
-    this.personAsync = this.__personService.getPersonById(personId).catch((ex) => {
-      alert(ex);
+    this.personAsync = this.__personService.getPersonById(personId).catch((error) => {
+      alert(error);
       return null;
     });
 

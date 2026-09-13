@@ -18,71 +18,71 @@ type IPropertyOwnerApplicationService interface {
 }
 
 type PropertyOwnerApplicationService struct {
-	propertyOwnerService    services.IPropertyOwnerService
-	propertyOwnerRepo       repositories.IPropertyOwnerRepository
-	personPropertyOwnerRepo repositories.IPersonPropertyOwnerRepository
-	cobrandPropertyOwnerRepo repositories.ICobrandPropertyOwnerRepository
+	propertyOwnerService           services.IPropertyOwnerService
+	propertyOwnerRepository        repositories.IPropertyOwnerRepository
+	personPropertyOwnerRepository  repositories.IPersonPropertyOwnerRepository
+	cobrandPropertyOwnerRepository repositories.ICobrandPropertyOwnerRepository
 }
 
 func NewPropertyOwnerApplicationService(
 	propertyOwnerService services.IPropertyOwnerService,
-	propertyOwnerRepo repositories.IPropertyOwnerRepository,
-	personPropertyOwnerRepo repositories.IPersonPropertyOwnerRepository,
-	cobrandPropertyOwnerRepo repositories.ICobrandPropertyOwnerRepository,
+	propertyOwnerRepository repositories.IPropertyOwnerRepository,
+	personPropertyOwnerRepository repositories.IPersonPropertyOwnerRepository,
+	cobrandPropertyOwnerRepository repositories.ICobrandPropertyOwnerRepository,
 ) IPropertyOwnerApplicationService {
 	return &PropertyOwnerApplicationService{
 		propertyOwnerService,
-		propertyOwnerRepo,
-		personPropertyOwnerRepo,
-		cobrandPropertyOwnerRepo,
+		propertyOwnerRepository,
+		personPropertyOwnerRepository,
+		cobrandPropertyOwnerRepository,
 	}
 }
 
 func (s *PropertyOwnerApplicationService) CreatePropertyOwner(propertyId string) (dtos.PropertyOwnerDto, error) {
-	return s.propertyOwnerRepo.CreatePropertyOwner(propertyId)
+	return s.propertyOwnerRepository.CreatePropertyOwner(propertyId)
 }
 
 func (s *PropertyOwnerApplicationService) DeletePropertyOwner(id string) error {
-	owner, err := s.propertyOwnerRepo.GetPropertyOwnerById(id)
+	ownerToDelete, err := s.propertyOwnerRepository.GetPropertyOwnerById(id)
 	if err != nil {
 		return err
 	}
-	owners, err := s.propertyOwnerRepo.GetPropertyOwnersByPropertyId(owner.Property)
+	ownersOfSameProperty, err := s.propertyOwnerRepository.GetPropertyOwnersByPropertyId(ownerToDelete.Property)
 	if err != nil {
 		return err
 	}
-	if len(owners) <= 1 {
+	if len(ownersOfSameProperty) <= 1 {
 		return errors.New("cannot delete the last property owner")
 	}
-	return s.propertyOwnerRepo.DeletePropertyOwner(id)
+	return s.propertyOwnerRepository.DeletePropertyOwner(id)
 }
 
 func (s *PropertyOwnerApplicationService) AddPersonOwner(propertyOwnerId, personId string) (dtos.PersonPropertyOwnerDto, error) {
-	existing, err := s.personPropertyOwnerRepo.GetPersonPropertyOwnersByPropertyOwnerId(propertyOwnerId)
+	existingPersonOwners, err := s.personPropertyOwnerRepository.GetPersonPropertyOwnersByPropertyOwnerId(propertyOwnerId)
 	if err != nil {
 		return dtos.PersonPropertyOwnerDto{}, err
 	}
-	if err := s.propertyOwnerService.EnsureNoDuplicatePersonOwner(existing, personId); err != nil {
+	if err := s.propertyOwnerService.EnsureNoDuplicatePersonOwner(existingPersonOwners, personId); err != nil {
 		return dtos.PersonPropertyOwnerDto{}, err
 	}
-	return s.personPropertyOwnerRepo.CreatePersonPropertyOwner(personId, propertyOwnerId)
+	return s.personPropertyOwnerRepository.CreatePersonPropertyOwner(personId, propertyOwnerId)
 }
 
 func (s *PropertyOwnerApplicationService) RemovePersonOwner(id string) error {
-	return s.personPropertyOwnerRepo.DeletePersonPropertyOwner(id)
+	return s.personPropertyOwnerRepository.DeletePersonPropertyOwner(id)
 }
 
 func (s *PropertyOwnerApplicationService) AddCobrandOwner(propertyOwnerId, cobrandId string) (dtos.CobrandPropertyOwnerDto, error) {
-	existing, err := s.cobrandPropertyOwnerRepo.GetCobrandPropertyOwnersByPropertyOwnerId(propertyOwnerId)
+	existingCobrandOwners, err := s.cobrandPropertyOwnerRepository.GetCobrandPropertyOwnersByPropertyOwnerId(propertyOwnerId)
 	if err != nil {
 		return dtos.CobrandPropertyOwnerDto{}, err
 	}
-	if err := s.propertyOwnerService.EnsureNoDuplicateCobrandOwner(existing, cobrandId); err != nil {
+	if err := s.propertyOwnerService.EnsureNoDuplicateCobrandOwner(existingCobrandOwners, cobrandId); err != nil {
 		return dtos.CobrandPropertyOwnerDto{}, err
 	}
-	return s.cobrandPropertyOwnerRepo.CreateCobrandPropertyOwner(cobrandId, propertyOwnerId)
+	return s.cobrandPropertyOwnerRepository.CreateCobrandPropertyOwner(cobrandId, propertyOwnerId)
 }
 
 func (s *PropertyOwnerApplicationService) RemoveCobrandOwner(id string) error {
-	return s.cobrandPropertyOwnerRepo.DeleteCobrandPropertyOwner(id)
+	return s.cobrandPropertyOwnerRepository.DeleteCobrandPropertyOwner(id)
 }

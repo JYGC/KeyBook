@@ -45,11 +45,11 @@ func (r *AgentRepository) GetAgentsByCobrandId(cobrandId string) ([]dtos.AgentDt
 }
 
 func (r *AgentRepository) CreateAgent(personId, cobrandId string) (dtos.AgentDto, error) {
-	col, err := r.app.Dao().FindCollectionByNameOrId("agents")
+	agentsCollection, err := r.app.Dao().FindCollectionByNameOrId("agents")
 	if err != nil {
 		return dtos.AgentDto{}, err
 	}
-	record := models.NewRecord(col)
+	record := models.NewRecord(agentsCollection)
 	record.Set("person", personId)
 	record.Set("cobrand", cobrandId)
 	if err := r.app.Dao().SaveRecord(record); err != nil {
@@ -66,10 +66,10 @@ func (r *AgentRepository) DeleteAgent(id string) error {
 	return r.app.Dao().DeleteRecord(record)
 }
 
-func agentRecordToDto(r *models.Record) dtos.AgentDto {
+func agentRecordToDto(record *models.Record) dtos.AgentDto {
 	return dtos.AgentDto{
-		Id:      r.GetId(),
-		Person:  r.GetString("person"),
-		Cobrand: r.GetString("cobrand"),
+		Id:      record.GetId(),
+		Person:  record.GetString("person"),
+		Cobrand: record.GetString("cobrand"),
 	}
 }

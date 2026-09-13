@@ -17,13 +17,13 @@
 
   const goBack = () => goto('/user/persons');
 
-  const pb = getBackendClient();
-  const personRepo = new PersonRepository(pb);
-  const ppoRepo = new PersonPropertyOwnerRepository(pb);
-  const tenantRepo = new TenantRepository(pb);
-  const householdRepo = new HouseholdRepository(pb);
-  const agentRepo = new AgentRepository(pb);
-  const personService = new PersonService(personRepo, ppoRepo, tenantRepo, householdRepo, agentRepo);
+  const backendClient = getBackendClient();
+  const personRepository = new PersonRepository(backendClient);
+  const personPropertyOwnerRepository = new PersonPropertyOwnerRepository(backendClient);
+  const tenantRepository = new TenantRepository(backendClient);
+  const householdRepository = new HouseholdRepository(backendClient);
+  const agentRepository = new AgentRepository(backendClient);
+  const personService = new PersonService(personRepository, personPropertyOwnerRepository, tenantRepository, householdRepository, agentRepository);
   const personDetailModule = new PersonDetailModule(personService, personId, goBack);
 </script>
 

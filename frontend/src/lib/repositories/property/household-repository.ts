@@ -2,32 +2,32 @@ import PocketBase from 'pocketbase';
 import type { IHouseholdModel } from '$lib/models/property-models';
 
 export interface IHouseholdRepository {
-  getByPropertyId(propertyId: string): Promise<IHouseholdModel[]>;
-  getByPersonId(personId: string): Promise<IHouseholdModel[]>;
-  create(personId: string, propertyId: string): Promise<IHouseholdModel>;
-  delete(id: string): Promise<void>;
+  getHouseholdsByPropertyId(propertyId: string): Promise<IHouseholdModel[]>;
+  getHouseholdsByPersonId(personId: string): Promise<IHouseholdModel[]>;
+  createHousehold(personId: string, propertyId: string): Promise<IHouseholdModel>;
+  deleteHousehold(id: string): Promise<void>;
 }
 
 export class HouseholdRepository implements IHouseholdRepository {
-  constructor(private readonly pb: PocketBase) {}
+  constructor(private readonly backendClient: PocketBase) {}
 
-  async getByPropertyId(propertyId: string): Promise<IHouseholdModel[]> {
-    const all = await this.pb.collection('households').getFullList<IHouseholdModel>();
-    return all.filter((r) => r.property === propertyId);
+  async getHouseholdsByPropertyId(propertyId: string): Promise<IHouseholdModel[]> {
+    const allHouseholds = await this.backendClient.collection('households').getFullList<IHouseholdModel>();
+    return allHouseholds.filter((household) => household.property === propertyId);
   }
 
-  async getByPersonId(personId: string): Promise<IHouseholdModel[]> {
-    const all = await this.pb.collection('households').getFullList<IHouseholdModel>();
-    return all.filter((r) => r.person === personId);
+  async getHouseholdsByPersonId(personId: string): Promise<IHouseholdModel[]> {
+    const allHouseholds = await this.backendClient.collection('households').getFullList<IHouseholdModel>();
+    return allHouseholds.filter((household) => household.person === personId);
   }
 
-  async create(personId: string, propertyId: string): Promise<IHouseholdModel> {
-    return await this.pb
+  async createHousehold(personId: string, propertyId: string): Promise<IHouseholdModel> {
+    return await this.backendClient
       .collection('households')
       .create<IHouseholdModel>({ person: personId, property: propertyId });
   }
 
-  async delete(id: string): Promise<void> {
-    await this.pb.collection('households').delete(id);
+  async deleteHousehold(id: string): Promise<void> {
+    await this.backendClient.collection('households').delete(id);
   }
 }

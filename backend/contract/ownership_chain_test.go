@@ -6,333 +6,325 @@ import (
 	"testing"
 )
 
-// ── propertyOwners ────────────────────────────────────────────────────────────
-
 func TestPropertyOwners_Unauthenticated_Returns403(t *testing.T) {
-	env := newTestEnv(t)
-	id := env.ids.propertyOwner
+	environment := newTestEnvironment(t)
+	id := environment.ids.propertyOwner
 
 	t.Run("GET list", func(t *testing.T) {
-		resp := env.do("GET", "/api/collections/propertyOwners/records", "", "")
-		env.assertStatus(t, resp, http.StatusOK)
+		response := environment.do("GET", "/api/collections/propertyOwners/records", "", "")
+		environment.assertStatus(t, response, http.StatusOK)
 	})
 	t.Run("GET single", func(t *testing.T) {
-		resp := env.do("GET", fmt.Sprintf("/api/collections/propertyOwners/records/%s", id), "", "")
-		env.assertStatus(t, resp, http.StatusNotFound)
+		response := environment.do("GET", fmt.Sprintf("/api/collections/propertyOwners/records/%s", id), "", "")
+		environment.assertStatus(t, response, http.StatusNotFound)
 	})
 	t.Run("POST", func(t *testing.T) {
-		resp := env.do("POST", "/api/collections/propertyOwners/records", "{}", "")
-		env.assertStatus(t, resp, http.StatusBadRequest)
+		response := environment.do("POST", "/api/collections/propertyOwners/records", "{}", "")
+		environment.assertStatus(t, response, http.StatusBadRequest)
 	})
 	t.Run("PATCH", func(t *testing.T) {
-		resp := env.do("PATCH", fmt.Sprintf("/api/collections/propertyOwners/records/%s", id), "{}", "")
-		env.assertStatus(t, resp, http.StatusNotFound)
+		response := environment.do("PATCH", fmt.Sprintf("/api/collections/propertyOwners/records/%s", id), "{}", "")
+		environment.assertStatus(t, response, http.StatusNotFound)
 	})
 	t.Run("DELETE", func(t *testing.T) {
-		resp := env.do("DELETE", fmt.Sprintf("/api/collections/propertyOwners/records/%s", id), "", "")
-		env.assertStatus(t, resp, http.StatusNotFound)
+		response := environment.do("DELETE", fmt.Sprintf("/api/collections/propertyOwners/records/%s", id), "", "")
+		environment.assertStatus(t, response, http.StatusNotFound)
 	})
 }
 
 func TestPropertyOwners_View_OwnerGroupsSee200(t *testing.T) {
-	env := newTestEnv(t)
-	path := fmt.Sprintf("/api/collections/propertyOwners/records/%s", env.ids.propertyOwner)
+	environment := newTestEnvironment(t)
+	path := fmt.Sprintf("/api/collections/propertyOwners/records/%s", environment.ids.propertyOwner)
 	// PocketBase v0.22: cobrandPropertyManagers chain (2 backs starting from property) fails;
 	// manager access via that chain is not available.
 	for _, tok := range []struct {
 		name  string
 		token string
 	}{
-		{"person owner", env.tok.userOwner},
-		{"cobrand owner", env.tok.cobrandAdmin},
+		{"person owner", environment.tok.userOwner},
+		{"cobrand owner", environment.tok.cobrandAdmin},
 	} {
 		t.Run(tok.name, func(t *testing.T) {
-			resp := env.do("GET", path, "", tok.token)
-			env.assertStatus(t, resp, http.StatusOK)
+			response := environment.do("GET", path, "", tok.token)
+			environment.assertStatus(t, response, http.StatusOK)
 		})
 	}
 }
 
 func TestPropertyOwners_View_TenantAndUnrelated_Returns404(t *testing.T) {
-	env := newTestEnv(t)
-	path := fmt.Sprintf("/api/collections/propertyOwners/records/%s", env.ids.propertyOwner)
+	environment := newTestEnvironment(t)
+	path := fmt.Sprintf("/api/collections/propertyOwners/records/%s", environment.ids.propertyOwner)
 	for _, tok := range []struct {
 		name  string
 		token string
 	}{
-		{"tenant", env.tok.tenant},
-		{"unrelated", env.tok.unrelated},
+		{"tenant", environment.tok.tenant},
+		{"unrelated", environment.tok.unrelated},
 	} {
 		t.Run(tok.name, func(t *testing.T) {
-			resp := env.do("GET", path, "", tok.token)
-			env.assertStatus(t, resp, http.StatusNotFound)
+			response := environment.do("GET", path, "", tok.token)
+			environment.assertStatus(t, response, http.StatusNotFound)
 		})
 	}
 }
 
 func TestPropertyOwners_Create_AnyAuthenticated_Returns200(t *testing.T) {
-	env := newTestEnv(t)
+	environment := newTestEnvironment(t)
 	// Bootstrap exception: any authenticated user can create the first propertyOwner.
 	// Create a fresh property that has no owner yet.
-	freshPropID := env.createRecord(t, "properties", map[string]any{"address": "Fresh St"})
-	body := fmt.Sprintf(`{"property":%q}`, freshPropID)
-	resp := env.do("POST", "/api/collections/propertyOwners/records", body, env.tok.unrelated)
-	env.assertStatus(t, resp, http.StatusOK)
+	freshPropertyId := environment.createRecord(t, "properties", map[string]any{"address": "Fresh St"})
+	body := fmt.Sprintf(`{"property":%q}`, freshPropertyId)
+	response := environment.do("POST", "/api/collections/propertyOwners/records", body, environment.tok.unrelated)
+	environment.assertStatus(t, response, http.StatusOK)
 }
 
 func TestPropertyOwners_Update_OwnersSee200_ManagerSees404(t *testing.T) {
-	env := newTestEnv(t)
-	path := fmt.Sprintf("/api/collections/propertyOwners/records/%s", env.ids.propertyOwner)
+	environment := newTestEnvironment(t)
+	path := fmt.Sprintf("/api/collections/propertyOwners/records/%s", environment.ids.propertyOwner)
 
 	// Owners can update.
 	for _, tok := range []struct {
 		name  string
 		token string
 	}{
-		{"person owner", env.tok.userOwner},
-		{"cobrand owner", env.tok.cobrandAdmin},
+		{"person owner", environment.tok.userOwner},
+		{"cobrand owner", environment.tok.cobrandAdmin},
 	} {
 		t.Run(tok.name+" can update", func(t *testing.T) {
-			resp := env.do("PATCH", path, fmt.Sprintf(`{"property":%q}`, env.ids.property), tok.token)
-			env.assertStatus(t, resp, http.StatusOK)
+			response := environment.do("PATCH", path, fmt.Sprintf(`{"property":%q}`, environment.ids.property), tok.token)
+			environment.assertStatus(t, response, http.StatusOK)
 		})
 	}
 
 	// Manager cannot update.
 	t.Run("manager cannot update", func(t *testing.T) {
-		resp := env.do("PATCH", path, fmt.Sprintf(`{"property":%q}`, env.ids.property), env.tok.manager)
-		env.assertStatus(t, resp, http.StatusNotFound)
+		response := environment.do("PATCH", path, fmt.Sprintf(`{"property":%q}`, environment.ids.property), environment.tok.manager)
+		environment.assertStatus(t, response, http.StatusNotFound)
 	})
 }
 
-// ── personPropertyOwners ──────────────────────────────────────────────────────
-
 func TestPersonPropertyOwners_Unauthenticated_Returns403(t *testing.T) {
-	env := newTestEnv(t)
-	id := env.ids.personPropertyOwner
+	environment := newTestEnvironment(t)
+	id := environment.ids.personPropertyOwner
 
 	t.Run("GET list", func(t *testing.T) {
-		resp := env.do("GET", "/api/collections/personPropertyOwners/records", "", "")
-		env.assertStatus(t, resp, http.StatusOK)
+		response := environment.do("GET", "/api/collections/personPropertyOwners/records", "", "")
+		environment.assertStatus(t, response, http.StatusOK)
 	})
 	t.Run("GET single", func(t *testing.T) {
-		resp := env.do("GET", fmt.Sprintf("/api/collections/personPropertyOwners/records/%s", id), "", "")
-		env.assertStatus(t, resp, http.StatusNotFound)
+		response := environment.do("GET", fmt.Sprintf("/api/collections/personPropertyOwners/records/%s", id), "", "")
+		environment.assertStatus(t, response, http.StatusNotFound)
 	})
 	t.Run("POST", func(t *testing.T) {
-		resp := env.do("POST", "/api/collections/personPropertyOwners/records", "{}", "")
-		env.assertStatus(t, resp, http.StatusBadRequest)
+		response := environment.do("POST", "/api/collections/personPropertyOwners/records", "{}", "")
+		environment.assertStatus(t, response, http.StatusBadRequest)
 	})
 	t.Run("PATCH", func(t *testing.T) {
-		resp := env.do("PATCH", fmt.Sprintf("/api/collections/personPropertyOwners/records/%s", id), "{}", "")
-		env.assertStatus(t, resp, http.StatusNotFound)
+		response := environment.do("PATCH", fmt.Sprintf("/api/collections/personPropertyOwners/records/%s", id), "{}", "")
+		environment.assertStatus(t, response, http.StatusNotFound)
 	})
 	t.Run("DELETE", func(t *testing.T) {
-		resp := env.do("DELETE", fmt.Sprintf("/api/collections/personPropertyOwners/records/%s", id), "", "")
-		env.assertStatus(t, resp, http.StatusNotFound)
+		response := environment.do("DELETE", fmt.Sprintf("/api/collections/personPropertyOwners/records/%s", id), "", "")
+		environment.assertStatus(t, response, http.StatusNotFound)
 	})
 }
 
 func TestPersonPropertyOwners_View_OwnerGroupsSee200(t *testing.T) {
-	env := newTestEnv(t)
-	path := fmt.Sprintf("/api/collections/personPropertyOwners/records/%s", env.ids.personPropertyOwner)
+	environment := newTestEnvironment(t)
+	path := fmt.Sprintf("/api/collections/personPropertyOwners/records/%s", environment.ids.personPropertyOwner)
 	// Cobrand manager access omitted — PocketBase v0.22 limitation (cobrandPropertyManagers chain).
 	for _, tok := range []struct {
 		name  string
 		token string
 	}{
-		{"person owner", env.tok.userOwner},
-		{"cobrand owner", env.tok.cobrandAdmin},
+		{"person owner", environment.tok.userOwner},
+		{"cobrand owner", environment.tok.cobrandAdmin},
 	} {
 		t.Run(tok.name, func(t *testing.T) {
-			resp := env.do("GET", path, "", tok.token)
-			env.assertStatus(t, resp, http.StatusOK)
+			response := environment.do("GET", path, "", tok.token)
+			environment.assertStatus(t, response, http.StatusOK)
 		})
 	}
 }
 
 func TestPersonPropertyOwners_View_NonOwnerReturns404(t *testing.T) {
-	env := newTestEnv(t)
-	path := fmt.Sprintf("/api/collections/personPropertyOwners/records/%s", env.ids.personPropertyOwner)
-	resp := env.do("GET", path, "", env.tok.unrelated)
-	env.assertStatus(t, resp, http.StatusNotFound)
+	environment := newTestEnvironment(t)
+	path := fmt.Sprintf("/api/collections/personPropertyOwners/records/%s", environment.ids.personPropertyOwner)
+	response := environment.do("GET", path, "", environment.tok.unrelated)
+	environment.assertStatus(t, response, http.StatusNotFound)
 }
 
 func TestPersonPropertyOwners_CreateUpdateDelete_OwnersOnly(t *testing.T) {
-	env := newTestEnv(t)
+	environment := newTestEnvironment(t)
 
 	// Create a new personPropertyOwner as the person owner (authorized).
-	body := fmt.Sprintf(`{"person":%q,"propertyOwner":%q}`, env.ids.personOwner, env.ids.propertyOwner)
-	resp := env.do("POST", "/api/collections/personPropertyOwners/records", body, env.tok.userOwner)
+	body := fmt.Sprintf(`{"person":%q,"propertyOwner":%q}`, environment.ids.personOwner, environment.ids.propertyOwner)
+	response := environment.do("POST", "/api/collections/personPropertyOwners/records", body, environment.tok.userOwner)
 	// Will fail with unique constraint if the pair already exists; we test 200 or 400.
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusBadRequest {
-		t.Errorf("expected 200 or 400, got %d", resp.StatusCode)
+	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusBadRequest {
+		t.Errorf("expected 200 or 400, got %d", response.StatusCode)
 	}
 
 	// Manager cannot create (create rule fails → 400).
-	resp = env.do("POST", "/api/collections/personPropertyOwners/records", body, env.tok.manager)
-	env.assertStatus(t, resp, http.StatusBadRequest)
+	response = environment.do("POST", "/api/collections/personPropertyOwners/records", body, environment.tok.manager)
+	environment.assertStatus(t, response, http.StatusBadRequest)
 }
 
-// ── cobrandPropertyOwners ─────────────────────────────────────────────────────
-
 func TestCobrandPropertyOwners_Unauthenticated_Returns403(t *testing.T) {
-	env := newTestEnv(t)
-	id := env.ids.cobrandPropertyOwner
+	environment := newTestEnvironment(t)
+	id := environment.ids.cobrandPropertyOwner
 
 	t.Run("GET list", func(t *testing.T) {
-		resp := env.do("GET", "/api/collections/cobrandPropertyOwners/records", "", "")
-		env.assertStatus(t, resp, http.StatusOK)
+		response := environment.do("GET", "/api/collections/cobrandPropertyOwners/records", "", "")
+		environment.assertStatus(t, response, http.StatusOK)
 	})
 	t.Run("GET single", func(t *testing.T) {
-		resp := env.do("GET", fmt.Sprintf("/api/collections/cobrandPropertyOwners/records/%s", id), "", "")
-		env.assertStatus(t, resp, http.StatusNotFound)
+		response := environment.do("GET", fmt.Sprintf("/api/collections/cobrandPropertyOwners/records/%s", id), "", "")
+		environment.assertStatus(t, response, http.StatusNotFound)
 	})
 	t.Run("POST", func(t *testing.T) {
-		resp := env.do("POST", "/api/collections/cobrandPropertyOwners/records", "{}", "")
-		env.assertStatus(t, resp, http.StatusBadRequest)
+		response := environment.do("POST", "/api/collections/cobrandPropertyOwners/records", "{}", "")
+		environment.assertStatus(t, response, http.StatusBadRequest)
 	})
 	t.Run("PATCH", func(t *testing.T) {
-		resp := env.do("PATCH", fmt.Sprintf("/api/collections/cobrandPropertyOwners/records/%s", id), "{}", "")
-		env.assertStatus(t, resp, http.StatusNotFound)
+		response := environment.do("PATCH", fmt.Sprintf("/api/collections/cobrandPropertyOwners/records/%s", id), "{}", "")
+		environment.assertStatus(t, response, http.StatusNotFound)
 	})
 	t.Run("DELETE", func(t *testing.T) {
-		resp := env.do("DELETE", fmt.Sprintf("/api/collections/cobrandPropertyOwners/records/%s", id), "", "")
-		env.assertStatus(t, resp, http.StatusNotFound)
+		response := environment.do("DELETE", fmt.Sprintf("/api/collections/cobrandPropertyOwners/records/%s", id), "", "")
+		environment.assertStatus(t, response, http.StatusNotFound)
 	})
 }
 
 func TestCobrandPropertyOwners_View_OwnerGroupsSee200(t *testing.T) {
-	env := newTestEnv(t)
-	path := fmt.Sprintf("/api/collections/cobrandPropertyOwners/records/%s", env.ids.cobrandPropertyOwner)
+	environment := newTestEnvironment(t)
+	path := fmt.Sprintf("/api/collections/cobrandPropertyOwners/records/%s", environment.ids.cobrandPropertyOwner)
 	// Cobrand manager access omitted — PocketBase v0.22 limitation.
 	for _, tok := range []struct {
 		name  string
 		token string
 	}{
-		{"person owner", env.tok.userOwner},
-		{"cobrand owner", env.tok.cobrandAdmin},
+		{"person owner", environment.tok.userOwner},
+		{"cobrand owner", environment.tok.cobrandAdmin},
 	} {
 		t.Run(tok.name, func(t *testing.T) {
-			resp := env.do("GET", path, "", tok.token)
-			env.assertStatus(t, resp, http.StatusOK)
+			response := environment.do("GET", path, "", tok.token)
+			environment.assertStatus(t, response, http.StatusOK)
 		})
 	}
 }
 
 func TestCobrandPropertyOwners_Delete_CobrandAdminCanResign(t *testing.T) {
-	env := newTestEnv(t)
+	environment := newTestEnvironment(t)
 
 	// Cobrand admin can delete their cobrand's ownership record (resignation).
 	// Create a fresh propertyOwner+cobrandPropertyOwner to avoid unique-constraint conflict.
-	freshPropID := env.createRecord(t, "properties", map[string]any{"address": "Resign St"})
-	freshPOID := env.createRecord(t, "propertyOwners", map[string]any{"property": freshPropID})
-	cpo := env.createRecord(t, "cobrandPropertyOwners",
-		map[string]any{"cobrand": env.ids.cobrand, "propertyOwner": freshPOID})
-	path := fmt.Sprintf("/api/collections/cobrandPropertyOwners/records/%s", cpo)
-	resp := env.do("DELETE", path, "", env.tok.cobrandAdmin)
+	freshPropertyId := environment.createRecord(t, "properties", map[string]any{"address": "Resign St"})
+	freshPropertyOwnerId := environment.createRecord(t, "propertyOwners", map[string]any{"property": freshPropertyId})
+	cobrandPropertyOwnerId := environment.createRecord(t, "cobrandPropertyOwners",
+		map[string]any{"cobrand": environment.ids.cobrand, "propertyOwner": freshPropertyOwnerId})
+	path := fmt.Sprintf("/api/collections/cobrandPropertyOwners/records/%s", cobrandPropertyOwnerId)
+	response := environment.do("DELETE", path, "", environment.tok.cobrandAdmin)
 	// 204 if deletion succeeds, 404 if unique constraint prevented the second record.
-	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusNotFound {
-		t.Errorf("cobrand admin delete: expected 204 or 404, got %d", resp.StatusCode)
+	if response.StatusCode != http.StatusNoContent && response.StatusCode != http.StatusNotFound {
+		t.Errorf("cobrand admin delete: expected 204 or 404, got %d", response.StatusCode)
 	}
 }
 
-// ── cobrandPropertyManagers ───────────────────────────────────────────────────
-
 func TestCobrandPropertyManagers_Unauthenticated_Returns403(t *testing.T) {
-	env := newTestEnv(t)
-	id := env.ids.cobrandPropertyMgr
+	environment := newTestEnvironment(t)
+	id := environment.ids.cobrandPropertyMgr
 
 	t.Run("GET list", func(t *testing.T) {
-		resp := env.do("GET", "/api/collections/cobrandPropertyManagers/records", "", "")
-		env.assertStatus(t, resp, http.StatusOK)
+		response := environment.do("GET", "/api/collections/cobrandPropertyManagers/records", "", "")
+		environment.assertStatus(t, response, http.StatusOK)
 	})
 	t.Run("GET single", func(t *testing.T) {
-		resp := env.do("GET", fmt.Sprintf("/api/collections/cobrandPropertyManagers/records/%s", id), "", "")
-		env.assertStatus(t, resp, http.StatusNotFound)
+		response := environment.do("GET", fmt.Sprintf("/api/collections/cobrandPropertyManagers/records/%s", id), "", "")
+		environment.assertStatus(t, response, http.StatusNotFound)
 	})
 	t.Run("POST", func(t *testing.T) {
-		resp := env.do("POST", "/api/collections/cobrandPropertyManagers/records", "{}", "")
-		env.assertStatus(t, resp, http.StatusBadRequest)
+		response := environment.do("POST", "/api/collections/cobrandPropertyManagers/records", "{}", "")
+		environment.assertStatus(t, response, http.StatusBadRequest)
 	})
 	t.Run("PATCH", func(t *testing.T) {
-		resp := env.do("PATCH", fmt.Sprintf("/api/collections/cobrandPropertyManagers/records/%s", id), "{}", "")
-		env.assertStatus(t, resp, http.StatusNotFound)
+		response := environment.do("PATCH", fmt.Sprintf("/api/collections/cobrandPropertyManagers/records/%s", id), "{}", "")
+		environment.assertStatus(t, response, http.StatusNotFound)
 	})
 	t.Run("DELETE", func(t *testing.T) {
-		resp := env.do("DELETE", fmt.Sprintf("/api/collections/cobrandPropertyManagers/records/%s", id), "", "")
-		env.assertStatus(t, resp, http.StatusNotFound)
+		response := environment.do("DELETE", fmt.Sprintf("/api/collections/cobrandPropertyManagers/records/%s", id), "", "")
+		environment.assertStatus(t, response, http.StatusNotFound)
 	})
 }
 
 func TestCobrandPropertyManagers_View_ThreeGroupsSee200(t *testing.T) {
-	env := newTestEnv(t)
-	path := fmt.Sprintf("/api/collections/cobrandPropertyManagers/records/%s", env.ids.cobrandPropertyMgr)
+	environment := newTestEnvironment(t)
+	path := fmt.Sprintf("/api/collections/cobrandPropertyManagers/records/%s", environment.ids.cobrandPropertyMgr)
 	for _, tok := range []struct {
 		name  string
 		token string
 	}{
-		{"person owner", env.tok.userOwner},
-		{"cobrand owner", env.tok.cobrandAdmin},
-		{"cobrand manager", env.tok.manager},
+		{"person owner", environment.tok.userOwner},
+		{"cobrand owner", environment.tok.cobrandAdmin},
+		{"cobrand manager", environment.tok.manager},
 	} {
 		t.Run(tok.name, func(t *testing.T) {
-			resp := env.do("GET", path, "", tok.token)
-			env.assertStatus(t, resp, http.StatusOK)
+			response := environment.do("GET", path, "", tok.token)
+			environment.assertStatus(t, response, http.StatusOK)
 		})
 	}
 }
 
 func TestCobrandPropertyManagers_View_NonGroupsReturn404(t *testing.T) {
-	env := newTestEnv(t)
-	path := fmt.Sprintf("/api/collections/cobrandPropertyManagers/records/%s", env.ids.cobrandPropertyMgr)
+	environment := newTestEnvironment(t)
+	path := fmt.Sprintf("/api/collections/cobrandPropertyManagers/records/%s", environment.ids.cobrandPropertyMgr)
 	for _, tok := range []struct {
 		name  string
 		token string
 	}{
-		{"tenant", env.tok.tenant},
-		{"agent", env.tok.agent},
-		{"unrelated", env.tok.unrelated},
+		{"tenant", environment.tok.tenant},
+		{"agent", environment.tok.agent},
+		{"unrelated", environment.tok.unrelated},
 	} {
 		t.Run(tok.name, func(t *testing.T) {
-			resp := env.do("GET", path, "", tok.token)
-			env.assertStatus(t, resp, http.StatusNotFound)
+			response := environment.do("GET", path, "", tok.token)
+			environment.assertStatus(t, response, http.StatusNotFound)
 		})
 	}
 }
 
 func TestCobrandPropertyManagers_CreateUpdate_OnlyOwners(t *testing.T) {
-	env := newTestEnv(t)
+	environment := newTestEnvironment(t)
 
-	newCobrandID := env.createRecord(t, "cobrands", map[string]any{"name": "New Mgr Co"})
-	body := fmt.Sprintf(`{"cobrand":%q,"property":%q}`, newCobrandID, env.ids.property)
+	newCobrandID := environment.createRecord(t, "cobrands", map[string]any{"name": "New Mgr Co"})
+	body := fmt.Sprintf(`{"cobrand":%q,"property":%q}`, newCobrandID, environment.ids.property)
 
 	// Owner can create.
-	resp := env.do("POST", "/api/collections/cobrandPropertyManagers/records", body, env.tok.userOwner)
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusBadRequest {
-		t.Errorf("owner create: expected 200 or 400, got %d", resp.StatusCode)
+	response := environment.do("POST", "/api/collections/cobrandPropertyManagers/records", body, environment.tok.userOwner)
+	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusBadRequest {
+		t.Errorf("owner create: expected 200 or 400, got %d", response.StatusCode)
 	}
 
 	// Manager cannot create (create rule is owners-only → 400).
-	resp = env.do("POST", "/api/collections/cobrandPropertyManagers/records", body, env.tok.manager)
-	env.assertStatus(t, resp, http.StatusBadRequest)
+	response = environment.do("POST", "/api/collections/cobrandPropertyManagers/records", body, environment.tok.manager)
+	environment.assertStatus(t, response, http.StatusBadRequest)
 }
 
 func TestCobrandPropertyManagers_Delete_ManagerCanResign(t *testing.T) {
-	env := newTestEnv(t)
+	environment := newTestEnvironment(t)
 
 	// Create a fresh cobrandPropertyManagers record to delete.
-	newCobrandID := env.createRecord(t, "cobrands", map[string]any{"name": "Resign Co"})
-	userManagerID := env.userIdByEmail(t, "manager@test.com")
-	env.createRecord(t, "cobrandAdmins",
+	newCobrandID := environment.createRecord(t, "cobrands", map[string]any{"name": "Resign Co"})
+	userManagerID := environment.userIdByEmail(t, "manager@test.com")
+	environment.createRecord(t, "cobrandAdmins",
 		map[string]any{"user": userManagerID, "cobrand": newCobrandID})
-	cpmID := env.createRecord(t, "cobrandPropertyManagers",
-		map[string]any{"cobrand": newCobrandID, "property": env.ids.property})
+	cpmID := environment.createRecord(t, "cobrandPropertyManagers",
+		map[string]any{"cobrand": newCobrandID, "property": environment.ids.property})
 
 	path := fmt.Sprintf("/api/collections/cobrandPropertyManagers/records/%s", cpmID)
-	resp := env.do("DELETE", path, "", env.tok.manager)
+	response := environment.do("DELETE", path, "", environment.tok.manager)
 	// Manager cobrand admin can resign their own management record.
-	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusNotFound {
-		t.Errorf("manager resign delete: expected 204 or 404, got %d", resp.StatusCode)
+	if response.StatusCode != http.StatusNoContent && response.StatusCode != http.StatusNotFound {
+		t.Errorf("manager resign delete: expected 204 or 404, got %d", response.StatusCode)
 	}
 }

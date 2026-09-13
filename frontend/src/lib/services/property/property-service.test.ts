@@ -7,110 +7,110 @@ import type { IHouseholdRepository } from '$lib/repositories/property/household-
 import type { IPropertyAgentRepository } from '$lib/repositories/agent/property-agent-repository';
 import { PropertyService } from './property-service';
 
-const makeRepos = (overrides: {
-  propertyRepo?: Partial<IPropertyRepository>;
-  propertyOwnerRepo?: Partial<IPropertyOwnerRepository>;
-  ppoRepo?: Partial<IPersonPropertyOwnerRepository>;
-  tenantRepo?: Partial<ITenantRepository>;
-  householdRepo?: Partial<IHouseholdRepository>;
-  propertyAgentRepo?: Partial<IPropertyAgentRepository>;
+const makeRepositories = (overrides: {
+  propertyRepository?: Partial<IPropertyRepository>;
+  propertyOwnerRepository?: Partial<IPropertyOwnerRepository>;
+  personPropertyOwnerRepository?: Partial<IPersonPropertyOwnerRepository>;
+  tenantRepository?: Partial<ITenantRepository>;
+  householdRepository?: Partial<IHouseholdRepository>;
+  propertyAgentRepository?: Partial<IPropertyAgentRepository>;
 } = {}) => ({
-  propertyRepo: {
-    getAll: vi.fn().mockResolvedValue([]),
-    getById: vi.fn().mockResolvedValue({ id: 'pr1', address: '1 Test St' }),
-    create: vi.fn().mockResolvedValue({ id: 'pr1', address: '1 Test St' }),
-    update: vi.fn().mockResolvedValue({ id: 'pr1', address: '1 Test St' }),
-    delete: vi.fn().mockResolvedValue(undefined),
-    ...overrides.propertyRepo,
+  propertyRepository: {
+    getAllProperties: vi.fn().mockResolvedValue([]),
+    getPropertyById: vi.fn().mockResolvedValue({ id: 'pr1', address: '1 Test St' }),
+    createProperty: vi.fn().mockResolvedValue({ id: 'pr1', address: '1 Test St' }),
+    updateProperty: vi.fn().mockResolvedValue({ id: 'pr1', address: '1 Test St' }),
+    deleteProperty: vi.fn().mockResolvedValue(undefined),
+    ...overrides.propertyRepository,
   } as unknown as IPropertyRepository,
-  propertyOwnerRepo: {
-    getByPropertyId: vi.fn().mockResolvedValue([]),
-    create: vi.fn().mockResolvedValue({ id: 'po1', property: 'pr1' }),
-    delete: vi.fn().mockResolvedValue(undefined),
-    ...overrides.propertyOwnerRepo,
+  propertyOwnerRepository: {
+    getPropertyOwnersByPropertyId: vi.fn().mockResolvedValue([]),
+    createPropertyOwner: vi.fn().mockResolvedValue({ id: 'po1', property: 'pr1' }),
+    deletePropertyOwner: vi.fn().mockResolvedValue(undefined),
+    ...overrides.propertyOwnerRepository,
   } as unknown as IPropertyOwnerRepository,
-  ppoRepo: {
-    getByPersonId: vi.fn().mockResolvedValue([]),
-    getByPropertyOwnerId: vi.fn().mockResolvedValue([]),
-    create: vi.fn().mockResolvedValue({ id: 'ppo1', person: 'p1', propertyOwner: 'po1' }),
-    delete: vi.fn().mockResolvedValue(undefined),
-    ...overrides.ppoRepo,
+  personPropertyOwnerRepository: {
+    getPersonPropertyOwnersByPersonId: vi.fn().mockResolvedValue([]),
+    getPersonPropertyOwnersByPropertyOwnerId: vi.fn().mockResolvedValue([]),
+    createPersonPropertyOwner: vi.fn().mockResolvedValue({ id: 'ppo1', person: 'p1', propertyOwner: 'po1' }),
+    deletePersonPropertyOwner: vi.fn().mockResolvedValue(undefined),
+    ...overrides.personPropertyOwnerRepository,
   } as unknown as IPersonPropertyOwnerRepository,
-  tenantRepo: {
-    getByPersonId: vi.fn().mockResolvedValue([]),
-    getByPropertyId: vi.fn().mockResolvedValue([]),
-    create: vi.fn().mockResolvedValue({ id: 't1', person: 'p1', property: 'pr1' }),
-    delete: vi.fn().mockResolvedValue(undefined),
-    ...overrides.tenantRepo,
+  tenantRepository: {
+    getTenantsByPersonId: vi.fn().mockResolvedValue([]),
+    getTenantsByPropertyId: vi.fn().mockResolvedValue([]),
+    createTenant: vi.fn().mockResolvedValue({ id: 't1', person: 'p1', property: 'pr1' }),
+    deleteTenant: vi.fn().mockResolvedValue(undefined),
+    ...overrides.tenantRepository,
   } as unknown as ITenantRepository,
-  householdRepo: {
-    getByPersonId: vi.fn().mockResolvedValue([]),
-    getByPropertyId: vi.fn().mockResolvedValue([]),
-    create: vi.fn().mockResolvedValue({ id: 'h1', person: 'p1', property: 'pr1' }),
-    delete: vi.fn().mockResolvedValue(undefined),
-    ...overrides.householdRepo,
+  householdRepository: {
+    getHouseholdsByPersonId: vi.fn().mockResolvedValue([]),
+    getHouseholdsByPropertyId: vi.fn().mockResolvedValue([]),
+    createHousehold: vi.fn().mockResolvedValue({ id: 'h1', person: 'p1', property: 'pr1' }),
+    deleteHousehold: vi.fn().mockResolvedValue(undefined),
+    ...overrides.householdRepository,
   } as unknown as IHouseholdRepository,
-  propertyAgentRepo: {
-    getByAgentId: vi.fn().mockResolvedValue([]),
-    getByPropertyId: vi.fn().mockResolvedValue([]),
-    create: vi.fn().mockResolvedValue({ id: 'pa1', agent: 'ag1', property: 'pr1' }),
-    delete: vi.fn().mockResolvedValue(undefined),
-    ...overrides.propertyAgentRepo,
+  propertyAgentRepository: {
+    getPropertyAgentsByAgentId: vi.fn().mockResolvedValue([]),
+    getPropertyAgentsByPropertyId: vi.fn().mockResolvedValue([]),
+    createPropertyAgent: vi.fn().mockResolvedValue({ id: 'pa1', agent: 'ag1', property: 'pr1' }),
+    deletePropertyAgent: vi.fn().mockResolvedValue(undefined),
+    ...overrides.propertyAgentRepository,
   } as unknown as IPropertyAgentRepository,
 });
 
-const makeSvc = (overrides = {}) => {
-  const repos = makeRepos(overrides);
+const makePropertyService = (overrides = {}) => {
+  const repositories = makeRepositories(overrides);
   return new PropertyService(
-    repos.propertyRepo,
-    repos.propertyOwnerRepo,
-    repos.ppoRepo,
-    repos.tenantRepo,
-    repos.householdRepo,
-    repos.propertyAgentRepo,
+    repositories.propertyRepository,
+    repositories.propertyOwnerRepository,
+    repositories.personPropertyOwnerRepository,
+    repositories.tenantRepository,
+    repositories.householdRepository,
+    repositories.propertyAgentRepository,
   );
 };
 
 describe('PropertyService.validatePropertyAddress', () => {
   it('passes for a valid address', () => {
-    expect(() => makeSvc().validatePropertyAddress('1 Main St')).not.toThrow();
+    expect(() => makePropertyService().validatePropertyAddress('1 Main St')).not.toThrow();
   });
 
   it('throws for empty string', () => {
-    expect(() => makeSvc().validatePropertyAddress('')).toThrow('property address is required');
+    expect(() => makePropertyService().validatePropertyAddress('')).toThrow('property address is required');
   });
 
   it('throws for whitespace-only string', () => {
-    expect(() => makeSvc().validatePropertyAddress('   ')).toThrow('property address is required');
+    expect(() => makePropertyService().validatePropertyAddress('   ')).toThrow('property address is required');
   });
 });
 
 describe('PropertyService.createPropertyWithOwner', () => {
   it('creates property, propertyOwner, and personPropertyOwner in sequence', async () => {
-    const repos = makeRepos({
-      propertyRepo: {
-        create: vi.fn().mockResolvedValue({ id: 'pr1', address: '1 Test St' }),
+    const repositories = makeRepositories({
+      propertyRepository: {
+        createProperty: vi.fn().mockResolvedValue({ id: 'pr1', address: '1 Test St' }),
       },
-      propertyOwnerRepo: {
-        create: vi.fn().mockResolvedValue({ id: 'po1', property: 'pr1' }),
+      propertyOwnerRepository: {
+        createPropertyOwner: vi.fn().mockResolvedValue({ id: 'po1', property: 'pr1' }),
       },
-      ppoRepo: {
-        create: vi.fn().mockResolvedValue({ id: 'ppo1', person: 'p1', propertyOwner: 'po1' }),
+      personPropertyOwnerRepository: {
+        createPersonPropertyOwner: vi.fn().mockResolvedValue({ id: 'ppo1', person: 'p1', propertyOwner: 'po1' }),
       },
     });
-    const svc = new PropertyService(
-      repos.propertyRepo,
-      repos.propertyOwnerRepo,
-      repos.ppoRepo,
-      repos.tenantRepo,
-      repos.householdRepo,
-      repos.propertyAgentRepo,
+    const propertyService = new PropertyService(
+      repositories.propertyRepository,
+      repositories.propertyOwnerRepository,
+      repositories.personPropertyOwnerRepository,
+      repositories.tenantRepository,
+      repositories.householdRepository,
+      repositories.propertyAgentRepository,
     );
 
-    const result = await svc.createPropertyWithOwner('1 Test St', 'p1');
-    expect(repos.propertyRepo.create).toHaveBeenCalledWith('1 Test St');
-    expect(repos.propertyOwnerRepo.create).toHaveBeenCalledWith('pr1');
-    expect(repos.ppoRepo.create).toHaveBeenCalledWith('p1', 'po1');
+    const result = await propertyService.createPropertyWithOwner('1 Test St', 'p1');
+    expect(repositories.propertyRepository.create).toHaveBeenCalledWith('1 Test St');
+    expect(repositories.propertyOwnerRepository.create).toHaveBeenCalledWith('pr1');
+    expect(repositories.personPropertyOwnerRepository.create).toHaveBeenCalledWith('p1', 'po1');
     expect(result.id).toBe('pr1');
   });
 });

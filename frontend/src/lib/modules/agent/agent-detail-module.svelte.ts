@@ -19,8 +19,8 @@ export class AgentDetailModule implements IAgentDetailModule {
   private refreshPropertyAgents() {
     this.propertyAgentsAsync = this.__agentService
       .getPropertyAgentsForAgent(this.__agentId)
-      .catch((ex) => {
-        alert(ex);
+      .catch((error) => {
+        alert(error);
         return [];
       });
   }
@@ -31,8 +31,8 @@ export class AgentDetailModule implements IAgentDetailModule {
     try {
       await this.__agentService.deleteAgent(id);
       this.__backAction();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -40,8 +40,8 @@ export class AgentDetailModule implements IAgentDetailModule {
     try {
       await this.__agentService.addPropertyAgent(agentId, propertyId);
       this.refreshPropertyAgents();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -49,8 +49,8 @@ export class AgentDetailModule implements IAgentDetailModule {
     try {
       await this.__agentService.removePropertyAgent(id);
       this.refreshPropertyAgents();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -61,8 +61,8 @@ export class AgentDetailModule implements IAgentDetailModule {
 
     this.agentAsync = this.__agentService
       .getAgentById(agentId)
-      .catch((ex) => {
-        alert(ex);
+      .catch((error) => {
+        alert(error);
         return null;
       });
 

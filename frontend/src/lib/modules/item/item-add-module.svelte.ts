@@ -22,8 +22,8 @@ export class ItemAddModule implements IItemEditorModule {
     try {
       await this.__itemService.createItem(item.name, item.description);
       this.__backAction();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 

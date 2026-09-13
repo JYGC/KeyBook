@@ -45,11 +45,11 @@ func (r *CobrandAdminRepository) GetCobrandAdminsByCobrandId(cobrandId string) (
 }
 
 func (r *CobrandAdminRepository) CreateCobrandAdmin(userId, cobrandId string) (dtos.CobrandAdminDto, error) {
-	col, err := r.app.Dao().FindCollectionByNameOrId("cobrandAdmins")
+	cobrandAdminsCollection, err := r.app.Dao().FindCollectionByNameOrId("cobrandAdmins")
 	if err != nil {
 		return dtos.CobrandAdminDto{}, err
 	}
-	record := models.NewRecord(col)
+	record := models.NewRecord(cobrandAdminsCollection)
 	record.Set("user", userId)
 	record.Set("cobrand", cobrandId)
 	if err := r.app.Dao().SaveRecord(record); err != nil {
@@ -66,11 +66,11 @@ func (r *CobrandAdminRepository) DeleteCobrandAdmin(id string) error {
 	return r.app.Dao().DeleteRecord(record)
 }
 
-func cobrandAdminRecordToDto(r *models.Record) dtos.CobrandAdminDto {
+func cobrandAdminRecordToDto(record *models.Record) dtos.CobrandAdminDto {
 	return dtos.CobrandAdminDto{
-		Id:       r.GetId(),
-		User:     r.GetString("user"),
-		Cobrand:  r.GetString("cobrand"),
-		Approved: r.GetBool("approved"),
+		Id:       record.GetId(),
+		User:     record.GetString("user"),
+		Cobrand:  record.GetString("cobrand"),
+		Approved: record.GetBool("approved"),
 	}
 }

@@ -6,14 +6,11 @@ import (
 	"keybook/backend/internal/repositories"
 )
 
-// ── CobrandRepository ─────────────────────────────────────────────────────────
-
 func TestCobrandRepository_CRUD(t *testing.T) {
-	app := newApp(t)
-	repo := repositories.NewCobrandRepository(app)
+	app := newTestAppWithMigrations(t)
+	cobrandRepository := repositories.NewCobrandRepository(app)
 
-	// Create
-	created, err := repo.CreateCobrand("Acme Co")
+	created, err := cobrandRepository.CreateCobrand("Acme Co")
 	if err != nil {
 		t.Fatalf("CreateCobrand: %v", err)
 	}
@@ -24,8 +21,7 @@ func TestCobrandRepository_CRUD(t *testing.T) {
 		t.Errorf("Name: want Acme Co, got %s", created.Name)
 	}
 
-	// Get by ID
-	got, err := repo.GetCobrandById(created.Id)
+	got, err := cobrandRepository.GetCobrandById(created.Id)
 	if err != nil {
 		t.Fatalf("GetCobrandById: %v", err)
 	}
@@ -33,37 +29,32 @@ func TestCobrandRepository_CRUD(t *testing.T) {
 		t.Errorf("Name: want Acme Co, got %s", got.Name)
 	}
 
-	// Update
-	if err := repo.UpdateCobrand(created.Id, "Acme LLC"); err != nil {
+	if err := cobrandRepository.UpdateCobrand(created.Id, "Acme LLC"); err != nil {
 		t.Fatalf("UpdateCobrand: %v", err)
 	}
-	updated, _ := repo.GetCobrandById(created.Id)
+	updated, _ := cobrandRepository.GetCobrandById(created.Id)
 	if updated.Name != "Acme LLC" {
 		t.Errorf("after update Name: want Acme LLC, got %s", updated.Name)
 	}
 
-	// Delete
-	if err := repo.DeleteCobrand(created.Id); err != nil {
+	if err := cobrandRepository.DeleteCobrand(created.Id); err != nil {
 		t.Fatalf("DeleteCobrand: %v", err)
 	}
-	if _, err := repo.GetCobrandById(created.Id); err == nil {
+	if _, err := cobrandRepository.GetCobrandById(created.Id); err == nil {
 		t.Error("expected error after delete, got nil")
 	}
 }
 
-// ── CobrandAdminRepository ────────────────────────────────────────────────────
-
 func TestCobrandAdminRepository_CRUD(t *testing.T) {
-	app := newApp(t)
+	app := newTestAppWithMigrations(t)
 
-	cobrand := createRecord(t, app, "cobrands", map[string]any{"name": "Test Co"})
+	cobrand := createRecordBypassingAccessRules(t, app, "cobrands", map[string]any{"name": "Test Co"})
 	// Use a synthetic user ID — PocketBase DAO does not enforce FK constraints.
 	const userID = "testuser00000001"
 
-	repo := repositories.NewCobrandAdminRepository(app)
+	cobrandAdminRepository := repositories.NewCobrandAdminRepository(app)
 
-	// Create
-	created, err := repo.CreateCobrandAdmin(userID, cobrand.GetId())
+	created, err := cobrandAdminRepository.CreateCobrandAdmin(userID, cobrand.GetId())
 	if err != nil {
 		t.Fatalf("CreateCobrandAdmin: %v", err)
 	}
@@ -77,8 +68,7 @@ func TestCobrandAdminRepository_CRUD(t *testing.T) {
 		t.Error("Approved: want false on creation, got true")
 	}
 
-	// Get by ID
-	got, err := repo.GetCobrandAdminById(created.Id)
+	got, err := cobrandAdminRepository.GetCobrandAdminById(created.Id)
 	if err != nil {
 		t.Fatalf("GetCobrandAdminById: %v", err)
 	}
@@ -89,8 +79,7 @@ func TestCobrandAdminRepository_CRUD(t *testing.T) {
 		t.Error("Approved: want false, got true")
 	}
 
-	// Get by cobrand ID
-	admins, err := repo.GetCobrandAdminsByCobrandId(cobrand.GetId())
+	admins, err := cobrandAdminRepository.GetCobrandAdminsByCobrandId(cobrand.GetId())
 	if err != nil {
 		t.Fatalf("GetCobrandAdminsByCobrandId: %v", err)
 	}
@@ -98,11 +87,10 @@ func TestCobrandAdminRepository_CRUD(t *testing.T) {
 		t.Fatalf("want 1 admin, got %d", len(admins))
 	}
 
-	// Delete
-	if err := repo.DeleteCobrandAdmin(created.Id); err != nil {
+	if err := cobrandAdminRepository.DeleteCobrandAdmin(created.Id); err != nil {
 		t.Fatalf("DeleteCobrandAdmin: %v", err)
 	}
-	if _, err := repo.GetCobrandAdminById(created.Id); err == nil {
+	if _, err := cobrandAdminRepository.GetCobrandAdminById(created.Id); err == nil {
 		t.Error("expected error after delete, got nil")
 	}
 }

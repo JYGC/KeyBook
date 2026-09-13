@@ -20,8 +20,8 @@ export class PersonAddModule implements INewPersonEditorModule {
     try {
       await this.__personService.createPerson(person.name, person.DOB);
       this.__backAction();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 

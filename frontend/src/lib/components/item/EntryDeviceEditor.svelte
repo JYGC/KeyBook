@@ -10,7 +10,7 @@
   } = $props<{
     deleteButton?: Snippet<[() => void]>;
     entryDevice: IEntryDeviceModel;
-    onSave: (ed: IEntryDeviceModel) => Promise<void>;
+    onSave: (entryDevice: IEntryDeviceModel) => Promise<void>;
   }>();
 </script>
 

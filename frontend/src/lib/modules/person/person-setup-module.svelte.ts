@@ -23,8 +23,8 @@ export class PersonSetupModule implements IPersonSetupModule {
 		try {
 			await this.__personService.createPerson(person.name, person.DOB, this.__userId);
 			this.__backAction();
-		} catch (ex) {
-			this.__error = String(ex);
+		} catch (error) {
+			this.__error = String(error);
 		}
 	};
 

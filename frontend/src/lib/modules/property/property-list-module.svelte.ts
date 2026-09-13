@@ -8,8 +8,8 @@ export class PropertyListModule implements INewPropertyListModule {
   public propertyListAsync = $derived.by<Promise<IPropertyModel[]>>(async () => {
     try {
       return await this.__propertyService.getAllProperties();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
       return [];
     }
   });

@@ -2,31 +2,31 @@ import PocketBase from 'pocketbase';
 import type { ICobrandPropertyManagerModel } from '$lib/models/cobrand-models';
 
 export interface ICobrandPropertyManagerRepository {
-  getByCobrandId(cobrandId: string): Promise<ICobrandPropertyManagerModel[]>;
-  getByPropertyId(propertyId: string): Promise<ICobrandPropertyManagerModel[]>;
-  create(cobrandId: string, propertyId: string): Promise<ICobrandPropertyManagerModel>;
-  delete(id: string): Promise<void>;
+  getCobrandPropertyManagersByCobrandId(cobrandId: string): Promise<ICobrandPropertyManagerModel[]>;
+  getCobrandPropertyManagersByPropertyId(propertyId: string): Promise<ICobrandPropertyManagerModel[]>;
+  createCobrandPropertyManager(cobrandId: string, propertyId: string): Promise<ICobrandPropertyManagerModel>;
+  deleteCobrandPropertyManager(id: string): Promise<void>;
 }
 
 export class CobrandPropertyManagerRepository implements ICobrandPropertyManagerRepository {
-  constructor(private readonly pb: PocketBase) {}
+  constructor(private readonly backendClient: PocketBase) {}
 
-  async getByCobrandId(cobrandId: string): Promise<ICobrandPropertyManagerModel[]> {
-    const all = await this.pb
+  async getCobrandPropertyManagersByCobrandId(cobrandId: string): Promise<ICobrandPropertyManagerModel[]> {
+    const allCobrandPropertyManagers = await this.backendClient
       .collection('cobrandPropertyManagers')
       .getFullList<ICobrandPropertyManagerModel>();
-    return all.filter((m) => m.cobrand === cobrandId);
+    return allCobrandPropertyManagers.filter((cobrandPropertyManager) => cobrandPropertyManager.cobrand === cobrandId);
   }
 
-  async getByPropertyId(propertyId: string): Promise<ICobrandPropertyManagerModel[]> {
-    const all = await this.pb
+  async getCobrandPropertyManagersByPropertyId(propertyId: string): Promise<ICobrandPropertyManagerModel[]> {
+    const allCobrandPropertyManagers = await this.backendClient
       .collection('cobrandPropertyManagers')
       .getFullList<ICobrandPropertyManagerModel>();
-    return all.filter((m) => m.property === propertyId);
+    return allCobrandPropertyManagers.filter((cobrandPropertyManager) => cobrandPropertyManager.property === propertyId);
   }
 
-  async create(cobrandId: string, propertyId: string): Promise<ICobrandPropertyManagerModel> {
-    return await this.pb
+  async createCobrandPropertyManager(cobrandId: string, propertyId: string): Promise<ICobrandPropertyManagerModel> {
+    return await this.backendClient
       .collection('cobrandPropertyManagers')
       .create<ICobrandPropertyManagerModel>({
         cobrand: cobrandId,
@@ -34,7 +34,7 @@ export class CobrandPropertyManagerRepository implements ICobrandPropertyManager
       });
   }
 
-  async delete(id: string): Promise<void> {
-    await this.pb.collection('cobrandPropertyManagers').delete(id);
+  async deleteCobrandPropertyManager(id: string): Promise<void> {
+    await this.backendClient.collection('cobrandPropertyManagers').delete(id);
   }
 }

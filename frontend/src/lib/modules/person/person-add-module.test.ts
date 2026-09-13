@@ -6,7 +6,7 @@ beforeAll(() => {
   vi.stubGlobal('alert', vi.fn());
 });
 
-const makeSvc = (overrides: Partial<IPersonService> = {}) =>
+const makePersonService = (overrides: Partial<IPersonService> = {}) =>
   ({
     createPerson: vi.fn().mockResolvedValue({ id: 'p1', name: 'Alice', DOB: '1990-01-01', user: '', profileImage: '' }),
     ...overrides,
@@ -14,34 +14,34 @@ const makeSvc = (overrides: Partial<IPersonService> = {}) =>
 
 describe('PersonAddModule', () => {
   it('isAdd returns true', () => {
-    const module = new PersonAddModule(makeSvc(), vi.fn());
+    const module = new PersonAddModule(makePersonService(), vi.fn());
     expect(module.isAdd).toBe(true);
   });
 
   it('callBackAction calls the provided callback', () => {
-    const back = vi.fn();
-    const module = new PersonAddModule(makeSvc(), back);
+    const backAction = vi.fn();
+    const module = new PersonAddModule(makePersonService(), backAction);
     module.callBackAction();
-    expect(back).toHaveBeenCalledOnce();
+    expect(backAction).toHaveBeenCalledOnce();
   });
 
   it('resolves personAsync to an empty person model', async () => {
-    const module = new PersonAddModule(makeSvc(), vi.fn());
+    const module = new PersonAddModule(makePersonService(), vi.fn());
     const person = await module.personAsync;
     expect(person).toMatchObject({ id: '', name: '', DOB: '' });
   });
 
   it('getSavePersonAction calls createPerson and navigates back', async () => {
-    const back = vi.fn();
-    const svc = makeSvc();
-    const module = new PersonAddModule(svc, back);
+    const backAction = vi.fn();
+    const personService = makePersonService();
+    const module = new PersonAddModule(personService, backAction);
     await module.getSavePersonAction()({ id: '', name: 'Alice', DOB: '1990-01-01', user: '', profileImage: '' });
-    expect(svc.createPerson).toHaveBeenCalledWith('Alice', '1990-01-01');
-    expect(back).toHaveBeenCalledOnce();
+    expect(personService.createPerson).toHaveBeenCalledWith('Alice', '1990-01-01');
+    expect(backAction).toHaveBeenCalledOnce();
   });
 
   it('getDeletePersonAction returns null', () => {
-    const module = new PersonAddModule(makeSvc(), vi.fn());
+    const module = new PersonAddModule(makePersonService(), vi.fn());
     expect(module.getDeletePersonAction()).toBeNull();
   });
 });

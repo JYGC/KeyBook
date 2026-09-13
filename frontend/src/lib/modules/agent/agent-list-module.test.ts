@@ -12,19 +12,19 @@ describe('AgentListModule', () => {
       { id: '1', person: 'p1', cobrand: 'c1' },
       { id: '2', person: 'p2', cobrand: 'c1' },
     ];
-    const svc = { getAllAgents: vi.fn().mockResolvedValue(agents) } as unknown as IAgentService;
+    const agentService = { getAllAgents: vi.fn().mockResolvedValue(agents) } as unknown as IAgentService;
 
-    const module = new AgentListModule(svc);
+    const module = new AgentListModule(agentService);
     await expect(module.agentListAsync).resolves.toEqual(agents);
-    expect(svc.getAllAgents).toHaveBeenCalledOnce();
+    expect(agentService.getAllAgents).toHaveBeenCalledOnce();
   });
 
   it('returns empty array when service throws', async () => {
-    const svc = {
+    const agentService = {
       getAllAgents: vi.fn().mockRejectedValue(new Error('network error')),
     } as unknown as IAgentService;
 
-    const module = new AgentListModule(svc);
+    const module = new AgentListModule(agentService);
     await expect(module.agentListAsync).resolves.toEqual([]);
   });
 });

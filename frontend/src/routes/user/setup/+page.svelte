@@ -14,20 +14,20 @@
 	import { AccountSetupModule } from '$lib/modules/user/account-setup-module.svelte';
 	import { Button, Tile } from 'carbon-components-svelte';
 
-	const pb = getBackendClient();
-	const currentUserId = pb.authStore.record?.id ?? '';
+	const backendClient = getBackendClient();
+	const currentUserId = backendClient.authStore.record?.id ?? '';
 
 	const personService = new PersonService(
-		new PersonRepository(pb),
-		new PersonPropertyOwnerRepository(pb),
-		new TenantRepository(pb),
-		new HouseholdRepository(pb),
-		new AgentRepository(pb)
+		new PersonRepository(backendClient),
+		new PersonPropertyOwnerRepository(backendClient),
+		new TenantRepository(backendClient),
+		new HouseholdRepository(backendClient),
+		new AgentRepository(backendClient)
 	);
 	const cobrandService = new CobrandService(
-		new CobrandRepository(pb),
-		new CobrandAdminRepository(pb),
-		new CobrandPropertyManagerRepository(pb)
+		new CobrandRepository(backendClient),
+		new CobrandAdminRepository(backendClient),
+		new CobrandPropertyManagerRepository(backendClient)
 	);
 	const accountSetupModule = new AccountSetupModule(
 		personService,

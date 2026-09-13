@@ -8,7 +8,7 @@ import (
 )
 
 func TestAgentService_EnsureNoDuplicatePropertyAgent(t *testing.T) {
-	svc := services.NewAgentService()
+	agentService := services.NewAgentService()
 
 	existing := []dtos.PropertyAgentDto{
 		{Id: "pa1", Agent: "agent1", Property: "prop1"},
@@ -27,7 +27,7 @@ func TestAgentService_EnsureNoDuplicatePropertyAgent(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := svc.EnsureNoDuplicatePropertyAgent(tt.assignments, tt.agentId)
+			err := agentService.EnsureNoDuplicatePropertyAgent(tt.assignments, tt.agentId)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("EnsureNoDuplicatePropertyAgent(_, %q) error = %v, wantErr %v", tt.agentId, err, tt.wantErr)
 			}

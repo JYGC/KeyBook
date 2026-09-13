@@ -12,19 +12,19 @@ describe('CobrandListModule', () => {
       { id: '1', name: 'Acme Real Estate' },
       { id: '2', name: 'Global Properties' },
     ];
-    const svc = { getAllCobrands: vi.fn().mockResolvedValue(cobrands) } as unknown as ICobrandService;
+    const cobrandService = { getAllCobrands: vi.fn().mockResolvedValue(cobrands) } as unknown as ICobrandService;
 
-    const module = new CobrandListModule(svc);
+    const module = new CobrandListModule(cobrandService);
     await expect(module.cobrandListAsync).resolves.toEqual(cobrands);
-    expect(svc.getAllCobrands).toHaveBeenCalledOnce();
+    expect(cobrandService.getAllCobrands).toHaveBeenCalledOnce();
   });
 
   it('returns empty array when service throws', async () => {
-    const svc = {
+    const cobrandService = {
       getAllCobrands: vi.fn().mockRejectedValue(new Error('network error')),
     } as unknown as ICobrandService;
 
-    const module = new CobrandListModule(svc);
+    const module = new CobrandListModule(cobrandService);
     await expect(module.cobrandListAsync).resolves.toEqual([]);
   });
 });

@@ -9,11 +9,11 @@
   import { CobrandListModule } from '$lib/modules/cobrand/cobrand-list-module.svelte';
   import { Button } from 'carbon-components-svelte';
 
-  const pb = getBackendClient();
-  const cobrandRepo = new CobrandRepository(pb);
-  const cobrandAdminRepo = new CobrandAdminRepository(pb);
-  const cobrandManagerRepo = new CobrandPropertyManagerRepository(pb);
-  const cobrandService = new CobrandService(cobrandRepo, cobrandAdminRepo, cobrandManagerRepo);
+  const backendClient = getBackendClient();
+  const cobrandRepository = new CobrandRepository(backendClient);
+  const cobrandAdminRepository = new CobrandAdminRepository(backendClient);
+  const cobrandManagerRepo = new CobrandPropertyManagerRepository(backendClient);
+  const cobrandService = new CobrandService(cobrandRepository, cobrandAdminRepository, cobrandManagerRepo);
   const cobrandListModule = new CobrandListModule(cobrandService);
 
   const gotoAddCobrand = () => {

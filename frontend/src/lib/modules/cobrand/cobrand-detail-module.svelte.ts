@@ -26,8 +26,8 @@ export class CobrandDetailModule implements ICobrandDetailModule {
   private refreshAdmins() {
     this.adminsAsync = this.__cobrandService
       .getAdminsForCobrand(this.__cobrandId)
-      .catch((ex) => {
-        alert(ex);
+      .catch((error) => {
+        alert(error);
         return [];
       });
   }
@@ -35,8 +35,8 @@ export class CobrandDetailModule implements ICobrandDetailModule {
   private refreshPropertyManagers() {
     this.propertyManagersAsync = this.__cobrandService
       .getPropertyManagersForCobrand(this.__cobrandId)
-      .catch((ex) => {
-        alert(ex);
+      .catch((error) => {
+        alert(error);
         return [];
       });
   }
@@ -45,8 +45,8 @@ export class CobrandDetailModule implements ICobrandDetailModule {
     try {
       await this.__cobrandService.updateCobrand(cobrand.id, cobrand.name);
       this.__backAction();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -54,8 +54,8 @@ export class CobrandDetailModule implements ICobrandDetailModule {
     try {
       await this.__cobrandService.deleteCobrand(id);
       this.__backAction();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -63,8 +63,8 @@ export class CobrandDetailModule implements ICobrandDetailModule {
     try {
       await this.__cobrandService.addAdmin(cobrandId, userId);
       this.refreshAdmins();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -72,8 +72,8 @@ export class CobrandDetailModule implements ICobrandDetailModule {
     try {
       await this.__cobrandService.removeAdmin(id);
       this.refreshAdmins();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -81,8 +81,8 @@ export class CobrandDetailModule implements ICobrandDetailModule {
     try {
       await this.__cobrandService.addPropertyManager(cobrandId, propertyId);
       this.refreshPropertyManagers();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -90,8 +90,8 @@ export class CobrandDetailModule implements ICobrandDetailModule {
     try {
       await this.__cobrandService.removePropertyManager(id);
       this.refreshPropertyManagers();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -102,8 +102,8 @@ export class CobrandDetailModule implements ICobrandDetailModule {
 
     this.cobrandAsync = this.__cobrandService
       .getCobrandById(cobrandId)
-      .catch((ex) => {
-        alert(ex);
+      .catch((error) => {
+        alert(error);
         return null;
       });
 

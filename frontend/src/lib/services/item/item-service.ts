@@ -17,8 +17,8 @@ export interface IItemService {
 
 export class ItemService implements IItemService {
   constructor(
-    private readonly itemRepo: IItemRepository,
-    private readonly entryDeviceRepo: IEntryDeviceRepository,
+    private readonly itemRepository: IItemRepository,
+    private readonly entryDeviceRepository: IEntryDeviceRepository,
   ) {}
 
   validateItemName(name: string): void {
@@ -35,31 +35,31 @@ export class ItemService implements IItemService {
   }
 
   async getAllItems(): Promise<IItemModel[]> {
-    return await this.itemRepo.getAll();
+    return await this.itemRepository.getAllItems();
   }
 
   async getItemWithEntryDevice(
     itemId: string,
   ): Promise<{ item: IItemModel; entryDevice: IEntryDeviceModel | null }> {
     const [item, entryDevice] = await Promise.all([
-      this.itemRepo.getById(itemId),
-      this.entryDeviceRepo.getByItemId(itemId),
+      this.itemRepository.getItemById(itemId),
+      this.entryDeviceRepository.getEntryDeviceByItemId(itemId),
     ]);
     return { item, entryDevice };
   }
 
   async createItem(name: string, description: string): Promise<IItemModel> {
     this.validateItemName(name);
-    return await this.itemRepo.create(name, description);
+    return await this.itemRepository.createItem(name, description);
   }
 
   async updateItem(id: string, name: string, description: string): Promise<void> {
     this.validateItemName(name);
-    await this.itemRepo.update(id, name, description);
+    await this.itemRepository.updateItem(id, name, description);
   }
 
   async deleteItem(id: string): Promise<void> {
-    await this.itemRepo.delete(id);
+    await this.itemRepository.deleteItem(id);
   }
 
   async createEntryDevice(
@@ -68,7 +68,7 @@ export class ItemService implements IItemService {
     identifier: string,
     defunctReason: string,
   ): Promise<IEntryDeviceModel> {
-    return await this.entryDeviceRepo.create(itemId, deviceType, identifier, defunctReason);
+    return await this.entryDeviceRepository.createEntryDevice(itemId, deviceType, identifier, defunctReason);
   }
 
   async updateEntryDevice(
@@ -77,12 +77,12 @@ export class ItemService implements IItemService {
     identifier: string,
     newDefunctReason: string,
   ): Promise<void> {
-    const current = await this.entryDeviceRepo.getById(id);
+    const current = await this.entryDeviceRepository.getEntryDeviceById(id);
     this.validateEntryDeviceTransition(current.defunctReason, newDefunctReason);
-    await this.entryDeviceRepo.update(id, deviceType, identifier, newDefunctReason);
+    await this.entryDeviceRepository.updateEntryDevice(id, deviceType, identifier, newDefunctReason);
   }
 
   async deleteEntryDevice(id: string): Promise<void> {
-    await this.entryDeviceRepo.delete(id);
+    await this.entryDeviceRepository.deleteEntryDevice(id);
   }
 }

@@ -21,14 +21,14 @@
 
   const goBack = () => goto('/user/properties/list');
 
-  const pb = getBackendClient();
-  const propertyRepo = new PropertyRepository(pb);
-  const propertyOwnerRepo = new PropertyOwnerRepository(pb);
-  const ppoRepo = new PersonPropertyOwnerRepository(pb);
-  const tenantRepo = new TenantRepository(pb);
-  const householdRepo = new HouseholdRepository(pb);
-  const propertyAgentRepo = new PropertyAgentRepository(pb);
-  const propertyService = new PropertyService(propertyRepo, propertyOwnerRepo, ppoRepo, tenantRepo, householdRepo, propertyAgentRepo);
+  const backendClient = getBackendClient();
+  const propertyRepository = new PropertyRepository(backendClient);
+  const propertyOwnerRepository = new PropertyOwnerRepository(backendClient);
+  const personPropertyOwnerRepository = new PersonPropertyOwnerRepository(backendClient);
+  const tenantRepository = new TenantRepository(backendClient);
+  const householdRepository = new HouseholdRepository(backendClient);
+  const propertyAgentRepository = new PropertyAgentRepository(backendClient);
+  const propertyService = new PropertyService(propertyRepository, propertyOwnerRepository, personPropertyOwnerRepository, tenantRepository, householdRepository, propertyAgentRepository);
   const propertyDetailModule = new PropertyDetailModule(propertyService, propertyId, goBack);
 </script>
 

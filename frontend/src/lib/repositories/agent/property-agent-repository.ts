@@ -2,33 +2,33 @@ import PocketBase from 'pocketbase';
 import type { IPropertyAgentModel } from '$lib/models/agent-models';
 
 export interface IPropertyAgentRepository {
-  getByAgentId(agentId: string): Promise<IPropertyAgentModel[]>;
-  getByPropertyId(propertyId: string): Promise<IPropertyAgentModel[]>;
-  create(agentId: string, propertyId: string): Promise<IPropertyAgentModel>;
-  delete(id: string): Promise<void>;
+  getPropertyAgentsByAgentId(agentId: string): Promise<IPropertyAgentModel[]>;
+  getPropertyAgentsByPropertyId(propertyId: string): Promise<IPropertyAgentModel[]>;
+  createPropertyAgent(agentId: string, propertyId: string): Promise<IPropertyAgentModel>;
+  deletePropertyAgent(id: string): Promise<void>;
 }
 
 export class PropertyAgentRepository implements IPropertyAgentRepository {
-  constructor(private readonly pb: PocketBase) {}
+  constructor(private readonly backendClient: PocketBase) {}
 
-  async getByAgentId(agentId: string): Promise<IPropertyAgentModel[]> {
-    const all = await this.pb.collection('propertyAgents').getFullList<IPropertyAgentModel>();
-    return all.filter((pa) => pa.agent === agentId);
+  async getPropertyAgentsByAgentId(agentId: string): Promise<IPropertyAgentModel[]> {
+    const allPropertyAgents = await this.backendClient.collection('propertyAgents').getFullList<IPropertyAgentModel>();
+    return allPropertyAgents.filter((propertyAgent) => propertyAgent.agent === agentId);
   }
 
-  async getByPropertyId(propertyId: string): Promise<IPropertyAgentModel[]> {
-    const all = await this.pb.collection('propertyAgents').getFullList<IPropertyAgentModel>();
-    return all.filter((pa) => pa.property === propertyId);
+  async getPropertyAgentsByPropertyId(propertyId: string): Promise<IPropertyAgentModel[]> {
+    const allPropertyAgents = await this.backendClient.collection('propertyAgents').getFullList<IPropertyAgentModel>();
+    return allPropertyAgents.filter((propertyAgent) => propertyAgent.property === propertyId);
   }
 
-  async create(agentId: string, propertyId: string): Promise<IPropertyAgentModel> {
-    return await this.pb.collection('propertyAgents').create<IPropertyAgentModel>({
+  async createPropertyAgent(agentId: string, propertyId: string): Promise<IPropertyAgentModel> {
+    return await this.backendClient.collection('propertyAgents').create<IPropertyAgentModel>({
       agent: agentId,
       property: propertyId,
     });
   }
 
-  async delete(id: string): Promise<void> {
-    await this.pb.collection('propertyAgents').delete(id);
+  async deletePropertyAgent(id: string): Promise<void> {
+    await this.backendClient.collection('propertyAgents').delete(id);
   }
 }

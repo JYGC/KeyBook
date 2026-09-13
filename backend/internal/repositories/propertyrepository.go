@@ -38,11 +38,11 @@ func (r *PropertyRepository) GetPropertyById(propertyId string) (dtos.PropertyDt
 }
 
 func (r *PropertyRepository) CreateProperty(address string) (dtos.PropertyDto, error) {
-	col, err := r.app.Dao().FindCollectionByNameOrId("properties")
+	propertiesCollection, err := r.app.Dao().FindCollectionByNameOrId("properties")
 	if err != nil {
 		return dtos.PropertyDto{}, err
 	}
-	record := models.NewRecord(col)
+	record := models.NewRecord(propertiesCollection)
 	record.Set("address", address)
 	if err := r.app.Dao().SaveRecord(record); err != nil {
 		return dtos.PropertyDto{}, err

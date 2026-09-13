@@ -45,11 +45,11 @@ func (r *PropertyAgentRepository) GetPropertyAgentsByPropertyId(propertyId strin
 }
 
 func (r *PropertyAgentRepository) CreatePropertyAgent(agentId, propertyId string) (dtos.PropertyAgentDto, error) {
-	col, err := r.app.Dao().FindCollectionByNameOrId("propertyAgents")
+	propertyAgentsCollection, err := r.app.Dao().FindCollectionByNameOrId("propertyAgents")
 	if err != nil {
 		return dtos.PropertyAgentDto{}, err
 	}
-	record := models.NewRecord(col)
+	record := models.NewRecord(propertyAgentsCollection)
 	record.Set("agent", agentId)
 	record.Set("property", propertyId)
 	if err := r.app.Dao().SaveRecord(record); err != nil {
@@ -66,10 +66,10 @@ func (r *PropertyAgentRepository) DeletePropertyAgent(id string) error {
 	return r.app.Dao().DeleteRecord(record)
 }
 
-func propertyAgentRecordToDto(r *models.Record) dtos.PropertyAgentDto {
+func propertyAgentRecordToDto(record *models.Record) dtos.PropertyAgentDto {
 	return dtos.PropertyAgentDto{
-		Id:       r.GetId(),
-		Agent:    r.GetString("agent"),
-		Property: r.GetString("property"),
+		Id:       record.GetId(),
+		Agent:    record.GetString("agent"),
+		Property: record.GetString("property"),
 	}
 }

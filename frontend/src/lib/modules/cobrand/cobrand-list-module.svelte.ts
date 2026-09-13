@@ -8,8 +8,8 @@ export class CobrandListModule implements ICobrandListModule {
   public cobrandListAsync = $derived.by<Promise<ICobrandModel[]>>(async () => {
     try {
       return await this.__cobrandService.getAllCobrands();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
       return [];
     }
   });

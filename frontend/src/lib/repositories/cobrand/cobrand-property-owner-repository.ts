@@ -2,31 +2,31 @@ import PocketBase from 'pocketbase';
 import type { ICobrandPropertyOwnerModel } from '$lib/models/cobrand-models';
 
 export interface ICobrandPropertyOwnerRepository {
-  getByCobrandId(cobrandId: string): Promise<ICobrandPropertyOwnerModel[]>;
-  getByPropertyOwnerId(propertyOwnerId: string): Promise<ICobrandPropertyOwnerModel[]>;
-  create(cobrandId: string, propertyOwnerId: string): Promise<ICobrandPropertyOwnerModel>;
-  delete(id: string): Promise<void>;
+  getCobrandPropertyOwnersByCobrandId(cobrandId: string): Promise<ICobrandPropertyOwnerModel[]>;
+  getCobrandPropertyOwnersByPropertyOwnerId(propertyOwnerId: string): Promise<ICobrandPropertyOwnerModel[]>;
+  createCobrandPropertyOwner(cobrandId: string, propertyOwnerId: string): Promise<ICobrandPropertyOwnerModel>;
+  deleteCobrandPropertyOwner(id: string): Promise<void>;
 }
 
 export class CobrandPropertyOwnerRepository implements ICobrandPropertyOwnerRepository {
-  constructor(private readonly pb: PocketBase) {}
+  constructor(private readonly backendClient: PocketBase) {}
 
-  async getByCobrandId(cobrandId: string): Promise<ICobrandPropertyOwnerModel[]> {
-    const all = await this.pb
+  async getCobrandPropertyOwnersByCobrandId(cobrandId: string): Promise<ICobrandPropertyOwnerModel[]> {
+    const allCobrandPropertyOwners = await this.backendClient
       .collection('cobrandPropertyOwners')
       .getFullList<ICobrandPropertyOwnerModel>();
-    return all.filter((o) => o.cobrand === cobrandId);
+    return allCobrandPropertyOwners.filter((cobrandPropertyOwner) => cobrandPropertyOwner.cobrand === cobrandId);
   }
 
-  async getByPropertyOwnerId(propertyOwnerId: string): Promise<ICobrandPropertyOwnerModel[]> {
-    const all = await this.pb
+  async getCobrandPropertyOwnersByPropertyOwnerId(propertyOwnerId: string): Promise<ICobrandPropertyOwnerModel[]> {
+    const allCobrandPropertyOwners = await this.backendClient
       .collection('cobrandPropertyOwners')
       .getFullList<ICobrandPropertyOwnerModel>();
-    return all.filter((o) => o.propertyOwner === propertyOwnerId);
+    return allCobrandPropertyOwners.filter((cobrandPropertyOwner) => cobrandPropertyOwner.propertyOwner === propertyOwnerId);
   }
 
-  async create(cobrandId: string, propertyOwnerId: string): Promise<ICobrandPropertyOwnerModel> {
-    return await this.pb
+  async createCobrandPropertyOwner(cobrandId: string, propertyOwnerId: string): Promise<ICobrandPropertyOwnerModel> {
+    return await this.backendClient
       .collection('cobrandPropertyOwners')
       .create<ICobrandPropertyOwnerModel>({
         cobrand: cobrandId,
@@ -34,7 +34,7 @@ export class CobrandPropertyOwnerRepository implements ICobrandPropertyOwnerRepo
       });
   }
 
-  async delete(id: string): Promise<void> {
-    await this.pb.collection('cobrandPropertyOwners').delete(id);
+  async deleteCobrandPropertyOwner(id: string): Promise<void> {
+    await this.backendClient.collection('cobrandPropertyOwners').delete(id);
   }
 }

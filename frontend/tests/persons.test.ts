@@ -8,15 +8,15 @@ const TEST_EMAIL = 'e2e_persons@keybook.test';
 const TEST_PASSWORD = 'E2Epersons_test1';
 
 async function adminAuth(): Promise<PocketBase> {
-	const pb = new PocketBase(PB_URL);
-	const res = await fetch(`${PB_URL}/api/admins/auth-with-password`, {
+	const backendClient = new PocketBase(PB_URL);
+	const adminAuthResponse = await fetch(`${PB_URL}/api/admins/auth-with-password`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ identity: ADMIN_EMAIL, password: ADMIN_PASSWORD })
 	});
-	const data = await res.json();
-	pb.authStore.save(data.token, data.admin);
-	return pb;
+	const adminAuthResult = await adminAuthResponse.json();
+	backendClient.authStore.save(adminAuthResult.token, adminAuthResult.admin);
+	return backendClient;
 }
 
 const MONTH_NAMES = [
@@ -47,7 +47,7 @@ async function pickDate(page: Page, labelText: string, isoDate: string): Promise
 	await yearInput.fill(String(year));
 	await yearInput.press('Enter');
 
-	for (let i = 0; i < 24; i++) {
+	for (let monthStepAttempt = 0; monthStepAttempt < 24; monthStepAttempt++) {
 		const currentMonthName = (await calendar.locator('.cur-month').textContent())?.trim();
 		const currentYear = Number(await yearInput.inputValue());
 		if (currentMonthName === MONTH_NAMES[month - 1] && currentYear === year) break;
@@ -65,23 +65,23 @@ async function pickDate(page: Page, labelText: string, isoDate: string): Promise
 		.click();
 }
 
-async function cleanupTestPersons(pb: PocketBase): Promise<void> {
-	const persons = await pb.collection('persons').getFullList({
+async function cleanupTestPersons(backendClient: PocketBase): Promise<void> {
+	const persons = await backendClient.collection('persons').getFullList({
 		filter: 'name ~ "E2E Persons Test"'
 	});
-	for (const p of persons) {
-		const ppos = await pb.collection('personPropertyOwners').getFullList({
+	for (const person of persons) {
+		const personPropertyOwners = await backendClient.collection('personPropertyOwners').getFullList({
 			filter: `person = "${p.id}"`
 		});
-		for (const ppo of ppos) await pb.collection('personPropertyOwners').delete(ppo.id);
-		await pb.collection('persons').delete(p.id);
+		for (const personPropertyOwner of personPropertyOwners) await backendClient.collection('personPropertyOwners').delete(personPropertyOwner.id);
+		await backendClient.collection('persons').delete(p.id);
 	}
 }
 
 test.beforeAll(async () => {
-	const pb = await adminAuth();
+	const backendClient = await adminAuth();
 	try {
-		await pb.collection('users').create({
+		await backendClient.collection('users').create({
 			email: TEST_EMAIL,
 			password: TEST_PASSWORD,
 			passwordConfirm: TEST_PASSWORD
@@ -89,7 +89,7 @@ test.beforeAll(async () => {
 	} catch {
 		// user already exists
 	}
-	await cleanupTestPersons(pb);
+	await cleanupTestPersons(backendClient);
 });
 
 test.beforeEach(async ({ page }) => {
@@ -104,7 +104,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('create person', async ({ page }) => {
-	const pb = await adminAuth();
+	const backendClient = await adminAuth();
 
 	await page.goto('/user/persons');
 	await page.waitForLoadState('networkidle');
@@ -116,21 +116,21 @@ test('create person', async ({ page }) => {
 	await page.getByRole('button', { name: 'Save' }).click();
 	await page.waitForURL(/\/user\/persons(\/)?$/);
 
-	const persons = await pb.collection('persons').getFullList({
+	const persons = await backendClient.collection('persons').getFullList({
 		filter: 'name = "E2E Persons Test Person"'
 	});
 	expect(persons.length).toBe(1);
 	expect(persons[0].DOB).toBe('1990-06-15 00:00:00.000Z');
 
-	await cleanupTestPersons(pb);
+	await cleanupTestPersons(backendClient);
 });
 
 test('edit person and view roles', async ({ page }) => {
-	const pb = await adminAuth();
+	const backendClient = await adminAuth();
 
-	const users = await pb.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
+	const users = await backendClient.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
 	const testUserId = users[0].id;
-	const person = await pb.collection('persons').create<{ id: string }>({
+	const person = await backendClient.collection('persons').create<{ id: string }>({
 		name: 'E2E Persons Test Edit',
 		DOB: '1985-03-20',
 		user: testUserId
@@ -143,8 +143,8 @@ test('edit person and view roles', async ({ page }) => {
 	await page.getByRole('button', { name: 'Save' }).click();
 	await page.waitForURL(/\/user\/persons(\/)?$/);
 
-	const updated = await pb.collection('persons').getOne<{ name: string }>(person.id);
+	const updated = await backendClient.collection('persons').getOne<{ name: string }>(person.id);
 	expect(updated.name).toBe('E2E Persons Test Edited');
 
-	await cleanupTestPersons(pb);
+	await cleanupTestPersons(backendClient);
 });

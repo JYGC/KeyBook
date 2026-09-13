@@ -18,12 +18,12 @@
     history.back();
   };
 
-  const pb = getBackendClient();
-  const currentUserId = pb.authStore.record?.id ?? '';
-  const cobrandRepo = new CobrandRepository(pb);
-  const cobrandAdminRepo = new CobrandAdminRepository(pb);
-  const cobrandManagerRepo = new CobrandPropertyManagerRepository(pb);
-  const cobrandService = new CobrandService(cobrandRepo, cobrandAdminRepo, cobrandManagerRepo);
+  const backendClient = getBackendClient();
+  const currentUserId = backendClient.authStore.record?.id ?? '';
+  const cobrandRepository = new CobrandRepository(backendClient);
+  const cobrandAdminRepository = new CobrandAdminRepository(backendClient);
+  const cobrandManagerRepo = new CobrandPropertyManagerRepository(backendClient);
+  const cobrandService = new CobrandService(cobrandRepository, cobrandAdminRepository, cobrandManagerRepo);
   const cobrandDetailModule = new CobrandDetailModule(cobrandService, cobrandId, goBack);
 </script>
 

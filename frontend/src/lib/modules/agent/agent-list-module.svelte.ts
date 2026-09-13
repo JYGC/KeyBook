@@ -8,8 +8,8 @@ export class AgentListModule implements IAgentListModule {
   public agentListAsync = $derived.by<Promise<IAgentModel[]>>(async () => {
     try {
       return await this.__agentService.getAllAgents();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
       return [];
     }
   });

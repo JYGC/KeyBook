@@ -20,72 +20,72 @@ type IItemApplicationService interface {
 }
 
 type ItemApplicationService struct {
-	itemService      services.IItemService
-	itemRepo         repositories.IItemRepository
-	entryDeviceRepo  repositories.IEntryDeviceRepository
-	propertyItemRepo repositories.IPropertyItemRepository
-	personItemRepo   repositories.IPersonItemRepository
+	itemService            services.IItemService
+	itemRepository         repositories.IItemRepository
+	entryDeviceRepository  repositories.IEntryDeviceRepository
+	propertyItemRepository repositories.IPropertyItemRepository
+	personItemRepository   repositories.IPersonItemRepository
 }
 
 func NewItemApplicationService(
 	itemService services.IItemService,
-	itemRepo repositories.IItemRepository,
-	entryDeviceRepo repositories.IEntryDeviceRepository,
-	propertyItemRepo repositories.IPropertyItemRepository,
-	personItemRepo repositories.IPersonItemRepository,
+	itemRepository repositories.IItemRepository,
+	entryDeviceRepository repositories.IEntryDeviceRepository,
+	propertyItemRepository repositories.IPropertyItemRepository,
+	personItemRepository repositories.IPersonItemRepository,
 ) IItemApplicationService {
-	return &ItemApplicationService{itemService, itemRepo, entryDeviceRepo, propertyItemRepo, personItemRepo}
+	return &ItemApplicationService{itemService, itemRepository, entryDeviceRepository, propertyItemRepository, personItemRepository}
 }
 
 func (s *ItemApplicationService) CreateItem(name, description string) (dtos.ItemDto, error) {
 	if err := s.itemService.ValidateItem(name); err != nil {
 		return dtos.ItemDto{}, err
 	}
-	return s.itemRepo.CreateItem(name, description)
+	return s.itemRepository.CreateItem(name, description)
 }
 
 func (s *ItemApplicationService) UpdateItem(id, name, description string) error {
 	if err := s.itemService.ValidateItem(name); err != nil {
 		return err
 	}
-	return s.itemRepo.UpdateItem(id, name, description)
+	return s.itemRepository.UpdateItem(id, name, description)
 }
 
 func (s *ItemApplicationService) DeleteItem(id string) error {
-	return s.itemRepo.DeleteItem(id)
+	return s.itemRepository.DeleteItem(id)
 }
 
 func (s *ItemApplicationService) CreateEntryDevice(itemId, deviceType, identifier, defunctReason string) (dtos.EntryDeviceDto, error) {
-	return s.entryDeviceRepo.CreateEntryDevice(itemId, deviceType, identifier, defunctReason)
+	return s.entryDeviceRepository.CreateEntryDevice(itemId, deviceType, identifier, defunctReason)
 }
 
 func (s *ItemApplicationService) UpdateEntryDevice(id, deviceType, identifier, defunctReason string) error {
-	current, err := s.entryDeviceRepo.GetEntryDeviceById(id)
+	currentEntryDevice, err := s.entryDeviceRepository.GetEntryDeviceById(id)
 	if err != nil {
 		return err
 	}
-	if err := s.itemService.ValidateEntryDeviceTransition(current.DefunctReason, defunctReason); err != nil {
+	if err := s.itemService.ValidateEntryDeviceTransition(currentEntryDevice.DefunctReason, defunctReason); err != nil {
 		return err
 	}
-	return s.entryDeviceRepo.UpdateEntryDevice(id, deviceType, identifier, defunctReason)
+	return s.entryDeviceRepository.UpdateEntryDevice(id, deviceType, identifier, defunctReason)
 }
 
 func (s *ItemApplicationService) DeleteEntryDevice(id string) error {
-	return s.entryDeviceRepo.DeleteEntryDevice(id)
+	return s.entryDeviceRepository.DeleteEntryDevice(id)
 }
 
 func (s *ItemApplicationService) AddPropertyItem(itemId, propertyId string) (dtos.PropertyItemDto, error) {
-	return s.propertyItemRepo.CreatePropertyItem(itemId, propertyId)
+	return s.propertyItemRepository.CreatePropertyItem(itemId, propertyId)
 }
 
 func (s *ItemApplicationService) RemovePropertyItem(id string) error {
-	return s.propertyItemRepo.DeletePropertyItem(id)
+	return s.propertyItemRepository.DeletePropertyItem(id)
 }
 
 func (s *ItemApplicationService) AddPersonItem(personId, itemId string) (dtos.PersonItemDto, error) {
-	return s.personItemRepo.CreatePersonItem(personId, itemId)
+	return s.personItemRepository.CreatePersonItem(personId, itemId)
 }
 
 func (s *ItemApplicationService) RemovePersonItem(id string) error {
-	return s.personItemRepo.DeletePersonItem(id)
+	return s.personItemRepository.DeletePersonItem(id)
 }

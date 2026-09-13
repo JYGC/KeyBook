@@ -45,11 +45,11 @@ func (r *PersonPropertyOwnerRepository) GetPersonPropertyOwnersByPropertyOwnerId
 }
 
 func (r *PersonPropertyOwnerRepository) CreatePersonPropertyOwner(personId, propertyOwnerId string) (dtos.PersonPropertyOwnerDto, error) {
-	col, err := r.app.Dao().FindCollectionByNameOrId("personPropertyOwners")
+	personPropertyOwnersCollection, err := r.app.Dao().FindCollectionByNameOrId("personPropertyOwners")
 	if err != nil {
 		return dtos.PersonPropertyOwnerDto{}, err
 	}
-	record := models.NewRecord(col)
+	record := models.NewRecord(personPropertyOwnersCollection)
 	record.Set("person", personId)
 	record.Set("propertyOwner", propertyOwnerId)
 	if err := r.app.Dao().SaveRecord(record); err != nil {
@@ -66,10 +66,10 @@ func (r *PersonPropertyOwnerRepository) DeletePersonPropertyOwner(id string) err
 	return r.app.Dao().DeleteRecord(record)
 }
 
-func personPropertyOwnerRecordToDto(r *models.Record) dtos.PersonPropertyOwnerDto {
+func personPropertyOwnerRecordToDto(record *models.Record) dtos.PersonPropertyOwnerDto {
 	return dtos.PersonPropertyOwnerDto{
-		Id:            r.GetId(),
-		Person:        r.GetString("person"),
-		PropertyOwner: r.GetString("propertyOwner"),
+		Id:            record.GetId(),
+		Person:        record.GetString("person"),
+		PropertyOwner: record.GetString("propertyOwner"),
 	}
 }

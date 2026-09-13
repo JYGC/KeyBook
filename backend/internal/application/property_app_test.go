@@ -9,14 +9,13 @@ import (
 )
 
 func TestPropertyApplicationService_CRUD(t *testing.T) {
-	app := newApp(t)
-	svc := application.NewPropertyApplicationService(
+	app := newTestAppWithMigrations(t)
+	propertyApplicationService := application.NewPropertyApplicationService(
 		services.NewPropertyService(),
 		repositories.NewPropertyRepository(app),
 	)
 
-	// Create — valid
-	created, err := svc.CreateProperty("1 Main St")
+	created, err := propertyApplicationService.CreateProperty("1 Main St")
 	if err != nil {
 		t.Fatalf("CreateProperty: %v", err)
 	}
@@ -24,23 +23,19 @@ func TestPropertyApplicationService_CRUD(t *testing.T) {
 		t.Errorf("Address: want 1 Main St, got %s", created.Address)
 	}
 
-	// Create — validation failure
-	if _, err := svc.CreateProperty(""); err == nil {
+	if _, err := propertyApplicationService.CreateProperty(""); err == nil {
 		t.Error("expected error for empty address, got nil")
 	}
 
-	// Update — valid
-	if err := svc.UpdateProperty(created.Id, "2 Updated Rd"); err != nil {
+	if err := propertyApplicationService.UpdateProperty(created.Id, "2 Updated Rd"); err != nil {
 		t.Fatalf("UpdateProperty: %v", err)
 	}
 
-	// Update — validation failure
-	if err := svc.UpdateProperty(created.Id, ""); err == nil {
+	if err := propertyApplicationService.UpdateProperty(created.Id, ""); err == nil {
 		t.Error("expected error for empty address on update, got nil")
 	}
 
-	// Delete
-	if err := svc.DeleteProperty(created.Id); err != nil {
+	if err := propertyApplicationService.DeleteProperty(created.Id); err != nil {
 		t.Fatalf("DeleteProperty: %v", err)
 	}
 }

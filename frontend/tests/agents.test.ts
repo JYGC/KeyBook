@@ -8,21 +8,21 @@ const TEST_EMAIL = 'e2e_agents@keybook.test';
 const TEST_PASSWORD = 'E2Eagents_test1';
 
 async function adminAuth(): Promise<PocketBase> {
-	const pb = new PocketBase(PB_URL);
-	const res = await fetch(`${PB_URL}/api/admins/auth-with-password`, {
+	const backendClient = new PocketBase(PB_URL);
+	const adminAuthResponse = await fetch(`${PB_URL}/api/admins/auth-with-password`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ identity: ADMIN_EMAIL, password: ADMIN_PASSWORD })
 	});
-	const data = await res.json();
-	pb.authStore.save(data.token, data.admin);
-	return pb;
+	const adminAuthResult = await adminAuthResponse.json();
+	backendClient.authStore.save(adminAuthResult.token, adminAuthResult.admin);
+	return backendClient;
 }
 
-async function ensureTestPerson(pb: PocketBase, userId: string): Promise<string> {
-	const persons = await pb.collection('persons').getFullList({ filter: `user = "${userId}"` });
+async function ensureTestPerson(backendClient: PocketBase, userId: string): Promise<string> {
+	const persons = await backendClient.collection('persons').getFullList({ filter: `user = "${userId}"` });
 	if (persons.length > 0) return persons[0].id;
-	const person = await pb.collection('persons').create({
+	const person = await backendClient.collection('persons').create({
 		name: 'E2E Agents Test Person',
 		DOB: '1990-01-01',
 		user: userId
@@ -30,45 +30,45 @@ async function ensureTestPerson(pb: PocketBase, userId: string): Promise<string>
 	return person.id;
 }
 
-async function ensureTestCobrand(pb: PocketBase, userId: string): Promise<string> {
-	const found = await pb
+async function ensureTestCobrand(backendClient: PocketBase, userId: string): Promise<string> {
+	const found = await backendClient
 		.collection('cobrands')
 		.getFullList({ filter: 'name = "E2E Agents Test Cobrand"' });
 	if (found.length > 0) return found[0].id;
-	const cobrand = await pb
+	const cobrand = await backendClient
 		.collection('cobrands')
 		.create<{ id: string }>({ name: 'E2E Agents Test Cobrand' });
 	// approved: true — this fixture stands in for the cobrand admin performing agent
 	// registration, which Phase 12's approval gate requires the admin to be approved for.
-	await pb
+	await backendClient
 		.collection('cobrandAdmins')
 		.create({ user: userId, cobrand: cobrand.id, approved: true });
 	return cobrand.id;
 }
 
-async function cleanupTestAgents(pb: PocketBase): Promise<void> {
-	const agents = await pb.collection('agents').getFullList();
-	for (const a of agents) {
-		const pas = await pb.collection('propertyAgents').getFullList({ filter: `agent = "${a.id}"` });
-		for (const pa of pas) await pb.collection('propertyAgents').delete(pa.id);
-		await pb.collection('agents').delete(a.id);
+async function cleanupTestAgents(backendClient: PocketBase): Promise<void> {
+	const agents = await backendClient.collection('agents').getFullList();
+	for (const agent of agents) {
+		const propertyAgents = await backendClient.collection('propertyAgents').getFullList({ filter: `agent = "${a.id}"` });
+		for (const propertyAgent of propertyAgents) await backendClient.collection('propertyAgents').delete(propertyAgent.id);
+		await backendClient.collection('agents').delete(a.id);
 	}
-	const found = await pb
+	const found = await backendClient
 		.collection('cobrands')
 		.getFullList({ filter: 'name = "E2E Agents Test Cobrand"' });
-	for (const c of found) {
-		const admins = await pb
+	for (const cobrand of found) {
+		const admins = await backendClient
 			.collection('cobrandAdmins')
 			.getFullList({ filter: `cobrand = "${c.id}"` });
-		for (const a of admins) await pb.collection('cobrandAdmins').delete(a.id);
-		await pb.collection('cobrands').delete(c.id);
+		for (const admin of admins) await backendClient.collection('cobrandAdmins').delete(admin.id);
+		await backendClient.collection('cobrands').delete(c.id);
 	}
 }
 
 test.beforeAll(async () => {
-	const pb = await adminAuth();
+	const backendClient = await adminAuth();
 	try {
-		await pb.collection('users').create({
+		await backendClient.collection('users').create({
 			email: TEST_EMAIL,
 			password: TEST_PASSWORD,
 			passwordConfirm: TEST_PASSWORD
@@ -76,7 +76,7 @@ test.beforeAll(async () => {
 	} catch {
 		// user already exists
 	}
-	await cleanupTestAgents(pb);
+	await cleanupTestAgents(backendClient);
 });
 
 test.beforeEach(async ({ page }) => {
@@ -91,12 +91,12 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('register agent', async ({ page }) => {
-	const pb = await adminAuth();
+	const backendClient = await adminAuth();
 
-	const users = await pb.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
+	const users = await backendClient.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
 	const testUserId = users[0].id;
-	const personId = await ensureTestPerson(pb, testUserId);
-	const cobrandId = await ensureTestCobrand(pb, testUserId);
+	const personId = await ensureTestPerson(backendClient, testUserId);
+	const cobrandId = await ensureTestCobrand(backendClient, testUserId);
 
 	await page.goto('/user/agents');
 	await page.waitForLoadState('networkidle');
@@ -108,32 +108,32 @@ test('register agent', async ({ page }) => {
 	await page.getByRole('button', { name: 'Save' }).click();
 	await page.waitForURL(/\/user\/agents(\/)?$/);
 
-	const agents = await pb
+	const agents = await backendClient
 		.collection('agents')
 		.getFullList({ filter: `person = "${personId}" && cobrand = "${cobrandId}"` });
 	expect(agents.length).toBe(1);
 
-	await cleanupTestAgents(pb);
+	await cleanupTestAgents(backendClient);
 });
 
 test('add property assignment to agent', async ({ page }) => {
-	const pb = await adminAuth();
+	const backendClient = await adminAuth();
 
-	const users = await pb.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
+	const users = await backendClient.collection('users').getFullList({ filter: `email = "${TEST_EMAIL}"` });
 	const testUserId = users[0].id;
-	const personId = await ensureTestPerson(pb, testUserId);
-	const cobrandId = await ensureTestCobrand(pb, testUserId);
+	const personId = await ensureTestPerson(backendClient, testUserId);
+	const cobrandId = await ensureTestCobrand(backendClient, testUserId);
 
-	const agent = await pb
+	const agent = await backendClient
 		.collection('agents')
 		.create<{ id: string }>({ person: personId, cobrand: cobrandId });
-	const property = await pb
+	const property = await backendClient
 		.collection('properties')
 		.create<{ id: string }>({ address: '88 E2E Agent Ave' });
-	const propertyOwner = await pb
+	const propertyOwner = await backendClient
 		.collection('propertyOwners')
 		.create<{ id: string }>({ property: property.id });
-	await pb
+	await backendClient
 		.collection('personPropertyOwners')
 		.create({ propertyOwner: propertyOwner.id, person: personId });
 
@@ -144,16 +144,16 @@ test('add property assignment to agent', async ({ page }) => {
 	await page.getByRole('button', { name: 'Add Property Assignment' }).click();
 	await page.waitForTimeout(1000);
 
-	const propertyAgents = await pb
+	const propertyAgents = await backendClient
 		.collection('propertyAgents')
 		.getFullList({ filter: `agent = "${agent.id}"` });
-	expect(propertyAgents.some((pa) => pa.property === property.id)).toBe(true);
+	expect(propertyAgents.some((propertyAgent) => propertyAgent.property === property.id)).toBe(true);
 
-	// Cleanup propertyAgents and agents; skip propertyOwner+property due to last-owner hook guard
-	for (const pa of propertyAgents) await pb.collection('propertyAgents').delete(pa.id);
-	await cleanupTestAgents(pb);
-	const ppos = await pb
+	// Skip propertyOwner/property — the last-owner hook guard blocks deletion.
+	for (const propertyAgent of propertyAgents) await backendClient.collection('propertyAgents').delete(propertyAgent.id);
+	await cleanupTestAgents(backendClient);
+	const personPropertyOwners = await backendClient
 		.collection('personPropertyOwners')
 		.getFullList({ filter: `propertyOwner = "${propertyOwner.id}"` });
-	for (const ppo of ppos) await pb.collection('personPropertyOwners').delete(ppo.id);
+	for (const personPropertyOwner of personPropertyOwners) await backendClient.collection('personPropertyOwners').delete(personPropertyOwner.id);
 });

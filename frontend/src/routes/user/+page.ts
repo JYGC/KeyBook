@@ -13,15 +13,15 @@ import { CobrandPropertyManagerRepository } from '$lib/repositories/cobrand/cobr
 import { CobrandService } from '$lib/services/cobrand/cobrand-service';
 
 export const load: PageLoad = async () => {
-	const pb = getBackendClient();
-	const userId = pb.authStore.record?.id ?? '';
+	const backendClient = getBackendClient();
+	const userId = backendClient.authStore.record?.id ?? '';
 
 	const personService = new PersonService(
-		new PersonRepository(pb),
-		new PersonPropertyOwnerRepository(pb),
-		new TenantRepository(pb),
-		new HouseholdRepository(pb),
-		new AgentRepository(pb)
+		new PersonRepository(backendClient),
+		new PersonPropertyOwnerRepository(backendClient),
+		new TenantRepository(backendClient),
+		new HouseholdRepository(backendClient),
+		new AgentRepository(backendClient)
 	);
 	const person = await personService.getPersonByUserId(userId);
 	if (person !== null) {
@@ -29,9 +29,9 @@ export const load: PageLoad = async () => {
 	}
 
 	const cobrandService = new CobrandService(
-		new CobrandRepository(pb),
-		new CobrandAdminRepository(pb),
-		new CobrandPropertyManagerRepository(pb)
+		new CobrandRepository(backendClient),
+		new CobrandAdminRepository(backendClient),
+		new CobrandPropertyManagerRepository(backendClient)
 	);
 	const admin = await cobrandService.getAdminRecordForUserId(userId);
 	if (admin !== null) {

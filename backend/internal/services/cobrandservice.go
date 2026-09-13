@@ -26,24 +26,23 @@ func (s *CobrandService) ValidateCobrand(name string) error {
 }
 
 func (s *CobrandService) EnsureAdminIsUnique(admins []dtos.CobrandAdminDto, userId string) error {
-	for _, a := range admins {
-		if a.User == userId {
+	for _, admin := range admins {
+		if admin.User == userId {
 			return errors.New("user is already an admin of this cobrand")
 		}
 	}
 	return nil
 }
 
-// EnsureInviterIsApprovedAdmin allows the bootstrap case (no existing admins)
-// through unconditionally. Once a cobrand has at least one admin, only an
-// existing admin whose own approved field is true may add another.
+// A cobrand with no admins yet is exempt: the first admin has nobody to be
+// approved by, so bootstrapping would otherwise be impossible.
 func (s *CobrandService) EnsureInviterIsApprovedAdmin(admins []dtos.CobrandAdminDto, inviterUserId string) error {
 	if len(admins) == 0 {
 		return nil
 	}
-	for _, a := range admins {
-		if a.User == inviterUserId {
-			if !a.Approved {
+	for _, admin := range admins {
+		if admin.User == inviterUserId {
+			if !admin.Approved {
 				return errors.New("admin must be approved before adding another admin")
 			}
 			return nil

@@ -20,8 +20,8 @@ export class ItemDetailModule implements IItemEditorModule {
     try {
       await this.__itemService.updateItem(item.id, item.name, item.description);
       this.__backAction();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -29,17 +29,22 @@ export class ItemDetailModule implements IItemEditorModule {
     try {
       await this.__itemService.deleteItem(id);
       this.__backAction();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
-  public getSaveEntryDeviceAction = () => async (ed: IEntryDeviceModel) => {
+  public getSaveEntryDeviceAction = () => async (entryDevice: IEntryDeviceModel) => {
     try {
-      await this.__itemService.updateEntryDevice(ed.id, ed.deviceType, ed.identifier, ed.defunctReason);
+      await this.__itemService.updateEntryDevice(
+        entryDevice.id,
+        entryDevice.deviceType,
+        entryDevice.identifier,
+        entryDevice.defunctReason,
+      );
       this.__backAction();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -47,8 +52,8 @@ export class ItemDetailModule implements IItemEditorModule {
     try {
       await this.__itemService.deleteEntryDevice(id);
       this.__backAction();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -57,8 +62,8 @@ export class ItemDetailModule implements IItemEditorModule {
       try {
         await this.__itemService.createEntryDevice(itemId, deviceType, identifier, defunctReason);
         this.__backAction();
-      } catch (ex) {
-        alert(ex);
+      } catch (error) {
+        alert(error);
       }
     };
 
@@ -67,7 +72,7 @@ export class ItemDetailModule implements IItemEditorModule {
     this.__itemId = itemId;
     this.__backAction = backAction;
     const combined = this.__itemService.getItemWithEntryDevice(this.__itemId)
-      .catch((ex) => { alert(ex); return null; });
+      .catch((error) => { alert(error); return null; });
     this.itemAsync = combined.then(result => result?.item ?? null);
     this.entryDeviceAsync = combined.then(result => result?.entryDevice ?? null);
   }

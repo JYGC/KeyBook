@@ -31,11 +31,11 @@ func (r *EntryDeviceRepository) GetEntryDeviceById(id string) (dtos.EntryDeviceD
 }
 
 func (r *EntryDeviceRepository) CreateEntryDevice(itemId, deviceType, identifier, defunctReason string) (dtos.EntryDeviceDto, error) {
-	col, err := r.app.Dao().FindCollectionByNameOrId("entryDevices")
+	entryDevicesCollection, err := r.app.Dao().FindCollectionByNameOrId("entryDevices")
 	if err != nil {
 		return dtos.EntryDeviceDto{}, err
 	}
-	record := models.NewRecord(col)
+	record := models.NewRecord(entryDevicesCollection)
 	record.Set("item", itemId)
 	record.Set("deviceType", deviceType)
 	record.Set("identifier", identifier)
@@ -65,12 +65,12 @@ func (r *EntryDeviceRepository) DeleteEntryDevice(id string) error {
 	return r.app.Dao().DeleteRecord(record)
 }
 
-func entryDeviceRecordToDto(r *models.Record) dtos.EntryDeviceDto {
+func entryDeviceRecordToDto(record *models.Record) dtos.EntryDeviceDto {
 	return dtos.EntryDeviceDto{
-		Id:            r.GetId(),
-		Item:          r.GetString("item"),
-		DeviceType:    r.GetString("deviceType"),
-		Identifier:    r.GetString("identifier"),
-		DefunctReason: r.GetString("defunctReason"),
+		Id:            record.GetId(),
+		Item:          record.GetString("item"),
+		DeviceType:    record.GetString("deviceType"),
+		Identifier:    record.GetString("identifier"),
+		DefunctReason: record.GetString("defunctReason"),
 	}
 }

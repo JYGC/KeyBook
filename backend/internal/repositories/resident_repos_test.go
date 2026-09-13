@@ -6,18 +6,15 @@ import (
 	"keybook/backend/internal/repositories"
 )
 
-// ── HouseholdRepository ───────────────────────────────────────────────────────
-
 func TestHouseholdRepository_CRUD(t *testing.T) {
-	app := newApp(t)
+	app := newTestAppWithMigrations(t)
 
-	person := createRecord(t, app, "persons", map[string]any{"name": "Carol", "DOB": "1988-03-20 00:00:00.000Z"})
-	property := createRecord(t, app, "properties", map[string]any{"address": "1 Test St"})
+	person := createRecordBypassingAccessRules(t, app, "persons", map[string]any{"name": "Carol", "DOB": "1988-03-20 00:00:00.000Z"})
+	property := createRecordBypassingAccessRules(t, app, "properties", map[string]any{"address": "1 Test St"})
 
-	repo := repositories.NewHouseholdRepository(app)
+	householdRepository := repositories.NewHouseholdRepository(app)
 
-	// Create
-	created, err := repo.CreateHousehold(person.GetId(), property.GetId())
+	created, err := householdRepository.CreateHousehold(person.GetId(), property.GetId())
 	if err != nil {
 		t.Fatalf("CreateHousehold: %v", err)
 	}
@@ -28,8 +25,7 @@ func TestHouseholdRepository_CRUD(t *testing.T) {
 		t.Errorf("Property: want %s, got %s", property.GetId(), created.Property)
 	}
 
-	// Get by ID
-	got, err := repo.GetHouseholdById(created.Id)
+	got, err := householdRepository.GetHouseholdById(created.Id)
 	if err != nil {
 		t.Fatalf("GetHouseholdById: %v", err)
 	}
@@ -37,8 +33,7 @@ func TestHouseholdRepository_CRUD(t *testing.T) {
 		t.Errorf("Person: want %s, got %s", person.GetId(), got.Person)
 	}
 
-	// Get by property ID
-	members, err := repo.GetHouseholdsByPropertyId(property.GetId())
+	members, err := householdRepository.GetHouseholdsByPropertyId(property.GetId())
 	if err != nil {
 		t.Fatalf("GetHouseholdsByPropertyId: %v", err)
 	}
@@ -46,27 +41,23 @@ func TestHouseholdRepository_CRUD(t *testing.T) {
 		t.Fatalf("want 1 member, got %d", len(members))
 	}
 
-	// Delete
-	if err := repo.DeleteHousehold(created.Id); err != nil {
+	if err := householdRepository.DeleteHousehold(created.Id); err != nil {
 		t.Fatalf("DeleteHousehold: %v", err)
 	}
-	if _, err := repo.GetHouseholdById(created.Id); err == nil {
+	if _, err := householdRepository.GetHouseholdById(created.Id); err == nil {
 		t.Error("expected error after delete, got nil")
 	}
 }
 
-// ── TenantRepository ──────────────────────────────────────────────────────────
-
 func TestTenantRepository_CRUD(t *testing.T) {
-	app := newApp(t)
+	app := newTestAppWithMigrations(t)
 
-	person := createRecord(t, app, "persons", map[string]any{"name": "Bob", "DOB": "1992-05-15 00:00:00.000Z"})
-	property := createRecord(t, app, "properties", map[string]any{"address": "1 Test St"})
+	person := createRecordBypassingAccessRules(t, app, "persons", map[string]any{"name": "Bob", "DOB": "1992-05-15 00:00:00.000Z"})
+	property := createRecordBypassingAccessRules(t, app, "properties", map[string]any{"address": "1 Test St"})
 
-	repo := repositories.NewTenantRepository(app)
+	tenantRepository := repositories.NewTenantRepository(app)
 
-	// Create
-	created, err := repo.CreateTenant(person.GetId(), property.GetId())
+	created, err := tenantRepository.CreateTenant(person.GetId(), property.GetId())
 	if err != nil {
 		t.Fatalf("CreateTenant: %v", err)
 	}
@@ -77,8 +68,7 @@ func TestTenantRepository_CRUD(t *testing.T) {
 		t.Errorf("Property: want %s, got %s", property.GetId(), created.Property)
 	}
 
-	// Get by ID
-	got, err := repo.GetTenantById(created.Id)
+	got, err := tenantRepository.GetTenantById(created.Id)
 	if err != nil {
 		t.Fatalf("GetTenantById: %v", err)
 	}
@@ -86,8 +76,7 @@ func TestTenantRepository_CRUD(t *testing.T) {
 		t.Errorf("Property: want %s, got %s", property.GetId(), got.Property)
 	}
 
-	// Get by property ID
-	tenants, err := repo.GetTenantsByPropertyId(property.GetId())
+	tenants, err := tenantRepository.GetTenantsByPropertyId(property.GetId())
 	if err != nil {
 		t.Fatalf("GetTenantsByPropertyId: %v", err)
 	}
@@ -95,11 +84,10 @@ func TestTenantRepository_CRUD(t *testing.T) {
 		t.Fatalf("want 1 tenant, got %d", len(tenants))
 	}
 
-	// Delete
-	if err := repo.DeleteTenant(created.Id); err != nil {
+	if err := tenantRepository.DeleteTenant(created.Id); err != nil {
 		t.Fatalf("DeleteTenant: %v", err)
 	}
-	if _, err := repo.GetTenantById(created.Id); err == nil {
+	if _, err := tenantRepository.GetTenantById(created.Id); err == nil {
 		t.Error("expected error after delete, got nil")
 	}
 }

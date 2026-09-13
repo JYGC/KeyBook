@@ -31,11 +31,11 @@ func (r *CobrandRepository) GetCobrandById(id string) (dtos.CobrandDto, error) {
 }
 
 func (r *CobrandRepository) CreateCobrand(name string) (dtos.CobrandDto, error) {
-	col, err := r.app.Dao().FindCollectionByNameOrId("cobrands")
+	cobrandsCollection, err := r.app.Dao().FindCollectionByNameOrId("cobrands")
 	if err != nil {
 		return dtos.CobrandDto{}, err
 	}
-	record := models.NewRecord(col)
+	record := models.NewRecord(cobrandsCollection)
 	record.Set("name", name)
 	if err := r.app.Dao().SaveRecord(record); err != nil {
 		return dtos.CobrandDto{}, err
@@ -60,9 +60,9 @@ func (r *CobrandRepository) DeleteCobrand(id string) error {
 	return r.app.Dao().DeleteRecord(record)
 }
 
-func cobrandRecordToDto(r *models.Record) dtos.CobrandDto {
+func cobrandRecordToDto(record *models.Record) dtos.CobrandDto {
 	return dtos.CobrandDto{
-		Id:   r.GetId(),
-		Name: r.GetString("name"),
+		Id:   record.GetId(),
+		Name: record.GetString("name"),
 	}
 }

@@ -23,8 +23,8 @@ export class RegisterModule implements IRegisterModule {
 				emailVisibility: false
 			});
 			return true;
-		} catch (ex) {
-			this.__error = JSON.stringify(ex);
+		} catch (error) {
+			this.__error = JSON.stringify(error);
 			return false;
 		}
 	};

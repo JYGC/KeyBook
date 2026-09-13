@@ -7,7 +7,7 @@ import (
 )
 
 func TestItemService_ValidateItem(t *testing.T) {
-	svc := services.NewItemService()
+	itemService := services.NewItemService()
 
 	tests := []struct {
 		name    string
@@ -20,7 +20,7 @@ func TestItemService_ValidateItem(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := svc.ValidateItem(tt.iName)
+			err := itemService.ValidateItem(tt.iName)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ValidateItem(%q) error = %v, wantErr %v", tt.iName, err, tt.wantErr)
 			}
@@ -29,7 +29,7 @@ func TestItemService_ValidateItem(t *testing.T) {
 }
 
 func TestItemService_ValidateEntryDeviceTransition(t *testing.T) {
-	svc := services.NewItemService()
+	itemService := services.NewItemService()
 
 	tests := []struct {
 		name                 string
@@ -50,7 +50,7 @@ func TestItemService_ValidateEntryDeviceTransition(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := svc.ValidateEntryDeviceTransition(tt.currentDefunctReason, tt.newDefunctReason)
+			err := itemService.ValidateEntryDeviceTransition(tt.currentDefunctReason, tt.newDefunctReason)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ValidateEntryDeviceTransition(%q, %q) error = %v, wantErr %v",
 					tt.currentDefunctReason, tt.newDefunctReason, err, tt.wantErr)

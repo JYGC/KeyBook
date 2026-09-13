@@ -22,8 +22,8 @@ export class CobrandAddModule implements ICobrandEditorModule {
       const created = await this.__cobrandService.createCobrand(cobrand.name);
       await this.__cobrandService.addAdmin(created.id, this.__currentUserId);
       this.__backAction();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 

@@ -26,12 +26,12 @@ export interface IPropertyService {
 
 export class PropertyService implements IPropertyService {
   constructor(
-    private readonly propertyRepo: IPropertyRepository,
-    private readonly propertyOwnerRepo: IPropertyOwnerRepository,
-    private readonly ppoRepo: IPersonPropertyOwnerRepository,
-    private readonly tenantRepo: ITenantRepository,
-    private readonly householdRepo: IHouseholdRepository,
-    private readonly propertyAgentRepo: IPropertyAgentRepository,
+    private readonly propertyRepository: IPropertyRepository,
+    private readonly propertyOwnerRepository: IPropertyOwnerRepository,
+    private readonly personPropertyOwnerRepository: IPersonPropertyOwnerRepository,
+    private readonly tenantRepository: ITenantRepository,
+    private readonly householdRepository: IHouseholdRepository,
+    private readonly propertyAgentRepository: IPropertyAgentRepository,
   ) {}
 
   validatePropertyAddress(address: string): void {
@@ -39,65 +39,68 @@ export class PropertyService implements IPropertyService {
   }
 
   async getAllProperties(): Promise<IPropertyModel[]> {
-    return await this.propertyRepo.getAll();
+    return await this.propertyRepository.getAllProperties();
   }
 
   async getPropertyById(id: string): Promise<IPropertyModel> {
-    return await this.propertyRepo.getById(id);
+    return await this.propertyRepository.getPropertyById(id);
   }
 
   async createPropertyWithOwner(address: string, personId: string): Promise<IPropertyModel> {
     this.validatePropertyAddress(address);
-    const property = await this.propertyRepo.create(address);
-    const propertyOwner = await this.propertyOwnerRepo.create(property.id);
-    await this.ppoRepo.create(personId, propertyOwner.id);
+    const property = await this.propertyRepository.createProperty(address);
+    const propertyOwner = await this.propertyOwnerRepository.createPropertyOwner(property.id);
+    await this.personPropertyOwnerRepository.createPersonPropertyOwner(personId, propertyOwner.id);
     return property;
   }
 
   async updateProperty(id: string, address: string): Promise<IPropertyModel> {
     this.validatePropertyAddress(address);
-    return await this.propertyRepo.update(id, address);
+    return await this.propertyRepository.updateProperty(id, address);
   }
 
   async deleteProperty(id: string): Promise<void> {
-    await this.propertyRepo.delete(id);
+    await this.propertyRepository.deleteProperty(id);
   }
 
   async getPersonOwnersForProperty(propertyId: string): Promise<IPersonPropertyOwnerModel[]> {
-    const propertyOwners = await this.propertyOwnerRepo.getByPropertyId(propertyId);
-    const results: IPersonPropertyOwnerModel[] = [];
-    for (const po of propertyOwners) {
-      const ppos = await this.ppoRepo.getByPropertyOwnerId(po.id);
-      results.push(...ppos);
+    const propertyOwners = await this.propertyOwnerRepository.getPropertyOwnersByPropertyId(propertyId);
+    const personOwners: IPersonPropertyOwnerModel[] = [];
+    for (const propertyOwner of propertyOwners) {
+      const personOwnersOfThisRecord =
+        await this.personPropertyOwnerRepository.getPersonPropertyOwnersByPropertyOwnerId(
+          propertyOwner.id,
+        );
+      personOwners.push(...personOwnersOfThisRecord);
     }
-    return results;
+    return personOwners;
   }
 
   async getTenantsForProperty(propertyId: string): Promise<ITenantModel[]> {
-    return await this.tenantRepo.getByPropertyId(propertyId);
+    return await this.tenantRepository.getTenantsByPropertyId(propertyId);
   }
 
   async getHouseholdMembersForProperty(propertyId: string): Promise<IHouseholdModel[]> {
-    return await this.householdRepo.getByPropertyId(propertyId);
+    return await this.householdRepository.getHouseholdsByPropertyId(propertyId);
   }
 
   async getPropertyAgentsForProperty(propertyId: string): Promise<IPropertyAgentModel[]> {
-    return await this.propertyAgentRepo.getByPropertyId(propertyId);
+    return await this.propertyAgentRepository.getPropertyAgentsByPropertyId(propertyId);
   }
 
   async addTenant(personId: string, propertyId: string): Promise<ITenantModel> {
-    return await this.tenantRepo.create(personId, propertyId);
+    return await this.tenantRepository.createTenant(personId, propertyId);
   }
 
   async removeTenant(id: string): Promise<void> {
-    await this.tenantRepo.delete(id);
+    await this.tenantRepository.deleteTenant(id);
   }
 
   async addHouseholdMember(personId: string, propertyId: string): Promise<IHouseholdModel> {
-    return await this.householdRepo.create(personId, propertyId);
+    return await this.householdRepository.createHousehold(personId, propertyId);
   }
 
   async removeHouseholdMember(id: string): Promise<void> {
-    await this.householdRepo.delete(id);
+    await this.householdRepository.deleteHousehold(id);
   }
 }

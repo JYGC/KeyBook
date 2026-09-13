@@ -20,15 +20,15 @@ func (s *ItemService) ValidateItem(name string) error {
 	return nil
 }
 
-// ValidateEntryDeviceTransition enforces that a defunct entry device cannot be reactivated.
-// The DB stores "None" for active; empty string is also treated as active for domain flexibility.
 func (s *ItemService) ValidateEntryDeviceTransition(currentDefunctReason, newDefunctReason string) error {
-	if !isActiveReason(currentDefunctReason) && isActiveReason(newDefunctReason) {
+	if !defunctReasonMeansActive(currentDefunctReason) && defunctReasonMeansActive(newDefunctReason) {
 		return errors.New("cannot reactivate a defunct entry device")
 	}
 	return nil
 }
 
-func isActiveReason(reason string) bool {
-	return reason == "" || reason == "None"
+// The DB stores the literal "None" for an active device; the empty string is
+// also accepted so callers that omit the field are not treated as defunct.
+func defunctReasonMeansActive(defunctReason string) bool {
+	return defunctReason == "" || defunctReason == "None"
 }

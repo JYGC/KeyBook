@@ -2,33 +2,33 @@ import PocketBase from 'pocketbase';
 import type { ICobrandAdminModel } from '$lib/models/cobrand-models';
 
 export interface ICobrandAdminRepository {
-	getByCobrandId(cobrandId: string): Promise<ICobrandAdminModel[]>;
-	getByUserId(userId: string): Promise<ICobrandAdminModel | null>;
-	create(userId: string, cobrandId: string): Promise<ICobrandAdminModel>;
-	delete(id: string): Promise<void>;
+	getCobrandAdminsByCobrandId(cobrandId: string): Promise<ICobrandAdminModel[]>;
+	getCobrandAdminByUserId(userId: string): Promise<ICobrandAdminModel | null>;
+	createCobrandAdmin(userId: string, cobrandId: string): Promise<ICobrandAdminModel>;
+	deleteCobrandAdmin(id: string): Promise<void>;
 }
 
 export class CobrandAdminRepository implements ICobrandAdminRepository {
-	constructor(private readonly pb: PocketBase) {}
+	constructor(private readonly backendClient: PocketBase) {}
 
-	async getByCobrandId(cobrandId: string): Promise<ICobrandAdminModel[]> {
-		const all = await this.pb.collection('cobrandAdmins').getFullList<ICobrandAdminModel>();
-		return all.filter((a) => a.cobrand === cobrandId);
+	async getCobrandAdminsByCobrandId(cobrandId: string): Promise<ICobrandAdminModel[]> {
+		const allCobrandAdmins = await this.backendClient.collection('cobrandAdmins').getFullList<ICobrandAdminModel>();
+		return allCobrandAdmins.filter((cobrandAdmin) => cobrandAdmin.cobrand === cobrandId);
 	}
 
-	async getByUserId(userId: string): Promise<ICobrandAdminModel | null> {
-		const all = await this.pb.collection('cobrandAdmins').getFullList<ICobrandAdminModel>();
-		return all.find((a) => a.user === userId) ?? null;
+	async getCobrandAdminByUserId(userId: string): Promise<ICobrandAdminModel | null> {
+		const allCobrandAdmins = await this.backendClient.collection('cobrandAdmins').getFullList<ICobrandAdminModel>();
+		return allCobrandAdmins.find((cobrandAdmin) => cobrandAdmin.user === userId) ?? null;
 	}
 
-	async create(userId: string, cobrandId: string): Promise<ICobrandAdminModel> {
-		return await this.pb.collection('cobrandAdmins').create<ICobrandAdminModel>({
+	async createCobrandAdmin(userId: string, cobrandId: string): Promise<ICobrandAdminModel> {
+		return await this.backendClient.collection('cobrandAdmins').create<ICobrandAdminModel>({
 			user: userId,
 			cobrand: cobrandId
 		});
 	}
 
-	async delete(id: string): Promise<void> {
-		await this.pb.collection('cobrandAdmins').delete(id);
+	async deleteCobrandAdmin(id: string): Promise<void> {
+		await this.backendClient.collection('cobrandAdmins').delete(id);
 	}
 }

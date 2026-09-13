@@ -45,11 +45,11 @@ func (r *CobrandPropertyOwnerRepository) GetCobrandPropertyOwnersByPropertyOwner
 }
 
 func (r *CobrandPropertyOwnerRepository) CreateCobrandPropertyOwner(cobrandId, propertyOwnerId string) (dtos.CobrandPropertyOwnerDto, error) {
-	col, err := r.app.Dao().FindCollectionByNameOrId("cobrandPropertyOwners")
+	cobrandPropertyOwnersCollection, err := r.app.Dao().FindCollectionByNameOrId("cobrandPropertyOwners")
 	if err != nil {
 		return dtos.CobrandPropertyOwnerDto{}, err
 	}
-	record := models.NewRecord(col)
+	record := models.NewRecord(cobrandPropertyOwnersCollection)
 	record.Set("cobrand", cobrandId)
 	record.Set("propertyOwner", propertyOwnerId)
 	if err := r.app.Dao().SaveRecord(record); err != nil {
@@ -66,10 +66,10 @@ func (r *CobrandPropertyOwnerRepository) DeleteCobrandPropertyOwner(id string) e
 	return r.app.Dao().DeleteRecord(record)
 }
 
-func cobrandPropertyOwnerRecordToDto(r *models.Record) dtos.CobrandPropertyOwnerDto {
+func cobrandPropertyOwnerRecordToDto(record *models.Record) dtos.CobrandPropertyOwnerDto {
 	return dtos.CobrandPropertyOwnerDto{
-		Id:            r.GetId(),
-		Cobrand:       r.GetString("cobrand"),
-		PropertyOwner: r.GetString("propertyOwner"),
+		Id:            record.GetId(),
+		Cobrand:       record.GetString("cobrand"),
+		PropertyOwner: record.GetString("propertyOwner"),
 	}
 }

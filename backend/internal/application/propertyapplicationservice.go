@@ -13,31 +13,31 @@ type IPropertyApplicationService interface {
 }
 
 type PropertyApplicationService struct {
-	propertyService services.IPropertyService
-	propertyRepo    repositories.IPropertyRepository
+	propertyService    services.IPropertyService
+	propertyRepository repositories.IPropertyRepository
 }
 
 func NewPropertyApplicationService(
 	propertyService services.IPropertyService,
-	propertyRepo repositories.IPropertyRepository,
+	propertyRepository repositories.IPropertyRepository,
 ) IPropertyApplicationService {
-	return &PropertyApplicationService{propertyService, propertyRepo}
+	return &PropertyApplicationService{propertyService, propertyRepository}
 }
 
 func (s *PropertyApplicationService) CreateProperty(address string) (dtos.PropertyDto, error) {
 	if err := s.propertyService.ValidateProperty(address); err != nil {
 		return dtos.PropertyDto{}, err
 	}
-	return s.propertyRepo.CreateProperty(address)
+	return s.propertyRepository.CreateProperty(address)
 }
 
 func (s *PropertyApplicationService) UpdateProperty(id, address string) error {
 	if err := s.propertyService.ValidateProperty(address); err != nil {
 		return err
 	}
-	return s.propertyRepo.UpdateProperty(id, address)
+	return s.propertyRepository.UpdateProperty(id, address)
 }
 
 func (s *PropertyApplicationService) DeleteProperty(id string) error {
-	return s.propertyRepo.DeleteProperty(id)
+	return s.propertyRepository.DeleteProperty(id)
 }

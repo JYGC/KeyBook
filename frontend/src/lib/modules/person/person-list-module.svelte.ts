@@ -8,8 +8,8 @@ export class PersonListModule implements INewPersonListModule {
   public personListAsync = $derived.by<Promise<IPersonModel[]>>(async () => {
     try {
       return await this.__personService.getAllPersons();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
       return [];
     }
   });

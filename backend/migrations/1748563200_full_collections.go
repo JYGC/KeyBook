@@ -10,41 +10,39 @@ import (
 )
 
 func init() {
-	m.Register(up1748563200, down1748563200)
+	m.Register(createAllCollections, dropAllCollections)
 }
 
-func up1748563200(db dbx.Builder) error {
+func createAllCollections(db dbx.Builder) error {
 	dao := daos.New(db)
 
-	// 1. Modify users: remove default name and avatar fields.
-	usersCol, err := dao.FindCollectionByNameOrId("users")
+	usersCollection, err := dao.FindCollectionByNameOrId("users")
 	if err != nil {
 		return err
 	}
-	filteredSchema := schema.NewSchema()
-	for _, f := range usersCol.Schema.Fields() {
-		if f.Name != "name" && f.Name != "avatar" {
-			filteredSchema.AddField(f)
+	schemaWithoutNameAndAvatar := schema.NewSchema()
+	for _, usersField := range usersCollection.Schema.Fields() {
+		if usersField.Name != "name" && usersField.Name != "avatar" {
+			schemaWithoutNameAndAvatar.AddField(usersField)
 		}
 	}
-	usersCol.Schema = filteredSchema
-	if err := dao.SaveCollection(usersCol); err != nil {
+	usersCollection.Schema = schemaWithoutNameAndAvatar
+	if err := dao.SaveCollection(usersCollection); err != nil {
 		return err
 	}
-	usersColID := usersCol.Id
+	usersCollectionId := usersCollection.Id
 
-	// 2. persons
 	// Back-relations use _via_fieldName syntax in PocketBase v0.22 filter expressions.
 	personsListViewRule := "user.id = @request.auth.id"
 
-	personsCol := &models.Collection{
+	personsCollection := &models.Collection{
 		Name: "persons",
 		Type: models.CollectionTypeBase,
 		Schema: schema.NewSchema(
 			&schema.SchemaField{Id: "pers1", Name: "name", Type: schema.FieldTypeText, Required: true, Options: &schema.TextOptions{}},
 			&schema.SchemaField{Id: "pers2", Name: "DOB", Type: schema.FieldTypeDate, Required: true, Options: &schema.DateOptions{}},
 			&schema.SchemaField{Id: "pers3", Name: "user", Type: schema.FieldTypeRelation, Required: false,
-				Options: &schema.RelationOptions{CollectionId: usersColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: usersCollectionId, MaxSelect: types.Pointer(1)}},
 			&schema.SchemaField{Id: "pers4", Name: "profileImage", Type: schema.FieldTypeFile, Required: false,
 				Options: &schema.FileOptions{MaxSelect: 1, MaxSize: 5242880}},
 		),
@@ -57,13 +55,12 @@ func up1748563200(db dbx.Builder) error {
 		UpdateRule: types.Pointer("user.id = @request.auth.id"),
 		DeleteRule: types.Pointer("user.id = @request.auth.id"),
 	}
-	if err := dao.SaveCollection(personsCol); err != nil {
+	if err := dao.SaveCollection(personsCollection); err != nil {
 		return err
 	}
-	personsColID := personsCol.Id
+	personsCollectionId := personsCollection.Id
 
-	// 3. properties
-	propListViewRule := "" +
+	propertiesListViewRule := "" +
 		"propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
@@ -71,378 +68,367 @@ func up1748563200(db dbx.Builder) error {
 		" || households_via_property.person.user.id = @request.auth.id" +
 		" || propertyAgents_via_property.agent.person.user.id = @request.auth.id"
 
-	propUpdateDeleteRule := "" +
+	propertiesUpdateDeleteRule := "" +
 		"propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	propertiesCol := &models.Collection{
+	propertiesCollection := &models.Collection{
 		Name: "properties",
 		Type: models.CollectionTypeBase,
 		Schema: schema.NewSchema(
 			&schema.SchemaField{Id: "prop1", Name: "address", Type: schema.FieldTypeText, Required: true, Options: &schema.TextOptions{}},
 		),
-		ListRule:   types.Pointer(propListViewRule),
-		ViewRule:   types.Pointer(propListViewRule),
+		ListRule:   types.Pointer(propertiesListViewRule),
+		ViewRule:   types.Pointer(propertiesListViewRule),
 		CreateRule: types.Pointer("@request.auth.id != \"\""),
-		UpdateRule: types.Pointer(propUpdateDeleteRule),
-		DeleteRule: types.Pointer(propUpdateDeleteRule),
+		UpdateRule: types.Pointer(propertiesUpdateDeleteRule),
+		DeleteRule: types.Pointer(propertiesUpdateDeleteRule),
 	}
-	if err := dao.SaveCollection(propertiesCol); err != nil {
+	if err := dao.SaveCollection(propertiesCollection); err != nil {
 		return err
 	}
-	propertiesColID := propertiesCol.Id
+	propertiesCollectionId := propertiesCollection.Id
 
-	// 4. propertyOwners
-	poListViewRule := "" +
+	propertyOwnersListViewRule := "" +
 		"personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	poUpdateDeleteRule := "" +
+	propertyOwnersUpdateDeleteRule := "" +
 		"personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	propertyOwnersCol := &models.Collection{
+	propertyOwnersCollection := &models.Collection{
 		Name: "propertyOwners",
 		Type: models.CollectionTypeBase,
 		Schema: schema.NewSchema(
 			&schema.SchemaField{Id: "pown1", Name: "property", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: propertiesColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: propertiesCollectionId, MaxSelect: types.Pointer(1)}},
 		),
-		ListRule:   types.Pointer(poListViewRule),
-		ViewRule:   types.Pointer(poListViewRule),
+		ListRule:   types.Pointer(propertyOwnersListViewRule),
+		ViewRule:   types.Pointer(propertyOwnersListViewRule),
 		CreateRule: types.Pointer("@request.auth.id != \"\""),
-		UpdateRule: types.Pointer(poUpdateDeleteRule),
-		DeleteRule: types.Pointer(poUpdateDeleteRule),
+		UpdateRule: types.Pointer(propertyOwnersUpdateDeleteRule),
+		DeleteRule: types.Pointer(propertyOwnersUpdateDeleteRule),
 	}
-	if err := dao.SaveCollection(propertyOwnersCol); err != nil {
+	if err := dao.SaveCollection(propertyOwnersCollection); err != nil {
 		return err
 	}
-	propertyOwnersColID := propertyOwnersCol.Id
+	propertyOwnersCollectionId := propertyOwnersCollection.Id
 
-	// 5. cobrands
-	cobrandListViewRule := "" +
+	cobrandsListViewRule := "" +
 		"cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || agents_via_cobrand.person.user.id = @request.auth.id"
 
-	cobrandUpdateDeleteRule := "cobrandAdmins_via_cobrand.user.id = @request.auth.id"
+	cobrandsUpdateDeleteRule := "cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	cobrandsCol := &models.Collection{
+	cobrandsCollection := &models.Collection{
 		Name: "cobrands",
 		Type: models.CollectionTypeBase,
 		Schema: schema.NewSchema(
 			&schema.SchemaField{Id: "cbrd1", Name: "name", Type: schema.FieldTypeText, Required: true, Options: &schema.TextOptions{}},
 		),
-		ListRule:   types.Pointer(cobrandListViewRule),
-		ViewRule:   types.Pointer(cobrandListViewRule),
+		ListRule:   types.Pointer(cobrandsListViewRule),
+		ViewRule:   types.Pointer(cobrandsListViewRule),
 		CreateRule: types.Pointer("@request.auth.id != \"\""),
-		UpdateRule: types.Pointer(cobrandUpdateDeleteRule),
-		DeleteRule: types.Pointer(cobrandUpdateDeleteRule),
+		UpdateRule: types.Pointer(cobrandsUpdateDeleteRule),
+		DeleteRule: types.Pointer(cobrandsUpdateDeleteRule),
 	}
-	if err := dao.SaveCollection(cobrandsCol); err != nil {
+	if err := dao.SaveCollection(cobrandsCollection); err != nil {
 		return err
 	}
-	cobrandsColID := cobrandsCol.Id
+	cobrandsCollectionId := cobrandsCollection.Id
 
-	// 6. cobrandAdmins  (unique on user + cobrand)
-	caListViewRule := "" +
+	cobrandAdminsListViewRule := "" +
 		"cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || cobrand.agents_via_cobrand.person.user.id = @request.auth.id"
 
-	caUpdateRule := "cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
+	cobrandAdminsUpdateRule := "cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	caDeleteRule := "" +
+	cobrandAdminsDeleteRule := "" +
 		"cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || user.id = @request.auth.id"
 
-	cobrandAdminsCol := &models.Collection{
+	cobrandAdminsCollection := &models.Collection{
 		Name: "cobrandAdmins",
 		Type: models.CollectionTypeBase,
 		Schema: schema.NewSchema(
 			&schema.SchemaField{Id: "cbad1", Name: "user", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: usersColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: usersCollectionId, MaxSelect: types.Pointer(1)}},
 			&schema.SchemaField{Id: "cbad2", Name: "cobrand", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: cobrandsColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: cobrandsCollectionId, MaxSelect: types.Pointer(1)}},
 		),
 		Indexes: types.JsonArray[string]{
 			"CREATE UNIQUE INDEX idx_cobrandAdmins ON cobrandAdmins (user, cobrand)",
 		},
-		ListRule:   types.Pointer(caListViewRule),
-		ViewRule:   types.Pointer(caListViewRule),
+		ListRule:   types.Pointer(cobrandAdminsListViewRule),
+		ViewRule:   types.Pointer(cobrandAdminsListViewRule),
 		CreateRule: types.Pointer("@request.auth.id != \"\""),
-		UpdateRule: types.Pointer(caUpdateRule),
-		DeleteRule: types.Pointer(caDeleteRule),
+		UpdateRule: types.Pointer(cobrandAdminsUpdateRule),
+		DeleteRule: types.Pointer(cobrandAdminsDeleteRule),
 	}
-	if err := dao.SaveCollection(cobrandAdminsCol); err != nil {
+	if err := dao.SaveCollection(cobrandAdminsCollection); err != nil {
 		return err
 	}
 
-	// 7. cobrandPropertyManagers  (unique on cobrand + property)
-	cpmListViewRule := "" +
+	cobrandPropertyManagersListViewRule := "" +
 		"property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	cpmCreateUpdateRule := "" +
+	cobrandPropertyManagersCreateUpdateRule := "" +
 		"property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	cpmDeleteRule := "" +
+	cobrandPropertyManagersDeleteRule := "" +
 		"property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	cobrandPropMgrsCol := &models.Collection{
+	cobrandPropertyManagersCollection := &models.Collection{
 		Name: "cobrandPropertyManagers",
 		Type: models.CollectionTypeBase,
 		Schema: schema.NewSchema(
 			&schema.SchemaField{Id: "cbpm1", Name: "cobrand", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: cobrandsColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: cobrandsCollectionId, MaxSelect: types.Pointer(1)}},
 			&schema.SchemaField{Id: "cbpm2", Name: "property", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: propertiesColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: propertiesCollectionId, MaxSelect: types.Pointer(1)}},
 		),
 		Indexes: types.JsonArray[string]{
 			"CREATE UNIQUE INDEX idx_cobrandPropertyManagers ON cobrandPropertyManagers (cobrand, property)",
 		},
-		ListRule:   types.Pointer(cpmListViewRule),
-		ViewRule:   types.Pointer(cpmListViewRule),
-		CreateRule: types.Pointer(cpmCreateUpdateRule),
-		UpdateRule: types.Pointer(cpmCreateUpdateRule),
-		DeleteRule: types.Pointer(cpmDeleteRule),
+		ListRule:   types.Pointer(cobrandPropertyManagersListViewRule),
+		ViewRule:   types.Pointer(cobrandPropertyManagersListViewRule),
+		CreateRule: types.Pointer(cobrandPropertyManagersCreateUpdateRule),
+		UpdateRule: types.Pointer(cobrandPropertyManagersCreateUpdateRule),
+		DeleteRule: types.Pointer(cobrandPropertyManagersDeleteRule),
 	}
-	if err := dao.SaveCollection(cobrandPropMgrsCol); err != nil {
+	if err := dao.SaveCollection(cobrandPropertyManagersCollection); err != nil {
 		return err
 	}
 
-	// 8. cobrandPropertyOwners  (unique on cobrand + propertyOwner)
-	cpoListViewRule := "" +
+	cobrandPropertyOwnersListViewRule := "" +
 		"cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || propertyOwner.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || propertyOwner.property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	cpoCreateUpdateRule := "" +
+	cobrandPropertyOwnersCreateUpdateRule := "" +
 		"propertyOwner.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	cpoDeleteRule := "" +
+	cobrandPropertyOwnersDeleteRule := "" +
 		"propertyOwner.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	cobrandPropOwnersCol := &models.Collection{
+	cobrandPropertyOwnersCollection := &models.Collection{
 		Name: "cobrandPropertyOwners",
 		Type: models.CollectionTypeBase,
 		Schema: schema.NewSchema(
 			&schema.SchemaField{Id: "cbpo1", Name: "cobrand", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: cobrandsColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: cobrandsCollectionId, MaxSelect: types.Pointer(1)}},
 			&schema.SchemaField{Id: "cbpo2", Name: "propertyOwner", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: propertyOwnersColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: propertyOwnersCollectionId, MaxSelect: types.Pointer(1)}},
 		),
 		Indexes: types.JsonArray[string]{
 			"CREATE UNIQUE INDEX idx_cobrandPropertyOwners ON cobrandPropertyOwners (cobrand, propertyOwner)",
 		},
-		ListRule:   types.Pointer(cpoListViewRule),
-		ViewRule:   types.Pointer(cpoListViewRule),
-		CreateRule: types.Pointer(cpoCreateUpdateRule),
-		UpdateRule: types.Pointer(cpoCreateUpdateRule),
-		DeleteRule: types.Pointer(cpoDeleteRule),
+		ListRule:   types.Pointer(cobrandPropertyOwnersListViewRule),
+		ViewRule:   types.Pointer(cobrandPropertyOwnersListViewRule),
+		CreateRule: types.Pointer(cobrandPropertyOwnersCreateUpdateRule),
+		UpdateRule: types.Pointer(cobrandPropertyOwnersCreateUpdateRule),
+		DeleteRule: types.Pointer(cobrandPropertyOwnersDeleteRule),
 	}
-	if err := dao.SaveCollection(cobrandPropOwnersCol); err != nil {
+	if err := dao.SaveCollection(cobrandPropertyOwnersCollection); err != nil {
 		return err
 	}
 
-	// 9. personPropertyOwners  (unique on person + propertyOwner)
-	ppoListViewRule := "" +
+	personPropertyOwnersListViewRule := "" +
 		"person.user.id = @request.auth.id" +
 		" || propertyOwner.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || propertyOwner.property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	ppoCUDRule := "" +
+	personPropertyOwnersCreateUpdateDeleteRule := "" +
 		"person.user.id = @request.auth.id" +
 		" || propertyOwner.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	personPropOwnersCol := &models.Collection{
+	personPropertyOwnersCollection := &models.Collection{
 		Name: "personPropertyOwners",
 		Type: models.CollectionTypeBase,
 		Schema: schema.NewSchema(
 			&schema.SchemaField{Id: "ppow1", Name: "person", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: personsColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: personsCollectionId, MaxSelect: types.Pointer(1)}},
 			&schema.SchemaField{Id: "ppow2", Name: "propertyOwner", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: propertyOwnersColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: propertyOwnersCollectionId, MaxSelect: types.Pointer(1)}},
 		),
 		Indexes: types.JsonArray[string]{
 			"CREATE UNIQUE INDEX idx_personPropertyOwners ON personPropertyOwners (person, propertyOwner)",
 		},
-		ListRule:   types.Pointer(ppoListViewRule),
-		ViewRule:   types.Pointer(ppoListViewRule),
-		CreateRule: types.Pointer(ppoCUDRule),
-		UpdateRule: types.Pointer(ppoCUDRule),
-		DeleteRule: types.Pointer(ppoCUDRule),
+		ListRule:   types.Pointer(personPropertyOwnersListViewRule),
+		ViewRule:   types.Pointer(personPropertyOwnersListViewRule),
+		CreateRule: types.Pointer(personPropertyOwnersCreateUpdateDeleteRule),
+		UpdateRule: types.Pointer(personPropertyOwnersCreateUpdateDeleteRule),
+		DeleteRule: types.Pointer(personPropertyOwnersCreateUpdateDeleteRule),
 	}
-	if err := dao.SaveCollection(personPropOwnersCol); err != nil {
+	if err := dao.SaveCollection(personPropertyOwnersCollection); err != nil {
 		return err
 	}
 
-	// 10. agents  (unique on person + cobrand)
 	// PocketBase v0.22 can't handle 3+ back-relations in a chain, so property-based
 	// access for agents is omitted here (it would require 3 back-relations).
-	agentListViewRule := "" +
+	agentsListViewRule := "" +
 		"cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || person.user.id = @request.auth.id"
 
-	agentCreateUpdateRule := "cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
+	agentsCreateUpdateRule := "cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	agentDeleteRule := "" +
+	agentsDeleteRule := "" +
 		"cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || person.user.id = @request.auth.id"
 
-	agentsCol := &models.Collection{
+	agentsCollection := &models.Collection{
 		Name: "agents",
 		Type: models.CollectionTypeBase,
 		Schema: schema.NewSchema(
 			&schema.SchemaField{Id: "agt01", Name: "person", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: personsColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: personsCollectionId, MaxSelect: types.Pointer(1)}},
 			&schema.SchemaField{Id: "agt02", Name: "cobrand", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: cobrandsColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: cobrandsCollectionId, MaxSelect: types.Pointer(1)}},
 		),
 		Indexes: types.JsonArray[string]{
 			"CREATE UNIQUE INDEX idx_agents ON agents (person, cobrand)",
 		},
-		ListRule:   types.Pointer(agentListViewRule),
-		ViewRule:   types.Pointer(agentListViewRule),
-		CreateRule: types.Pointer(agentCreateUpdateRule),
-		UpdateRule: types.Pointer(agentCreateUpdateRule),
-		DeleteRule: types.Pointer(agentDeleteRule),
+		ListRule:   types.Pointer(agentsListViewRule),
+		ViewRule:   types.Pointer(agentsListViewRule),
+		CreateRule: types.Pointer(agentsCreateUpdateRule),
+		UpdateRule: types.Pointer(agentsCreateUpdateRule),
+		DeleteRule: types.Pointer(agentsDeleteRule),
 	}
-	if err := dao.SaveCollection(agentsCol); err != nil {
+	if err := dao.SaveCollection(agentsCollection); err != nil {
 		return err
 	}
-	agentsColID := agentsCol.Id
+	agentsCollectionId := agentsCollection.Id
 
-	// 11. propertyAgents  (unique on agent + property)
-	paListViewRule := "" +
+	propertyAgentsListViewRule := "" +
 		"property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || agent.person.user.id = @request.auth.id" +
 		" || agent.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	paCreateUpdateRule := "" +
+	propertyAgentsCreateUpdateRule := "" +
 		"property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || agent.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	paDeleteRule := paCreateUpdateRule + " || agent.person.user.id = @request.auth.id"
+	propertyAgentsDeleteRule := propertyAgentsCreateUpdateRule + " || agent.person.user.id = @request.auth.id"
 
-	propertyAgentsCol := &models.Collection{
+	propertyAgentsCollection := &models.Collection{
 		Name: "propertyAgents",
 		Type: models.CollectionTypeBase,
 		Schema: schema.NewSchema(
 			&schema.SchemaField{Id: "pagt1", Name: "agent", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: agentsColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: agentsCollectionId, MaxSelect: types.Pointer(1)}},
 			&schema.SchemaField{Id: "pagt2", Name: "property", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: propertiesColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: propertiesCollectionId, MaxSelect: types.Pointer(1)}},
 		),
 		Indexes: types.JsonArray[string]{
 			"CREATE UNIQUE INDEX idx_propertyAgents ON propertyAgents (agent, property)",
 		},
-		ListRule:   types.Pointer(paListViewRule),
-		ViewRule:   types.Pointer(paListViewRule),
-		CreateRule: types.Pointer(paCreateUpdateRule),
-		UpdateRule: types.Pointer(paCreateUpdateRule),
-		DeleteRule: types.Pointer(paDeleteRule),
+		ListRule:   types.Pointer(propertyAgentsListViewRule),
+		ViewRule:   types.Pointer(propertyAgentsListViewRule),
+		CreateRule: types.Pointer(propertyAgentsCreateUpdateRule),
+		UpdateRule: types.Pointer(propertyAgentsCreateUpdateRule),
+		DeleteRule: types.Pointer(propertyAgentsDeleteRule),
 	}
-	if err := dao.SaveCollection(propertyAgentsCol); err != nil {
+	if err := dao.SaveCollection(propertyAgentsCollection); err != nil {
 		return err
 	}
 
-	// 12. households  (unique on person + property)
-	hhListViewRule := "" +
+	householdsListViewRule := "" +
 		"property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || property.households_via_property.person.user.id = @request.auth.id" +
 		" || property.tenants_via_property.person.user.id = @request.auth.id"
 
-	hhCreateUpdateRule := "" +
+	householdsCreateUpdateRule := "" +
 		"property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	hhDeleteRule := hhCreateUpdateRule + " || person.user.id = @request.auth.id"
+	householdsDeleteRule := householdsCreateUpdateRule + " || person.user.id = @request.auth.id"
 
-	householdsCol := &models.Collection{
+	householdsCollection := &models.Collection{
 		Name: "households",
 		Type: models.CollectionTypeBase,
 		Schema: schema.NewSchema(
 			&schema.SchemaField{Id: "hhld1", Name: "person", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: personsColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: personsCollectionId, MaxSelect: types.Pointer(1)}},
 			&schema.SchemaField{Id: "hhld2", Name: "property", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: propertiesColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: propertiesCollectionId, MaxSelect: types.Pointer(1)}},
 		),
 		Indexes: types.JsonArray[string]{
 			"CREATE UNIQUE INDEX idx_households ON households (person, property)",
 		},
-		ListRule:   types.Pointer(hhListViewRule),
-		ViewRule:   types.Pointer(hhListViewRule),
-		CreateRule: types.Pointer(hhCreateUpdateRule),
-		UpdateRule: types.Pointer(hhCreateUpdateRule),
-		DeleteRule: types.Pointer(hhDeleteRule),
+		ListRule:   types.Pointer(householdsListViewRule),
+		ViewRule:   types.Pointer(householdsListViewRule),
+		CreateRule: types.Pointer(householdsCreateUpdateRule),
+		UpdateRule: types.Pointer(householdsCreateUpdateRule),
+		DeleteRule: types.Pointer(householdsDeleteRule),
 	}
-	if err := dao.SaveCollection(householdsCol); err != nil {
+	if err := dao.SaveCollection(householdsCollection); err != nil {
 		return err
 	}
 
-	// 13. tenants  (unique on person + property)
-	tenListViewRule := "" +
+	tenantsListViewRule := "" +
 		"property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || property.tenants_via_property.person.user.id = @request.auth.id" +
 		" || property.households_via_property.person.user.id = @request.auth.id"
 
-	tenCreateUpdateRule := "" +
+	tenantsCreateUpdateRule := "" +
 		"property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id"
 
-	tenDeleteRule := tenCreateUpdateRule + " || person.user.id = @request.auth.id"
+	tenantsDeleteRule := tenantsCreateUpdateRule + " || person.user.id = @request.auth.id"
 
-	tenantsCol := &models.Collection{
+	tenantsCollection := &models.Collection{
 		Name: "tenants",
 		Type: models.CollectionTypeBase,
 		Schema: schema.NewSchema(
 			&schema.SchemaField{Id: "tnt01", Name: "person", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: personsColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: personsCollectionId, MaxSelect: types.Pointer(1)}},
 			&schema.SchemaField{Id: "tnt02", Name: "property", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: propertiesColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: propertiesCollectionId, MaxSelect: types.Pointer(1)}},
 		),
 		Indexes: types.JsonArray[string]{
 			"CREATE UNIQUE INDEX idx_tenants ON tenants (person, property)",
 		},
-		ListRule:   types.Pointer(tenListViewRule),
-		ViewRule:   types.Pointer(tenListViewRule),
-		CreateRule: types.Pointer(tenCreateUpdateRule),
-		UpdateRule: types.Pointer(tenCreateUpdateRule),
-		DeleteRule: types.Pointer(tenDeleteRule),
+		ListRule:   types.Pointer(tenantsListViewRule),
+		ViewRule:   types.Pointer(tenantsListViewRule),
+		CreateRule: types.Pointer(tenantsCreateUpdateRule),
+		UpdateRule: types.Pointer(tenantsCreateUpdateRule),
+		DeleteRule: types.Pointer(tenantsDeleteRule),
 	}
-	if err := dao.SaveCollection(tenantsCol); err != nil {
+	if err := dao.SaveCollection(tenantsCollection); err != nil {
 		return err
 	}
 
-	// 14. items
 	// 3+ back-relation chains cause SQL errors in PocketBase v0.22, so property-owner
 	// access is omitted (requires 3 backs via propertyItems→property→propertyOwners→...).
 	// Residents (tenant/household/agent) are reachable via 2 back-relations.
-	itemListViewRule := "" +
+	itemsListViewRule := "" +
 		"personItems_via_item.person.user.id = @request.auth.id" +
 		" || propertyItems_via_item.property.tenants_via_property.person.user.id = @request.auth.id" +
 		" || propertyItems_via_item.property.households_via_property.person.user.id = @request.auth.id" +
 		" || propertyItems_via_item.property.propertyAgents_via_property.agent.person.user.id = @request.auth.id"
 
-	itemUpdateDeleteRule := "personItems_via_item.person.user.id = @request.auth.id"
+	itemsUpdateDeleteRule := "personItems_via_item.person.user.id = @request.auth.id"
 
-	itemsCol := &models.Collection{
+	itemsCollection := &models.Collection{
 		Name: "items",
 		Type: models.CollectionTypeBase,
 		Schema: schema.NewSchema(
@@ -451,29 +437,28 @@ func up1748563200(db dbx.Builder) error {
 			&schema.SchemaField{Id: "itm03", Name: "picture", Type: schema.FieldTypeFile, Required: false,
 				Options: &schema.FileOptions{MaxSelect: 1, MaxSize: 5242880}},
 		),
-		ListRule:   types.Pointer(itemListViewRule),
-		ViewRule:   types.Pointer(itemListViewRule),
+		ListRule:   types.Pointer(itemsListViewRule),
+		ViewRule:   types.Pointer(itemsListViewRule),
 		CreateRule: types.Pointer("@request.auth.id != \"\""),
-		UpdateRule: types.Pointer(itemUpdateDeleteRule),
-		DeleteRule: types.Pointer(itemUpdateDeleteRule),
+		UpdateRule: types.Pointer(itemsUpdateDeleteRule),
+		DeleteRule: types.Pointer(itemsUpdateDeleteRule),
 	}
-	if err := dao.SaveCollection(itemsCol); err != nil {
+	if err := dao.SaveCollection(itemsCollection); err != nil {
 		return err
 	}
-	itemsColID := itemsCol.Id
+	itemsCollectionId := itemsCollection.Id
 
-	// 15. entryDevices  (unique on item)
 	// PocketBase v0.22: forward→back→forward→back chains from entryDevices fail.
 	// Only the forward→back chain (item → personItems) is supported.
-	edListViewRule := "item.personItems_via_item.person.user.id = @request.auth.id"
-	edCUDRule := "item.personItems_via_item.person.user.id = @request.auth.id"
+	entryDevicesListViewRule := "item.personItems_via_item.person.user.id = @request.auth.id"
+	entryDevicesCreateUpdateDeleteRule := "item.personItems_via_item.person.user.id = @request.auth.id"
 
-	entryDevicesCol := &models.Collection{
+	entryDevicesCollection := &models.Collection{
 		Name: "entryDevices",
 		Type: models.CollectionTypeBase,
 		Schema: schema.NewSchema(
 			&schema.SchemaField{Id: "edv01", Name: "item", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: itemsColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: itemsCollectionId, MaxSelect: types.Pointer(1)}},
 			&schema.SchemaField{Id: "edv02", Name: "deviceType", Type: schema.FieldTypeSelect, Required: true,
 				Options: &schema.SelectOptions{MaxSelect: 1, Values: []string{"Fob", "Key", "Remote", "RoomKey", "MailboxKey"}}},
 			&schema.SchemaField{Id: "edv03", Name: "identifier", Type: schema.FieldTypeText, Required: true, Options: &schema.TextOptions{}},
@@ -483,18 +468,17 @@ func up1748563200(db dbx.Builder) error {
 		Indexes: types.JsonArray[string]{
 			"CREATE UNIQUE INDEX idx_entryDevices_item ON entryDevices (item)",
 		},
-		ListRule:   types.Pointer(edListViewRule),
-		ViewRule:   types.Pointer(edListViewRule),
-		CreateRule: types.Pointer(edCUDRule),
-		UpdateRule: types.Pointer(edCUDRule),
-		DeleteRule: types.Pointer(edCUDRule),
+		ListRule:   types.Pointer(entryDevicesListViewRule),
+		ViewRule:   types.Pointer(entryDevicesListViewRule),
+		CreateRule: types.Pointer(entryDevicesCreateUpdateDeleteRule),
+		UpdateRule: types.Pointer(entryDevicesCreateUpdateDeleteRule),
+		DeleteRule: types.Pointer(entryDevicesCreateUpdateDeleteRule),
 	}
-	if err := dao.SaveCollection(entryDevicesCol); err != nil {
+	if err := dao.SaveCollection(entryDevicesCollection); err != nil {
 		return err
 	}
 
-	// 16. propertyItems  (unique on item + property)
-	piListViewRule := "" +
+	propertyItemsListViewRule := "" +
 		"property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
@@ -503,65 +487,64 @@ func up1748563200(db dbx.Builder) error {
 		" || property.households_via_property.person.user.id = @request.auth.id" +
 		" || property.propertyAgents_via_property.agent.person.user.id = @request.auth.id"
 
-	piCUDRule := "" +
+	propertyItemsCreateUpdateDeleteRule := "" +
 		"property.propertyOwners_via_property.personPropertyOwners_via_propertyOwner.person.user.id = @request.auth.id" +
 		" || property.propertyOwners_via_property.cobrandPropertyOwners_via_propertyOwner.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || property.cobrandPropertyManagers_via_property.cobrand.cobrandAdmins_via_cobrand.user.id = @request.auth.id" +
 		" || item.personItems_via_item.person.user.id = @request.auth.id"
 
-	propertyItemsCol := &models.Collection{
+	propertyItemsCollection := &models.Collection{
 		Name: "propertyItems",
 		Type: models.CollectionTypeBase,
 		Schema: schema.NewSchema(
 			&schema.SchemaField{Id: "pitm1", Name: "item", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: itemsColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: itemsCollectionId, MaxSelect: types.Pointer(1)}},
 			&schema.SchemaField{Id: "pitm2", Name: "property", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: propertiesColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: propertiesCollectionId, MaxSelect: types.Pointer(1)}},
 		),
 		Indexes: types.JsonArray[string]{
 			"CREATE UNIQUE INDEX idx_propertyItems ON propertyItems (item, property)",
 		},
-		ListRule:   types.Pointer(piListViewRule),
-		ViewRule:   types.Pointer(piListViewRule),
-		CreateRule: types.Pointer(piCUDRule),
-		UpdateRule: types.Pointer(piCUDRule),
-		DeleteRule: types.Pointer(piCUDRule),
+		ListRule:   types.Pointer(propertyItemsListViewRule),
+		ViewRule:   types.Pointer(propertyItemsListViewRule),
+		CreateRule: types.Pointer(propertyItemsCreateUpdateDeleteRule),
+		UpdateRule: types.Pointer(propertyItemsCreateUpdateDeleteRule),
+		DeleteRule: types.Pointer(propertyItemsCreateUpdateDeleteRule),
 	}
-	if err := dao.SaveCollection(propertyItemsCol); err != nil {
+	if err := dao.SaveCollection(propertyItemsCollection); err != nil {
 		return err
 	}
 
-	// 17. personItems  (unique on person + item)
 	// Property-owner access requires 3+ back-relations; omitted due to PocketBase v0.22 limitation.
-	psListViewRule := "person.user.id = @request.auth.id"
-	psUpdateDeleteRule := "person.user.id = @request.auth.id"
+	personItemsListViewRule := "person.user.id = @request.auth.id"
+	personItemsUpdateDeleteRule := "person.user.id = @request.auth.id"
 
-	personItemsCol := &models.Collection{
+	personItemsCollection := &models.Collection{
 		Name: "personItems",
 		Type: models.CollectionTypeBase,
 		Schema: schema.NewSchema(
 			&schema.SchemaField{Id: "psit1", Name: "person", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: personsColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: personsCollectionId, MaxSelect: types.Pointer(1)}},
 			&schema.SchemaField{Id: "psit2", Name: "item", Type: schema.FieldTypeRelation, Required: true,
-				Options: &schema.RelationOptions{CollectionId: itemsColID, MaxSelect: types.Pointer(1)}},
+				Options: &schema.RelationOptions{CollectionId: itemsCollectionId, MaxSelect: types.Pointer(1)}},
 		),
 		Indexes: types.JsonArray[string]{
 			"CREATE UNIQUE INDEX idx_personItems ON personItems (person, item)",
 		},
-		ListRule:   types.Pointer(psListViewRule),
-		ViewRule:   types.Pointer(psListViewRule),
+		ListRule:   types.Pointer(personItemsListViewRule),
+		ViewRule:   types.Pointer(personItemsListViewRule),
 		CreateRule: types.Pointer("@request.auth.id != \"\""),
-		UpdateRule: types.Pointer(psUpdateDeleteRule),
-		DeleteRule: types.Pointer(psUpdateDeleteRule),
+		UpdateRule: types.Pointer(personItemsUpdateDeleteRule),
+		DeleteRule: types.Pointer(personItemsUpdateDeleteRule),
 	}
-	if err := dao.SaveCollection(personItemsCol); err != nil {
+	if err := dao.SaveCollection(personItemsCollection); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func down1748563200(db dbx.Builder) error {
+func dropAllCollections(db dbx.Builder) error {
 	dao := daos.New(db)
 
 	for _, name := range []string{
@@ -571,27 +554,27 @@ func down1748563200(db dbx.Builder) error {
 		"cobrandPropertyManagers", "cobrandAdmins", "cobrands",
 		"propertyOwners", "properties", "persons",
 	} {
-		col, err := dao.FindCollectionByNameOrId(name)
+		collection, err := dao.FindCollectionByNameOrId(name)
 		if err != nil {
 			continue
 		}
-		if err := dao.DeleteCollection(col); err != nil {
+		if err := dao.DeleteCollection(collection); err != nil {
 			return err
 		}
 	}
 
 	// Restore users name and avatar fields.
-	usersCol, err := dao.FindCollectionByNameOrId("users")
+	usersCollection, err := dao.FindCollectionByNameOrId("users")
 	if err != nil {
 		return err
 	}
-	usersCol.Schema.AddField(&schema.SchemaField{
+	usersCollection.Schema.AddField(&schema.SchemaField{
 		Id:      "users_name",
 		Type:    schema.FieldTypeText,
 		Name:    "name",
 		Options: &schema.TextOptions{},
 	})
-	usersCol.Schema.AddField(&schema.SchemaField{
+	usersCollection.Schema.AddField(&schema.SchemaField{
 		Id:   "users_avatar",
 		Type: schema.FieldTypeFile,
 		Name: "avatar",
@@ -601,5 +584,5 @@ func down1748563200(db dbx.Builder) error {
 			MimeTypes: []string{"image/jpeg", "image/png", "image/svg+xml", "image/gif", "image/webp"},
 		},
 	})
-	return dao.SaveCollection(usersCol)
+	return dao.SaveCollection(usersCollection)
 }

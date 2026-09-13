@@ -19,11 +19,11 @@ export interface IPersonService {
 
 export class PersonService implements IPersonService {
 	constructor(
-		private readonly personRepo: IPersonRepository,
-		private readonly ppoRepo: IPersonPropertyOwnerRepository,
-		private readonly tenantRepo: ITenantRepository,
-		private readonly householdRepo: IHouseholdRepository,
-		private readonly agentRepo: IAgentRepository
+		private readonly personRepository: IPersonRepository,
+		private readonly personPropertyOwnerRepository: IPersonPropertyOwnerRepository,
+		private readonly tenantRepository: ITenantRepository,
+		private readonly householdRepository: IHouseholdRepository,
+		private readonly agentRepository: IAgentRepository
 	) {}
 
 	validatePersonName(name: string): void {
@@ -35,42 +35,42 @@ export class PersonService implements IPersonService {
 	}
 
 	async getAllPersons(): Promise<IPersonModel[]> {
-		return await this.personRepo.getAll();
+		return await this.personRepository.getAllPersons();
 	}
 
 	async getPersonById(id: string): Promise<IPersonModel> {
-		return await this.personRepo.getById(id);
+		return await this.personRepository.getPersonById(id);
 	}
 
 	async getPersonByUserId(userId: string): Promise<IPersonModel | null> {
-		return await this.personRepo.getByUserId(userId);
+		return await this.personRepository.getPersonByUserId(userId);
 	}
 
 	async createPerson(name: string, dob: string, userId?: string): Promise<IPersonModel> {
 		this.validatePersonName(name);
 		this.validatePersonDOB(dob);
-		return await this.personRepo.create(name, dob, userId);
+		return await this.personRepository.createPerson(name, dob, userId);
 	}
 
 	async updatePerson(id: string, name: string, dob: string): Promise<IPersonModel> {
 		this.validatePersonName(name);
 		this.validatePersonDOB(dob);
-		return await this.personRepo.update(id, name, dob);
+		return await this.personRepository.updatePerson(id, name, dob);
 	}
 
 	async deletePerson(id: string): Promise<void> {
-		await this.personRepo.delete(id);
+		await this.personRepository.deletePerson(id);
 	}
 
 	async getRolesForPerson(personId: string): Promise<string[]> {
 		const roles: string[] = [];
-		const [ppos, tenants, households, agents] = await Promise.all([
-			this.ppoRepo.getByPersonId(personId),
-			this.tenantRepo.getByPersonId(personId),
-			this.householdRepo.getByPersonId(personId),
-			this.agentRepo.getByPersonId(personId)
+		const [personPropertyOwners, tenants, households, agents] = await Promise.all([
+			this.personPropertyOwnerRepository.getPersonPropertyOwnersByPersonId(personId),
+			this.tenantRepository.getTenantsByPersonId(personId),
+			this.householdRepository.getHouseholdsByPersonId(personId),
+			this.agentRepository.getAgentsByPersonId(personId)
 		]);
-		if (ppos.length > 0) roles.push('Owner');
+		if (personPropertyOwners.length > 0) roles.push('Owner');
 		if (tenants.length > 0) roles.push('Tenant');
 		if (households.length > 0) roles.push('Household');
 		if (agents.length > 0) roles.push('Agent');

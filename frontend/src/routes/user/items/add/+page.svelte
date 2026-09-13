@@ -11,10 +11,10 @@
     history.back();
   };
 
-  const pb = getBackendClient();
-  const itemRepo = new ItemRepository(pb);
-  const entryDeviceRepo = new EntryDeviceRepository(pb);
-  const itemService = new ItemService(itemRepo, entryDeviceRepo);
+  const backendClient = getBackendClient();
+  const itemRepository = new ItemRepository(backendClient);
+  const entryDeviceRepository = new EntryDeviceRepository(backendClient);
+  const itemService = new ItemService(itemRepository, entryDeviceRepository);
   const itemAddModule = new ItemAddModule(itemService, goBack);
 </script>
 

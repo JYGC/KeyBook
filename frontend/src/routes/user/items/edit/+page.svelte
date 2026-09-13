@@ -19,10 +19,10 @@
     history.back();
   };
 
-  const pb = getBackendClient();
-  const itemRepo = new ItemRepository(pb);
-  const entryDeviceRepo = new EntryDeviceRepository(pb);
-  const itemService = new ItemService(itemRepo, entryDeviceRepo);
+  const backendClient = getBackendClient();
+  const itemRepository = new ItemRepository(backendClient);
+  const entryDeviceRepository = new EntryDeviceRepository(backendClient);
+  const itemService = new ItemService(itemRepository, entryDeviceRepository);
   const itemDetailModule = new ItemDetailModule(itemService, itemId, goBack);
 
   const saveEntryDevice = itemDetailModule.getSaveEntryDeviceAction();

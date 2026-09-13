@@ -28,8 +28,8 @@ export class PropertyDetailModule implements IPropertyDetailModule {
   private refreshTenants() {
     this.tenantsAsync = this.__propertyService
       .getTenantsForProperty(this.__propertyId)
-      .catch((ex) => {
-        alert(ex);
+      .catch((error) => {
+        alert(error);
         return [];
       });
   }
@@ -37,8 +37,8 @@ export class PropertyDetailModule implements IPropertyDetailModule {
   private refreshHouseholdMembers() {
     this.householdMembersAsync = this.__propertyService
       .getHouseholdMembersForProperty(this.__propertyId)
-      .catch((ex) => {
-        alert(ex);
+      .catch((error) => {
+        alert(error);
         return [];
       });
   }
@@ -47,8 +47,8 @@ export class PropertyDetailModule implements IPropertyDetailModule {
     try {
       await this.__propertyService.updateProperty(property.id, property.address);
       this.__backAction();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -56,8 +56,8 @@ export class PropertyDetailModule implements IPropertyDetailModule {
     try {
       await this.__propertyService.deleteProperty(id);
       this.__backAction();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -65,8 +65,8 @@ export class PropertyDetailModule implements IPropertyDetailModule {
     try {
       await this.__propertyService.addTenant(personId, propertyId);
       this.refreshTenants();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -74,8 +74,8 @@ export class PropertyDetailModule implements IPropertyDetailModule {
     try {
       await this.__propertyService.removeTenant(id);
       this.refreshTenants();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -83,8 +83,8 @@ export class PropertyDetailModule implements IPropertyDetailModule {
     try {
       await this.__propertyService.addHouseholdMember(personId, propertyId);
       this.refreshHouseholdMembers();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -92,8 +92,8 @@ export class PropertyDetailModule implements IPropertyDetailModule {
     try {
       await this.__propertyService.removeHouseholdMember(id);
       this.refreshHouseholdMembers();
-    } catch (ex) {
-      alert(ex);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -102,22 +102,22 @@ export class PropertyDetailModule implements IPropertyDetailModule {
     this.__propertyId = propertyId;
     this.__backAction = backAction;
 
-    this.propertyAsync = this.__propertyService.getPropertyById(propertyId).catch((ex) => {
-      alert(ex);
+    this.propertyAsync = this.__propertyService.getPropertyById(propertyId).catch((error) => {
+      alert(error);
       return null;
     });
 
     this.personOwnersAsync = this.__propertyService
       .getPersonOwnersForProperty(propertyId)
-      .catch((ex) => {
-        alert(ex);
+      .catch((error) => {
+        alert(error);
         return [];
       });
 
     this.propertyAgentsAsync = this.__propertyService
       .getPropertyAgentsForProperty(propertyId)
-      .catch((ex) => {
-        alert(ex);
+      .catch((error) => {
+        alert(error);
         return [];
       });
 

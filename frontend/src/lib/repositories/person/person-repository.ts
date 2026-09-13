@@ -2,44 +2,44 @@ import PocketBase from 'pocketbase';
 import type { IPersonModel } from '$lib/models/person-models';
 
 export interface IPersonRepository {
-	getAll(): Promise<IPersonModel[]>;
-	getById(id: string): Promise<IPersonModel>;
-	getByUserId(userId: string): Promise<IPersonModel | null>;
-	create(name: string, dob: string, userId?: string): Promise<IPersonModel>;
-	update(id: string, name: string, dob: string): Promise<IPersonModel>;
-	delete(id: string): Promise<void>;
+	getAllPersons(): Promise<IPersonModel[]>;
+	getPersonById(id: string): Promise<IPersonModel>;
+	getPersonByUserId(userId: string): Promise<IPersonModel | null>;
+	createPerson(name: string, dob: string, userId?: string): Promise<IPersonModel>;
+	updatePerson(id: string, name: string, dob: string): Promise<IPersonModel>;
+	deletePerson(id: string): Promise<void>;
 }
 
 export class PersonRepository implements IPersonRepository {
-	constructor(private readonly pb: PocketBase) {}
+	constructor(private readonly backendClient: PocketBase) {}
 
-	async getAll(): Promise<IPersonModel[]> {
-		return await this.pb.collection('persons').getFullList<IPersonModel>();
+	async getAllPersons(): Promise<IPersonModel[]> {
+		return await this.backendClient.collection('persons').getFullList<IPersonModel>();
 	}
 
-	async getById(id: string): Promise<IPersonModel> {
-		const all = await this.pb.collection('persons').getFullList<IPersonModel>();
-		const person = all.find((p) => p.id === id);
+	async getPersonById(id: string): Promise<IPersonModel> {
+		const allPersons = await this.backendClient.collection('persons').getFullList<IPersonModel>();
+		const person = allPersons.find((candidatePerson) => candidatePerson.id === id);
 		if (!person) throw new Error(`Person not found: ${id}`);
 		return person;
 	}
 
-	async getByUserId(userId: string): Promise<IPersonModel | null> {
-		const all = await this.pb.collection('persons').getFullList<IPersonModel>();
-		return all.find((p) => p.user === userId) ?? null;
+	async getPersonByUserId(userId: string): Promise<IPersonModel | null> {
+		const allPersons = await this.backendClient.collection('persons').getFullList<IPersonModel>();
+		return allPersons.find((person) => person.user === userId) ?? null;
 	}
 
-	async create(name: string, dob: string, userId?: string): Promise<IPersonModel> {
+	async createPerson(name: string, dob: string, userId?: string): Promise<IPersonModel> {
 		const payload: Record<string, string> = { name, DOB: dob };
 		if (userId) payload.user = userId;
-		return await this.pb.collection('persons').create<IPersonModel>(payload);
+		return await this.backendClient.collection('persons').create<IPersonModel>(payload);
 	}
 
-	async update(id: string, name: string, dob: string): Promise<IPersonModel> {
-		return await this.pb.collection('persons').update<IPersonModel>(id, { name, DOB: dob });
+	async updatePerson(id: string, name: string, dob: string): Promise<IPersonModel> {
+		return await this.backendClient.collection('persons').update<IPersonModel>(id, { name, DOB: dob });
 	}
 
-	async delete(id: string): Promise<void> {
-		await this.pb.collection('persons').delete(id);
+	async deletePerson(id: string): Promise<void> {
+		await this.backendClient.collection('persons').delete(id);
 	}
 }
