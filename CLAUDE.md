@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+It covers **how** work is done here: the spec-driven approach to changes, the architecture standard all code follows, and the coding and testing rules. Everything specific to this repository — what the app is, its layout, its commands, and where things run — lives in @CLAUDE-project.md.
+
 ## Changes (spec-driven work)
 
 > This approach is based on [Kiro's spec methodology](https://kiro.dev/docs/specs/). The [Requirements-First workflow](https://kiro.dev/docs/specs/feature-specs/requirements-first/) is the standard used here: specify system behaviour before making architectural decisions.
@@ -18,11 +20,11 @@ WHEN <condition> THE SYSTEM SHALL <action>
 
 Example:
 ```
-## Device Management
+## Account Management
 
-### Add device
-WHEN a user submits a valid new-device form THE SYSTEM SHALL create the device record and record a creation history entry.
-WHEN a user submits a device name that already exists THE SYSTEM SHALL display an "Name already taken" error.
+### Register account
+WHEN a user submits a valid registration form THE SYSTEM SHALL create the account and record a creation history entry.
+WHEN a user submits an email address that is already registered THE SYSTEM SHALL display an "Email already taken" error.
 ```
 
 Also cover edge cases and error-handling scenarios.
@@ -60,41 +62,6 @@ The "Unchanged Behavior" section is the key addition — explicitly locking down
 
 Before starting any non-trivial feature, refactor, or bug fix, check `.claude/changes/` for an existing change folder. If none exists, create one and start with `requirements.md` (feature) or `bugfix.md` (bug).
 
-## What is KeyBook
-
-KeyBook is a web app for managing devices, persons, and properties, with automatic audit history for all changes. The frontend is a SvelteKit static site served independently; the backend is a Go binary that embeds PocketBase (SQLite + REST API).
-
-## Architecture
-
-```
-frontend/
-  src/
-    lib/
-      modules/      Application layer — use-case orchestration, reactive state
-      services/     Service layer — business logic (to be introduced)
-      repositories/ Repository layer — PocketBase SDK abstraction (to be introduced)
-    routes/         SvelteKit pages and layouts
-backend/
-  cmd/keybook.go    API layer — entry point, DI wiring, PocketBase hook handlers
-  migrations/       Schema source of truth — PocketBase migrations
-  internal/
-    application/    Application layer — use-case orchestration (to be introduced)
-    services/       Service layer — business logic and audit history
-    repositories/   Repository layer — PocketBase DAO queries
-    dtos/           DTO layer — data transfer objects at layer boundaries
-    helpers/        PocketBase DAO error utilities
-```
-
-### Key patterns
-
-The codebase is being migrated toward the standard layered architecture defined in [Layered Architecture](#layered-architecture) below. New code must follow the target patterns; existing code is updated incrementally.
-
-**Frontend (target):** Components (`.svelte`) handle UI and user interaction only — no business logic. Application modules (`.svelte.ts` in `src/lib/modules/`) orchestrate use cases and hold reactive state via Svelte 5 primitives (`$state`, `$derived.by`). Service layer (`src/lib/services/`) contains business logic. Repository layer (`src/lib/repositories/`) abstracts all PocketBase SDK calls. State is distributed via Svelte's context API (set in the user layout, consumed via `getContext()`), not stores.
-
-**Backend (target):** Dependency injection via `go.uber.org/dig`. Hook handlers (`cmd/keybook.go`) are the API layer — they receive PocketBase events and delegate to the application layer. Application layer (`internal/application/`) orchestrates services per use case without containing business logic. Service layer (`internal/services/`) contains business logic and audit history recording. Repository layer (`internal/repositories/`) abstracts all PocketBase DAO access. DTOs (`internal/dtos/`) cross layer boundaries.
-
-**Frontend → backend:** The PocketBase JS SDK (`pocketbase` npm package) is the only HTTP client (Store layer). Base URL comes from the `PUBLIC_POCKETBASE_URL` env var. Auth state is persisted in cookies via `src/lib/api/backend-client.ts`. The user layout (`src/routes/user/+layout.ts`) guards all `/user/*` routes and redirects to `/auth` if unauthenticated.
-
 ## Layered Architecture
 
 All code must follow a layered architecture with clear separation of concerns. Each layer may only depend on the layer directly below it.
@@ -109,26 +76,7 @@ All code must follow a layered architecture with clear separation of concerns. E
 
 Optional: **Domain** (pure entities and value objects, no dependencies), **DTO/Schema** (typed data transfer objects at layer boundaries).
 
-**Backend target mapping:**
-
-| Layer | KeyBook target |
-|---|---|
-| **API** | PocketBase hook handlers in `cmd/keybook.go` |
-| **Application** | `internal/application/` — to be introduced |
-| **Service** | `internal/services/` |
-| **Repository** | `internal/repositories/` |
-| **Store** | PocketBase DAO |
-| **DTO** | `internal/dtos/` |
-
-**Frontend target mapping:**
-
-| Layer | KeyBook target |
-|---|---|
-| **API** | N/A — frontend consumes the PocketBase REST API via the SDK |
-| **Application** | `.svelte.ts` modules in `src/lib/modules/` |
-| **Service** | `src/lib/services/` — to be introduced |
-| **Repository** | `src/lib/repositories/` — to be introduced |
-| **Store** | PocketBase JS SDK |
+See @CLAUDE-project.md for how these layers map onto this repository's frontend and backend directories.
 
 ### References
 
@@ -148,19 +96,22 @@ Optional: **Domain** (pure entities and value objects, no dependencies), **DTO/S
 ## Development rules
 
 - Always read a file before editing it.
-- Schema changes go through PocketBase migrations in `backend/migrations/` only — never edit the database directly.
+- Never edit a database directly — schema changes go through migrations.
 - No speculative abstractions — only build what is needed now.
-- Format Go code with `gofmt` and `goimports` before committing.
-- Run `npm run lint` in `frontend/` to check TypeScript/Svelte style before committing.
+- Prefer long, self-documenting names over comments. Methods, functions, classes, variables, types, and every other namable thing should carry their documentation in the name — `recordDeviceOwnershipTransfer` rather than `transfer` with a comment explaining what is transferred. Reach for a comment only when the *why* cannot be expressed in a name (non-obvious constraints, external quirks, trade-offs).
+- Format and lint code before committing, using the project's configured tooling.
 - Code style: [Google Go style guide](https://google.github.io/styleguide/go/guide), [Google TypeScript style guide](https://google.github.io/styleguide/tsguide.html), [Svelte style guide](https://svelte.dev/docs/svelte/style-guide).
+- Frontend formatting is Prettier-enforced: tabs, single quotes, 100-char line width. TypeScript runs in strict mode.
 
 ## Testing
 
 ### Mandate
 
-**All tests must be run on the OpenBSD server** — use `/openbsd-run --test backend` and `/openbsd-run --test frontend`, which carry the connection details and the exact invocations. Do not run tests locally.
-
 **Unit tests must be written before the implementation code they cover (TDD).** Write the test, watch it fail, then write the minimum code to make it pass.
+
+**Integration tests run against real dependencies** — a real server, a real database instance. No mocking of the database, the SDK, or the API client.
+
+Test commands and where they must be run are in @CLAUDE-project.md.
 
 ### Test types
 
@@ -169,69 +120,13 @@ Optional: **Domain** (pure entities and value objects, no dependencies), **DTO/S
 | **Unit** | Single function, module, or component in isolation | Always — written first |
 | **Integration** | Multiple components or layers working together (e.g. repository + service, component + store) | Always for non-trivial interactions |
 | **E2E** | Full user flow through the running app via browser | Always for user-facing features |
-| **Contract** | API shape between frontend and backend (request/response structure) | When adding or changing PocketBase collection endpoints |
+| **Contract** | API shape between frontend and backend (request/response structure) | When adding or changing collection endpoints |
 
-### Frontend tests
+### Conventions
 
-Every integration test exercises Svelte components together with their modules against a real running PocketBase instance — no SDK mocking.
-
-| Command | Tool | What it covers |
-|---|---|---|
-| `npm run test:unit` | Vitest | Unit and integration tests in `src/` |
-| `npm run test:integration` | Playwright | E2E flows against the running app |
-
-Place unit/integration test files alongside the code they test (`*.test.ts` or `*.spec.ts`). E2E tests live in `tests/`.
-
-Both suites talk to a **live** dev backend — start it first. Vitest defaults to watch mode, so pass `-- --run` when invoking it non-interactively. The Playwright suite pins `channel: 'msedge'` and cannot run on the OpenBSD server; run it from a workstation on the same subnet.
-
-### Backend tests
-
-Every integration test starts a real PocketBase HTTP server using a `t.TempDir()` data directory — no database mocking.
-
-```sh
-go test ./...               # all tests
-go test ./internal/...      # specific package tree
-```
-
-Place test files alongside the Go source (`*_test.go`). Use table-driven tests for repository and service logic.
+- Place unit and integration test files alongside the code they test.
+- Use table-driven tests for repository and service logic.
 
 ### In specs
 
 `tasks.md` must include explicit test tasks. For features: unit tests as the first task for each component, followed by integration and E2E tasks. For bugfixes: tasks must include a test that reproduces the bug before it is fixed, and regression tests drawn from `bugfix.md`'s "Unchanged Behavior" section.
-
-## Frontend commands
-
-Run from `frontend/`:
-
-```sh
-npm run dev          # dev server — binds 192.168.8.144:5173 per vite.config.ts
-npm run build        # production build → frontend/build/
-npm run check        # svelte-check + TypeScript
-npm run lint         # prettier + eslint (check only)
-npm run format       # prettier --write
-npm run test:unit    # vitest
-npm run test:integration  # playwright
-```
-
-Code style: tabs, single quotes, 100-char line width (Prettier). TypeScript strict mode.
-
-## Backend commands
-
-Run from `backend/`:
-
-```sh
-go build -o build/keybook ./cmd/                     # compile
-./build/keybook serve --dev --http 192.168.8.144:8090  # dev server
-go test ./...                                        # tests
-```
-
-PocketBase is v0.22, so the admin CLI verb is `admin` (`./build/keybook admin create <email> <password>`), not `superuser`. Migrations registered in `backend/migrations/` run automatically on `serve`.
-
-## Running on the OpenBSD server
-
-Everything — start, stop, status, build, test, lint, check, dependency installs — goes through the `/openbsd-run` command (`.claude/commands/openbsd-run.md`, untracked). It holds the connection details, the verified command forms, and the traps worth knowing about. Read it before driving the server by hand.
-
-**Key facts:**
-- The dev stack runs as `junying` from `/home/junying/Source/KeyBook` and binds `192.168.8.144` — backend on `:8090`, Vite dev server on `:5173`. SSH is key auth to `192.168.8.145`; no password helper is involved.
-- `192.168.8.143` is the **same machine** but hosts another project's production PocketBase, also on port `:8090`. Only the address separates them, so never bind a wildcard address and never signal a process you do not own.
-- The frontend's effective backend URL comes from `frontend/.env.local` on the server (untracked); the tracked `frontend/.env` points at a dead port. An inline `PUBLIC_POCKETBASE_URL=…` overrides both, for `npm run dev` and `npm run build` alike.
