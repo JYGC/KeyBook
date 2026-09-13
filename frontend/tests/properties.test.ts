@@ -34,7 +34,7 @@ async function cleanupTestTenants(backendClient: PocketBase, propertyId: string)
   const tenants = await backendClient
     .collection('tenants')
     .getFullList({ filter: `property = "${propertyId}"` });
-  for (const tenant of tenants) await backendClientenant.collection('tenants').delete(tenant.id);
+  for (const tenant of tenants) await backendClient.collection('tenants').delete(tenant.id);
 }
 
 async function cleanupTestHousehold(backendClient: PocketBase, propertyId: string): Promise<void> {

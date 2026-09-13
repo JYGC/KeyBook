@@ -88,9 +88,9 @@ async function cleanupCobrandsNamed(backendClient: PocketBase, name: string): Pr
 	for (const cobrand of found) {
 		const admins = await backendClient
 			.collection('cobrandAdmins')
-			.getFullList({ filter: `cobrand = "${c.id}"` });
+			.getFullList({ filter: `cobrand = "${cobrand.id}"` });
 		for (const admin of admins) await backendClient.collection('cobrandAdmins').delete(admin.id);
-		await backendClient.collection('cobrands').delete(c.id);
+		await backendClient.collection('cobrands').delete(cobrand.id);
 	}
 }
 

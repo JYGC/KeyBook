@@ -39,13 +39,13 @@ async function cleanupTestCobrands(backendClient: PocketBase): Promise<void> {
 		for (const cobrand of found) {
 			const admins = await backendClient
 				.collection('cobrandAdmins')
-				.getFullList({ filter: `cobrand = "${c.id}"` });
+				.getFullList({ filter: `cobrand = "${cobrand.id}"` });
 			for (const admin of admins) await backendClient.collection('cobrandAdmins').delete(admin.id);
 			const managers = await backendClient
 				.collection('cobrandPropertyManagers')
-				.getFullList({ filter: `cobrand = "${c.id}"` });
+				.getFullList({ filter: `cobrand = "${cobrand.id}"` });
 			for (const manager of managers) await backendClient.collection('cobrandPropertyManagers').delete(manager.id);
-			await backendClient.collection('cobrands').delete(c.id);
+			await backendClient.collection('cobrands').delete(cobrand.id);
 		}
 	}
 }

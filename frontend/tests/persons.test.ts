@@ -71,10 +71,10 @@ async function cleanupTestPersons(backendClient: PocketBase): Promise<void> {
 	});
 	for (const person of persons) {
 		const personPropertyOwners = await backendClient.collection('personPropertyOwners').getFullList({
-			filter: `person = "${p.id}"`
+			filter: `person = "${person.id}"`
 		});
 		for (const personPropertyOwner of personPropertyOwners) await backendClient.collection('personPropertyOwners').delete(personPropertyOwner.id);
-		await backendClient.collection('persons').delete(p.id);
+		await backendClient.collection('persons').delete(person.id);
 	}
 }
 

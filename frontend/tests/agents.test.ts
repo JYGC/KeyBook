@@ -49,9 +49,9 @@ async function ensureTestCobrand(backendClient: PocketBase, userId: string): Pro
 async function cleanupTestAgents(backendClient: PocketBase): Promise<void> {
 	const agents = await backendClient.collection('agents').getFullList();
 	for (const agent of agents) {
-		const propertyAgents = await backendClient.collection('propertyAgents').getFullList({ filter: `agent = "${a.id}"` });
+		const propertyAgents = await backendClient.collection('propertyAgents').getFullList({ filter: `agent = "${agent.id}"` });
 		for (const propertyAgent of propertyAgents) await backendClient.collection('propertyAgents').delete(propertyAgent.id);
-		await backendClient.collection('agents').delete(a.id);
+		await backendClient.collection('agents').delete(agent.id);
 	}
 	const found = await backendClient
 		.collection('cobrands')
@@ -59,9 +59,9 @@ async function cleanupTestAgents(backendClient: PocketBase): Promise<void> {
 	for (const cobrand of found) {
 		const admins = await backendClient
 			.collection('cobrandAdmins')
-			.getFullList({ filter: `cobrand = "${c.id}"` });
+			.getFullList({ filter: `cobrand = "${cobrand.id}"` });
 		for (const admin of admins) await backendClient.collection('cobrandAdmins').delete(admin.id);
-		await backendClient.collection('cobrands').delete(c.id);
+		await backendClient.collection('cobrands').delete(cobrand.id);
 	}
 }
 

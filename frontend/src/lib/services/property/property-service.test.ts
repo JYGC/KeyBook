@@ -108,9 +108,9 @@ describe('PropertyService.createPropertyWithOwner', () => {
     );
 
     const result = await propertyService.createPropertyWithOwner('1 Test St', 'p1');
-    expect(repositories.propertyRepository.create).toHaveBeenCalledWith('1 Test St');
-    expect(repositories.propertyOwnerRepository.create).toHaveBeenCalledWith('pr1');
-    expect(repositories.personPropertyOwnerRepository.create).toHaveBeenCalledWith('p1', 'po1');
+    expect(repositories.propertyRepository.createProperty).toHaveBeenCalledWith('1 Test St');
+    expect(repositories.propertyOwnerRepository.createPropertyOwner).toHaveBeenCalledWith('pr1');
+    expect(repositories.personPropertyOwnerRepository.createPersonPropertyOwner).toHaveBeenCalledWith('p1', 'po1');
     expect(result.id).toBe('pr1');
   });
 });
